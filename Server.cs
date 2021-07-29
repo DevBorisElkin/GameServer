@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GameServer
@@ -30,15 +32,17 @@ namespace GameServer
         public delegate void OnClientDisconnectedDelegate(ClientHandler client, string error);
         public event OnClientDisconnectedDelegate OnClientDisconnectedEvent;
 
-        public delegate void OnMessageReceivedDelegate(string message, ClientHandler client);
+        public delegate void OnMessageReceivedDelegate(string message, int id, string ip, MessageProtocol mp);
         public event OnMessageReceivedDelegate OnMessageReceivedEvent;
+
+        public enum MessageProtocol { TCP, UDP }
 
 
         void OnServerStarted() { OnServerStartedEvent?.Invoke(); }
         void OnServerShutDown() { OnServerShutDownEvent?.Invoke(); }
         public void OnClientConnected(ClientHandler client) { OnClientConnectedEvent?.Invoke(client); }
         public void OnClientDisconnected(ClientHandler client, string error) { OnClientDisconnectedEvent?.Invoke(client, error); }
-        public void OnMessageReceived(string message, ClientHandler client) { OnMessageReceivedEvent?.Invoke(message, client); }
+        public void OnMessageReceived(string message, int id, string ip, MessageProtocol mp) { OnMessageReceivedEvent?.Invoke(message, id, ip, mp); }
         #endregion
 
         // [START SERVER]
@@ -158,26 +162,37 @@ namespace GameServer
         }
 
         // [SEND MESSAGE]
-        public void SendMessageToAllClients(string message)
+        public void SendMessageToAllClients(string message, MessageProtocol mp = MessageProtocol.TCP)
         {
-            for (int i = 1; i <= clients.Count; i++)
+            if (mp.Equals(MessageProtocol.TCP))
             {
-                clients[i].SendMessage(message);
+                for (int i = 1; i <= clients.Count; i++)
+                {
+                    clients[i].SendMessageTcp(message);
+                }
             }
+            else
+            {
+                for (int i = 1; i <= clients.Count; i++)
+                {
+                    UDP.SendMessageUdp(message, clients[i].udpEndPoint);
+                }
+            }
+
         }
         public void SendMessageToClient(string message, string ip)
         {
             ClientHandler clientHandler = TryToGetClientWithIp(ip);
-            if (clientHandler != null) clientHandler.SendMessage(message);
+            if (clientHandler != null) clientHandler.SendMessageTcp(message);
         }
         public void SendMessageToClient(string message, int id)
         {
             ClientHandler clientHandler = TryToGetClientWithId(id);
-            if (clientHandler != null) clientHandler.SendMessage(message);
+            if (clientHandler != null) clientHandler.SendMessageTcp(message);
         }
         public void SendMessageToClient(string message, ClientHandler client)
         {
-            client.SendMessage(message);
+            client.SendMessageTcp(message);
         }
 
 
