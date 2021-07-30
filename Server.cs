@@ -73,9 +73,18 @@ namespace GameServer
                 while (serverActive)
                 {
                     handler = listenSocket.Accept();
-                    int clientId = GetFirstFreeId();
-                    ClientHandler client = new ClientHandler(this, handler, clientId);
-                    AddClient(client, clientId);
+                    if (!this.AlreadyHasThisClient(handler))
+                    {
+                        int clientId = GetFirstFreeId();
+                        ClientHandler client = new ClientHandler(this, handler, clientId);
+                        AddClient(client, clientId);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[SERVER_MESSAGE] reject repetetive connection from {ConnectionExtensions.GetRemoteIp(handler)}");
+                        handler.Shutdown(SocketShutdown.Both);
+                        handler.Dispose();
+                    }
                 }
             }
             catch (Exception e)
