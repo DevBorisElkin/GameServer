@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static GameServer.NetworkingMessageAttributes;
 
 namespace GameServer
 {
@@ -19,6 +20,8 @@ namespace GameServer
         Socket handler;
         Socket listenSocket;
 
+        bool playroomActive;
+
         #region Delegates
         public delegate void OnServerStartedDelegate();
         public event OnServerStartedDelegate OnServerStartedEvent;
@@ -32,7 +35,7 @@ namespace GameServer
         public delegate void OnClientDisconnectedDelegate(ClientHandler client, string error);
         public event OnClientDisconnectedDelegate OnClientDisconnectedEvent;
 
-        public delegate void OnMessageReceivedDelegate(string message, int id, string ip, MessageProtocol mp);
+        public delegate void OnMessageReceivedDelegate(string message, ClientHandler ch, MessageProtocol mp);
         public event OnMessageReceivedDelegate OnMessageReceivedEvent;
 
         public enum MessageProtocol { TCP, UDP }
@@ -42,7 +45,7 @@ namespace GameServer
         void OnServerShutDown() { OnServerShutDownEvent?.Invoke(); }
         public void OnClientConnected(ClientHandler client) { OnClientConnectedEvent?.Invoke(client); }
         public void OnClientDisconnected(ClientHandler client, string error) { OnClientDisconnectedEvent?.Invoke(client, error); }
-        public void OnMessageReceived(string message, int id, string ip, MessageProtocol mp) { OnMessageReceivedEvent?.Invoke(message, id, ip, mp); }
+        public void OnMessageReceived(string message, ClientHandler ch, MessageProtocol mp) { OnMessageReceivedEvent?.Invoke(message, ch, mp); }
         #endregion
 
         // [START SERVER]
@@ -64,6 +67,7 @@ namespace GameServer
 
             Task listenToConnectionsTask = new Task(ListenToNewConnections);
             listenToConnectionsTask.Start();
+
         }
         // [LISTEN TO CONNECTIONS]
         void ListenToNewConnections()
@@ -93,13 +97,84 @@ namespace GameServer
             }
             finally
             {
-                if (handler != null)
-                {
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
-                }
+                ShutDownServer();
             }
         }
+
+        // Manage playroom 1
+        #region PlayRoom 1
+        Task managingPlayRoom;
+        public void TurnOn_Playroom()
+        {
+            int playersInPlayRoom = 0;
+            foreach(var a in clients.Values)
+            {
+                if (a.player != null) playersInPlayRoom++;
+            }
+            if(playersInPlayRoom <= 0)
+            {
+                Console.WriteLine($"Not enough players in play room to turn on Managing of it. [{playersInPlayRoom}]");
+                return;
+            }
+
+            playroomActive = true;
+            managingPlayRoom = new Task(ManagePlayroom);
+            managingPlayRoom.Start();
+        }
+        public void TurnOff_Playroom()
+        {
+            int playersInPlayRoom = 0;
+            foreach (var a in clients.Values)
+            {
+                if (a.player != null) playersInPlayRoom++;
+            }
+            if (playersInPlayRoom <= 0)
+            {
+                playroomActive = false;
+            }
+            
+        }
+
+        void ManagePlayroom()
+        {
+            // here we will send room's position and rotation to all players connected to that room
+
+            while (playroomActive) // sending data 10 times a second
+            {
+                foreach(var a in clients.Values)
+                {
+                    if (a.player == null) continue;
+                    UDP.SendMessageUdp(GenerateStringSendingPlayersOtherPlayersPositions(a), a.udpEndPoint);
+                }
+
+                Thread.Sleep(100);
+            }
+
+
+        }
+
+        // |nickname,ip,position,rotation@nickname,ip,position,rotation@enc..."
+        string GenerateStringSendingPlayersOtherPlayersPositions(ClientHandler exceptThisOne)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|");
+            foreach (var a in clients.Values)
+            {
+                if (a.player == null) continue;
+                if (a == exceptThisOne) continue;
+
+                sb.Append($"{a.player.username},{a.ip},{a.player.position},{a.player.rotation}@");
+            }
+            string message = sb.ToString();
+            int lastIndexOfDog = message.LastIndexOf("@");
+            if(message.Length == lastIndexOfDog)
+            {
+                message = message.Remove(lastIndexOfDog, 1);
+            }
+
+            return message;
+        }
+        #endregion PlayRoom 1
         // [SHUT DOWN SERVER]
         public void ShutDownServer()
         {
@@ -171,23 +246,45 @@ namespace GameServer
         }
 
         // [SEND MESSAGE]
-        public void SendMessageToAllClients(string message, MessageProtocol mp = MessageProtocol.TCP)
+        public void SendMessageToAllClients(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
         {
             if (mp.Equals(MessageProtocol.TCP))
             {
-                for (int i = 1; i <= clients.Count; i++)
+                foreach(var a in clients.Values)
                 {
-                    clients[i].SendMessageTcp(message);
+                    if (clientToIgnore == a) continue;
+                    a.SendMessageTcp(message);
                 }
             }
             else
             {
-                for (int i = 1; i <= clients.Count; i++)
+                foreach (var a in clients.Values)
                 {
-                    UDP.SendMessageUdp(message, clients[i].udpEndPoint);
+                    if (clientToIgnore == a) continue;
+                    UDP.SendMessageUdp(message, a.udpEndPoint);
                 }
             }
-
+        }
+        public void SendMessageToAllClientsInPlayroom(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
+        {
+            if (mp.Equals(MessageProtocol.TCP))
+            {
+                foreach (var a in clients.Values)
+                {
+                    if (clientToIgnore == a) continue;
+                    if (a.player == null) continue;
+                    a.SendMessageTcp(message);
+                }
+            }
+            else
+            {
+                foreach (var a in clients.Values)
+                {
+                    if (clientToIgnore == a) continue;
+                    if (a.player == null) continue;
+                    UDP.SendMessageUdp(message, a.udpEndPoint);
+                }
+            }
         }
         public void SendMessageToClient(string message, string ip)
         {

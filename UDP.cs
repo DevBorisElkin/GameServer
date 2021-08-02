@@ -69,7 +69,7 @@ namespace GameServer
                     }
                     else
                     {
-                        server.OnMessageReceived(builder.ToString(), clientToBind.id, clientToBind.ip, Server.MessageProtocol.UDP);
+                        server.OnMessageReceived(builder.ToString(), clientToBind, Server.MessageProtocol.UDP);
                     }
                 }
             }

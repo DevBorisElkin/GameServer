@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,14 +10,15 @@ namespace GameServer
 {
     public class ClientHandler
     {
-        Server server;
+        public Server server;
         public Socket handler;
         public IPEndPoint udpEndPoint;
+
+        public Player player;
 
         public int id;
         public string ip;
 
-        Task taskListener;
         public ClientHandler(Server server, Socket handler, int id)
         {
             this.server = server;
@@ -28,7 +30,9 @@ namespace GameServer
             taskListener.Start();
         }
 
+        #region basic methods
         // [LISTEN TO MESSAGES]
+        Task taskListener;
         void ListenToMessages()
         {
             int errorMessages = 0;
@@ -42,7 +46,7 @@ namespace GameServer
                     str = ReadLine2(handler, bytes);
                     if (!str.Equals(""))
                     {
-                        server.OnMessageReceived(str, id, ip, Server.MessageProtocol.TCP);
+                        server.OnMessageReceived(str, this, Server.MessageProtocol.TCP);
                     }
                     else if (str.Equals(""))
                     {
@@ -101,5 +105,15 @@ namespace GameServer
 
             if (removeFromClientsList) server.clients.Remove(this.id);
         }
+        #endregion
+
+
+
+        //public void SendIntoGame_PlayerConnected(string nickname)
+        //{
+        //    player = new Player(id, nickname, Vector3.Zero);
+        //
+        //    server.SendMessageToAllClients()
+        //}
     }
 }
