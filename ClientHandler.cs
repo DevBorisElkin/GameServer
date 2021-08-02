@@ -28,14 +28,14 @@ namespace GameServer
             taskListener.Start();
         }
 
-        int errorMessages = 0;
         // [LISTEN TO MESSAGES]
         void ListenToMessages()
         {
+            int errorMessages = 0;
             byte[] bytes = new byte[1024];
             string str;
 
-            while (true)
+            while (handler.Connected)
             {
                 try
                 {
@@ -44,10 +44,10 @@ namespace GameServer
                     {
                         server.OnMessageReceived(str, id, ip, Server.MessageProtocol.TCP);
                     }
-                    else
+                    else if (str.Equals(""))
                     {
                         errorMessages++;
-                        if (errorMessages > 100)
+                        if (errorMessages > 25)
                         {
                             ShutDownClient(1);
                             break;
@@ -56,7 +56,7 @@ namespace GameServer
                 }
                 catch (Exception e)
                 {
-                    ShutDownClient(2);
+                    ShutDownClient(2);  // usually never called, but for safety
                     break;
                 }
             }
@@ -73,12 +73,13 @@ namespace GameServer
         {
             StringBuilder builder = new StringBuilder();
             int bytes = 0; // amount of received bytes
+
             do
             {
                 bytes = reciever.Receive(buffer);
                 builder.Append(Encoding.Unicode.GetString(buffer, 0, bytes));
             }
-            while (handler.Available > 0);
+            while (reciever.Available > 0);
 
             return builder.ToString();
         }
@@ -88,13 +89,17 @@ namespace GameServer
             handler.Send(dataToSend);
         }
 
-
         public void ShutDownClient(int error = 0, bool removeFromClientsList = true)
         {
             server.OnClientDisconnected(this, error.ToString());
-            handler.Dispose();
+
+            if (handler.Connected)
+            {
+                handler.Shutdown(SocketShutdown.Both);
+                handler.Dispose();
+            }
+
             if (removeFromClientsList) server.clients.Remove(this.id);
-            taskListener.Dispose();
         }
     }
 }
