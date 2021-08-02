@@ -96,14 +96,14 @@ namespace GameServer
 
         public static void SendMessageUdp(string message, IPEndPoint remoteIp)
         {
-            if (remoteIp != null)
+            if (remoteIp != null && listenSocketUdp != null)
             {
                 byte[] data = Encoding.Unicode.GetBytes(message);
                 listenSocketUdp.SendTo(data, remoteIp);
             }
             else
             {
-                Console.WriteLine("Remote end point has not beed defined yet");
+                Console.WriteLine("Remote end point has not beed defined yet, or listenSocketUdp is equal to null");
             }
 
         }

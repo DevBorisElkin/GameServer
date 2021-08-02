@@ -116,6 +116,7 @@ namespace GameServer
                 Console.WriteLine($"Not enough players in play room to turn on Managing of it. [{playersInPlayRoom}]");
                 return;
             }
+            if (!playroomActive) Console.WriteLine("Opening playroom. First player joined it.");
 
             playroomActive = true;
             managingPlayRoom = new Task(ManagePlayroom);
@@ -130,6 +131,7 @@ namespace GameServer
             }
             if (playersInPlayRoom <= 0)
             {
+                if (playroomActive) Console.WriteLine("Closing playroom. Last player left it.");
                 playroomActive = false;
             }
             
@@ -141,12 +143,33 @@ namespace GameServer
 
             while (playroomActive) // sending data 10 times a second
             {
-                foreach(var a in clients.Values)
+                try
                 {
-                    if (a.player == null) continue;
-                    UDP.SendMessageUdp(GenerateStringSendingPlayersOtherPlayersPositions(a), a.udpEndPoint);
-                }
+                    foreach (var key in clients.Keys)
+                    {
+                        clients.TryGetValue(key, out ClientHandler ch);
+                        
+                        if(ch == null)
+                        {
+                            Console.WriteLine("Client handler in ManagePlayroom() == null");
+                            continue;
+                        }
+                        if (ch.udpEndPoint == null)
+                        {
+                            Console.WriteLine("ch.udpEndPoint == null");
+                            continue;
+                        }
 
+                        if (ch.player == null) continue;
+                        string generatedString = GenerateStringSendingPlayersOtherPlayersPositions(ch);
+                        if(!generatedString.Equals("empty"))
+                            UDP.SendMessageUdp(generatedString, ch.udpEndPoint);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine($"{e.Message} ||| + {e.StackTrace}");
+                }
                 Thread.Sleep(100);
             }
 
@@ -156,23 +179,43 @@ namespace GameServer
         // |nickname,ip,position,rotation@nickname,ip,position,rotation@enc..."
         string GenerateStringSendingPlayersOtherPlayersPositions(ClientHandler exceptThisOne)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|");
-            foreach (var a in clients.Values)
+            string message = "";
+            try
             {
-                if (a.player == null) continue;
-                if (a == exceptThisOne) continue;
+                StringBuilder sb = new StringBuilder();
+                sb.Append(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|");
+                foreach (var a in clients.Values)
+                {
+                    if (a.player == null) continue;
+                    if (a == exceptThisOne) continue;
 
-                sb.Append($"{a.player.username},{a.ip},{a.player.position},{a.player.rotation}@");
+                    sb.Append($"{a.player.username},{a.ip},{a.player.position.X}/{a.player.position.Y}/{a.player.position.Z}," +
+                        $"{a.player.rotation.X}/{a.player.rotation.Y}/{a.player.rotation.Z}@");
+                }
+                message = sb.ToString();
             }
-            string message = sb.ToString();
-            int lastIndexOfDog = message.LastIndexOf("@");
-            if(message.Length == lastIndexOfDog)
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString() + " ||| " + e.StackTrace);
+            }
+            int lastIndexOfDog = message.LastIndexOf('@');
+            if(message.Length > lastIndexOfDog + 1)
+            {
+                // we can leave dog like that
+            }
+            else
             {
                 message = message.Remove(lastIndexOfDog, 1);
             }
 
+            if (message.Equals(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|")) return "empty";
+
+            Console.WriteLine($"Sending UDP message to all clients:\n{message}");
             return message;
+            
+            
+
+            
         }
         #endregion PlayRoom 1
         // [SHUT DOWN SERVER]
@@ -222,25 +265,18 @@ namespace GameServer
         }
         public ClientHandler TryToGetClientWithIp(string ip)
         {
-            ClientHandler util;
-            for (int i = 1; i <= clients.Count; i++)
+            foreach (var a in clients.Values)
             {
-                if (clients.TryGetValue(i, out util))
-                {
-                    if (util.ip.Equals(ip))
-                    {
-                        return util;
-                    }
-                }
+                if (a.ip.Equals(ip)) return a;
             }
             return null;
         }
 
         void DisposeAllClients()
         {
-            for (int i = 1; i <= clients.Count; i++)
+            foreach (var a in clients.Values)
             {
-                clients[i].ShutDownClient(0, false);
+                a.ShutDownClient(0, false);
             }
             clients = null;
         }

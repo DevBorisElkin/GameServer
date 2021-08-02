@@ -24,12 +24,12 @@ namespace GameServer
 
             client.server.TurnOn_Playroom();
         }
-        public static void DisconnectPlayerFromPlayroom(this ClientHandler client, int playroomNumber, string nickname, string ip)
+        public static void DisconnectPlayerFromPlayroom(this ClientHandler client, int playroomNumber, string nickname)
         {
             client.player = null;
 
             // tell all other clients who are in Playroom that one client connected to it
-            client.server.SendMessageToAllClientsInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{playroomNumber}|{nickname}|{ip}", MessageProtocol.TCP, client);
+            client.server.SendMessageToAllClientsInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{playroomNumber}|{nickname}|{client.ip}", MessageProtocol.TCP, client);
 
             client.server.TurnOff_Playroom();
         }

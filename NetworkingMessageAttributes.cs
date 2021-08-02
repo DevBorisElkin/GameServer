@@ -13,7 +13,7 @@ namespace GameServer
 
         // confirmation code for the player that he got accepted to the playroom
         // example of message
-        // "confirm_enter_playroom|1";
+        // "confirm_enter_playroom|1|";
         public const string CONFIRM_ENTER_PLAY_ROOM = "confirm_enter_playroom";
 
         // message for all other players that the player joined playroom
@@ -31,7 +31,7 @@ namespace GameServer
         // message from client to server about client position and rotation
         // example of message
         //         the code, playroom number, coordinates, rotation
-        // "client_shares_playroom_position|0,0,0|0,0,0,0"
+        // "client_shares_playroom_position|0/0/0|0/0/0"
         public const string CLIENT_SHARES_PLAYROOM_POSITION = "client_shares_playroom_position";
 
         // message to all clients about other clients in playroom position and rotation
