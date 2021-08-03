@@ -11,6 +11,7 @@ namespace GameServer
 {
     public class Server
     {
+        // TODO MAKE CHANGES
         public string ip;
         public int port = 8384;
         public Dictionary<int, ClientHandler> clients;
