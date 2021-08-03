@@ -9,7 +9,6 @@ namespace GameServer
 {
     public static class UDP
     {
-        public static Server server;
         public static int portUdp;
 
         static IPEndPoint ipEndPointUdp;
@@ -17,10 +16,9 @@ namespace GameServer
 
         public static bool listening;
 
-        public static void StartUdpServer(int _port, Server _server)
+        public static void StartUdpServer(int _port)
         {
             portUdp = _port;
-            server = _server;
 
             ipEndPointUdp = new IPEndPoint(IPAddress.Any, portUdp);
             listenSocketUdp = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -55,7 +53,7 @@ namespace GameServer
 
                         IPEndPoint remoteIp = remote as IPEndPoint;
                         string ip = ConnectionExtensions.GetRemoteIp(remoteIp);
-                        ClientHandler clientToBind = server.TryToGetClientWithIp(ip);
+                        ClientHandler clientToBind = Server.TryToGetClientWithIp(ip);
 
                         if (clientToBind == null)
                         {
@@ -71,7 +69,7 @@ namespace GameServer
                         }
                         else
                         {
-                            server.OnMessageReceived(builder.ToString(), clientToBind, Server.MessageProtocol.UDP);
+                            Server.OnMessageReceived(builder.ToString(), clientToBind, Server.MessageProtocol.UDP);
                         }
                     }
                     catch(Exception e)

@@ -10,7 +10,6 @@ namespace GameServer
 {
     public class ClientHandler
     {
-        public Server server;
         public Socket handler;
         public IPEndPoint udpEndPoint;
 
@@ -19,9 +18,8 @@ namespace GameServer
         public int id;
         public string ip;
 
-        public ClientHandler(Server server, Socket handler, int id)
+        public ClientHandler(Socket handler, int id)
         {
-            this.server = server;
             this.handler = handler;
             this.id = id;
             ip = this.GetRemoteIp();
@@ -46,7 +44,7 @@ namespace GameServer
                     str = ReadLine2(handler, bytes);
                     if (!str.Equals(""))
                     {
-                        server.OnMessageReceived(str, this, Server.MessageProtocol.TCP);
+                        Server.OnMessageReceived(str, this, Server.MessageProtocol.TCP);
                     }
                     else if (str.Equals(""))
                     {
@@ -95,7 +93,7 @@ namespace GameServer
 
         public void ShutDownClient(int error = 0, bool removeFromClientsList = true)
         {
-            server.OnClientDisconnected(this, error.ToString());
+            Server.OnClientDisconnected(this, error.ToString());
 
             if (handler.Connected)
             {
@@ -103,7 +101,7 @@ namespace GameServer
                 handler.Dispose();
             }
 
-            if (removeFromClientsList) server.clients.Remove(this.id);
+            if (removeFromClientsList) Server.clients.Remove(this.id);
         }
         #endregion
 

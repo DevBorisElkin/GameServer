@@ -14,23 +14,20 @@ namespace GameServer
     {
         int portTcp = 8384;
         int portUdp = 8385;
-        Server server;
         public ServerSimpleImplementation()
         {
             Console.Title = "Simple Console Server";
-            server = new Server();
-            UDP.StartUdpServer(portUdp, server);
 
-            server.OnServerStartedEvent += ServerStarted;
-            server.OnServerShutDownEvent += ServerShutDown;
-            server.OnClientConnectedEvent += ClientConnected;
-            server.OnClientDisconnectedEvent += ClientDisconnected;
-            server.OnMessageReceivedEvent += MessageReceived;
+            Server.OnServerStartedEvent += ServerStarted;
+            Server.OnServerShutDownEvent += ServerShutDown;
+            Server.OnClientConnectedEvent += ClientConnected;
+            Server.OnClientDisconnectedEvent += ClientDisconnected;
+            Server.OnMessageReceivedEvent += MessageReceived;
 
-            server.StartServer(portTcp);
+            Server.StartServer(portTcp);
+            UDP.StartUdpServer(portUdp);
 
-            while (true)
-                ReadConsole();
+            while (true) ReadConsole();
         }
 
         void ReadConsole()
@@ -42,22 +39,22 @@ namespace GameServer
                 if (consoleString.StartsWith("tcp "))
                 {
                     consoleString = consoleString.Replace("tcp ", "");
-                    server.SendMessageToAllClients(consoleString);
+                    Server.SendMessageToAllClients(consoleString);
                 }
                 else if (consoleString.StartsWith("udp "))
                 {
                     consoleString = consoleString.Replace("udp ", "");
-                    server.SendMessageToAllClients(consoleString, MessageProtocol.UDP);
+                    Server.SendMessageToAllClients(consoleString, MessageProtocol.UDP);
                 }
                 else
                 {
-                    server.SendMessageToAllClients(consoleString);
+                    Server.SendMessageToAllClients(consoleString);
                 }
             }
         }
 
-        void ServerStarted() { Console.WriteLine($"[SERVER_LAUNCHED][{server.ip}]"); }
-        void ServerShutDown() { Console.WriteLine($"[SERVER_SHUTDOWN][{server.ip}]"); }
+        void ServerStarted() { Console.WriteLine($"[SERVER_LAUNCHED][{Server.ip}]"); }
+        void ServerShutDown() { Console.WriteLine($"[SERVER_SHUTDOWN][{Server.ip}]"); }
         void ClientConnected(ClientHandler clientHandler) { Console.WriteLine($"[CLIENT_CONNECTED][{clientHandler.id}][{clientHandler.ip}]"); }
         void ClientDisconnected(ClientHandler clientHandler, string error) { Console.WriteLine($"[CLIENT_DISCONNECTED][{clientHandler.id}][{clientHandler.ip}]: {error}"); }
         void MessageReceived(string message, ClientHandler ch, MessageProtocol mp) 

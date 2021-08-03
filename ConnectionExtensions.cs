@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using static GameServer.Server;
 
 namespace GameServer
 {
@@ -50,9 +51,9 @@ namespace GameServer
             return tcpHandler.RemoteEndPoint.ToString();
         }
 
-        public static bool AlreadyHasThisClient(this Server server, Socket socket)
+        public static bool AlreadyHasThisClient(Socket socket)
         {
-            if (server.TryToGetClientWithIp(GetRemoteIp(socket)) == null) return false;
+            if (TryToGetClientWithIp(GetRemoteIp(socket)) == null) return false;
             return true;
         }
     }

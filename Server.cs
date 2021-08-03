@@ -6,53 +6,54 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static GameServer.NetworkingMessageAttributes;
+using static GameServer.ConnectionExtensions;
 
 namespace GameServer
 {
-    public class Server
+    public static class Server
     {
         // TODO MAKE CHANGES
-        public string ip;
-        public int port = 8384;
-        public Dictionary<int, ClientHandler> clients;
+        public static string ip;
+        public static int port = 8384;
+        public static Dictionary<int, ClientHandler> clients;
 
-        public bool serverActive;
+        public static bool serverActive;
 
-        Socket handler;
-        Socket listenSocket;
+        static Socket handler;
+        static Socket listenSocket;
 
-        bool playroomActive;
+        static bool playroomActive;
 
         #region Delegates
         public delegate void OnServerStartedDelegate();
-        public event OnServerStartedDelegate OnServerStartedEvent;
+        public static event OnServerStartedDelegate OnServerStartedEvent;
 
         public delegate void OnServerShutDownDelegate();
-        public event OnServerShutDownDelegate OnServerShutDownEvent;
+        public static event OnServerShutDownDelegate OnServerShutDownEvent;
 
         public delegate void OnClientConnectedDelegate(ClientHandler client);
-        public event OnClientConnectedDelegate OnClientConnectedEvent;
+        public static event OnClientConnectedDelegate OnClientConnectedEvent;
 
         public delegate void OnClientDisconnectedDelegate(ClientHandler client, string error);
-        public event OnClientDisconnectedDelegate OnClientDisconnectedEvent;
+        public static event OnClientDisconnectedDelegate OnClientDisconnectedEvent;
 
         public delegate void OnMessageReceivedDelegate(string message, ClientHandler ch, MessageProtocol mp);
-        public event OnMessageReceivedDelegate OnMessageReceivedEvent;
+        public static event OnMessageReceivedDelegate OnMessageReceivedEvent;
 
         public enum MessageProtocol { TCP, UDP }
 
 
-        void OnServerStarted() { OnServerStartedEvent?.Invoke(); }
-        void OnServerShutDown() { OnServerShutDownEvent?.Invoke(); }
-        public void OnClientConnected(ClientHandler client) { OnClientConnectedEvent?.Invoke(client); }
-        public void OnClientDisconnected(ClientHandler client, string error) { OnClientDisconnectedEvent?.Invoke(client, error); }
-        public void OnMessageReceived(string message, ClientHandler ch, MessageProtocol mp) { OnMessageReceivedEvent?.Invoke(message, ch, mp); }
+        static void OnServerStarted() { OnServerStartedEvent?.Invoke(); }
+        static void OnServerShutDown() { OnServerShutDownEvent?.Invoke(); }
+        static void OnClientConnected(ClientHandler client) { OnClientConnectedEvent?.Invoke(client); }
+        public static void OnClientDisconnected(ClientHandler client, string error) { OnClientDisconnectedEvent?.Invoke(client, error); }
+        public static void OnMessageReceived(string message, ClientHandler ch, MessageProtocol mp) { OnMessageReceivedEvent?.Invoke(message, ch, mp); }
         #endregion
 
         // [START SERVER]
-        public void StartServer(int port)
+        public static void StartServer(int _port)
         {
-            this.port = port;
+            port = _port;
             ip = GetIpOfServer().ToString();
 
             clients = new Dictionary<int, ClientHandler>();
@@ -71,17 +72,17 @@ namespace GameServer
 
         }
         // [LISTEN TO CONNECTIONS]
-        void ListenToNewConnections()
+        static void ListenToNewConnections()
         {
             try
             {
                 while (serverActive)
                 {
                     handler = listenSocket.Accept();
-                    if (!this.AlreadyHasThisClient(handler))
+                    if (!AlreadyHasThisClient(handler))
                     {
                         int clientId = GetFirstFreeId();
-                        ClientHandler client = new ClientHandler(this, handler, clientId);
+                        ClientHandler client = new ClientHandler(handler, clientId);
                         AddClient(client, clientId);
                     }
                     else
@@ -104,8 +105,8 @@ namespace GameServer
 
         // Manage playroom 1
         #region PlayRoom 1
-        Task managingPlayRoom;
-        public void TurnOn_Playroom()
+        static Task managingPlayRoom;
+        public static void TurnOn_Playroom()
         {
             int playersInPlayRoom = 0;
             foreach(var a in clients.Values)
@@ -123,7 +124,7 @@ namespace GameServer
             managingPlayRoom = new Task(ManagePlayroom);
             managingPlayRoom.Start();
         }
-        public void TurnOff_Playroom()
+        public static void TurnOff_Playroom()
         {
             int playersInPlayRoom = 0;
             foreach (var a in clients.Values)
@@ -138,7 +139,7 @@ namespace GameServer
             
         }
 
-        void ManagePlayroom()
+        static void ManagePlayroom()
         {
             // here we will send room's position and rotation to all players connected to that room
 
@@ -178,7 +179,7 @@ namespace GameServer
         }
 
         // |nickname,ip,position,rotation@nickname,ip,position,rotation@enc..."
-        string GenerateStringSendingPlayersOtherPlayersPositions(ClientHandler exceptThisOne)
+        static string GenerateStringSendingPlayersOtherPlayersPositions(ClientHandler exceptThisOne)
         {
             string message = "";
             try
@@ -220,7 +221,7 @@ namespace GameServer
         }
         #endregion PlayRoom 1
         // [SHUT DOWN SERVER]
-        public void ShutDownServer()
+        public static void ShutDownServer()
         {
             serverActive = false;
             if (handler != null)
@@ -232,19 +233,19 @@ namespace GameServer
             OnServerShutDown();
         }
         // [ADD CLIENT]
-        void AddClient(ClientHandler client, int id)
+        static void AddClient(ClientHandler client, int id)
         {
             OnClientConnected(client);
             clients[id] = client;
         }
         // [REMOVE CLIENT]
-        public void DisconnectClient(ClientHandler client)
+        public static void DisconnectClient(ClientHandler client)
         {
             client.ShutDownClient();
         }
 
         #region Util
-        int GetFirstFreeId()
+        static int GetFirstFreeId()
         {
             ClientHandler util;
             for (int i = 1; i < 10000; i++)
@@ -257,14 +258,14 @@ namespace GameServer
             Console.WriteLine("Error getting first free id!");
             return -1;
         }
-        public ClientHandler TryToGetClientWithId(int id)
+        public static ClientHandler TryToGetClientWithId(int id)
         {
             ClientHandler util;
             if (clients.TryGetValue(id, out util)) { return util; }
             else Console.WriteLine($"Error getting client with id {id}");
             return null;
         }
-        public ClientHandler TryToGetClientWithIp(string ip)
+        public static ClientHandler TryToGetClientWithIp(string ip)
         {
             foreach (var a in clients.Values)
             {
@@ -273,7 +274,7 @@ namespace GameServer
             return null;
         }
 
-        void DisposeAllClients()
+        static void DisposeAllClients()
         {
             foreach (var a in clients.Values)
             {
@@ -283,7 +284,7 @@ namespace GameServer
         }
 
         // [SEND MESSAGE]
-        public void SendMessageToAllClients(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
+        public static void SendMessageToAllClients(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
         {
             if (mp.Equals(MessageProtocol.TCP))
             {
@@ -302,7 +303,7 @@ namespace GameServer
                 }
             }
         }
-        public void SendMessageToAllClientsInPlayroom(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
+        public static void SendMessageToAllClientsInPlayroom(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
         {
             if (mp.Equals(MessageProtocol.TCP))
             {
@@ -323,23 +324,23 @@ namespace GameServer
                 }
             }
         }
-        public void SendMessageToClient(string message, string ip)
+        public static void SendMessageToClient(string message, string ip)
         {
             ClientHandler clientHandler = TryToGetClientWithIp(ip);
             if (clientHandler != null) clientHandler.SendMessageTcp(message);
         }
-        public void SendMessageToClient(string message, int id)
+        public static void SendMessageToClient(string message, int id)
         {
             ClientHandler clientHandler = TryToGetClientWithId(id);
             if (clientHandler != null) clientHandler.SendMessageTcp(message);
         }
-        public void SendMessageToClient(string message, ClientHandler client)
+        public static void SendMessageToClient(string message, ClientHandler client)
         {
             client.SendMessageTcp(message);
         }
 
 
-        IPAddress GetIpOfServer()
+        static IPAddress GetIpOfServer()
         {
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[1];
