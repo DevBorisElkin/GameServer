@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
-using static GameServer.Server;
 using static GameServer.NetworkingMessageAttributes;
+using static GameServer.Util_Connection;
+using static GameServer.Util_Server;
 using System.Numerics;
 using System.Globalization;
 
@@ -16,18 +14,19 @@ namespace GameServer
         int portUdp = 8385;
         public ServerSimpleImplementation()
         {
-            Console.Title = "Simple Console Server";
-
-            Server.OnServerStartedEvent += ServerStarted;
-            Server.OnServerShutDownEvent += ServerShutDown;
-            Server.OnClientConnectedEvent += ClientConnected;
-            Server.OnClientDisconnectedEvent += ClientDisconnected;
-            Server.OnMessageReceivedEvent += MessageReceived;
-
-            Server.StartServer(portTcp);
-            UDP.StartUdpServer(portUdp);
-
+            SubscribeToEvents();
+            
+            Server.StartServer(portTcp, portUdp);
+            
             while (true) ReadConsole();
+        }
+        void SubscribeToEvents()
+        {
+            OnServerStartedEvent += ServerStarted;
+            OnServerShutDownEvent += ServerShutDown;
+            OnClientConnectedEvent += ClientConnected;
+            OnClientDisconnectedEvent += ClientDisconnected;
+            OnMessageReceivedEvent += MessageReceived;
         }
 
         void ReadConsole()
@@ -39,16 +38,16 @@ namespace GameServer
                 if (consoleString.StartsWith("tcp "))
                 {
                     consoleString = consoleString.Replace("tcp ", "");
-                    Server.SendMessageToAllClients(consoleString);
+                    SendMessageToAllClients(consoleString);
                 }
                 else if (consoleString.StartsWith("udp "))
                 {
                     consoleString = consoleString.Replace("udp ", "");
-                    Server.SendMessageToAllClients(consoleString, MessageProtocol.UDP);
+                    SendMessageToAllClients(consoleString, MessageProtocol.UDP);
                 }
                 else
                 {
-                    Server.SendMessageToAllClients(consoleString);
+                    SendMessageToAllClients(consoleString);
                 }
             }
         }
@@ -57,6 +56,8 @@ namespace GameServer
         void ServerShutDown() { Console.WriteLine($"[SERVER_SHUTDOWN][{Server.ip}]"); }
         void ClientConnected(ClientHandler clientHandler) { Console.WriteLine($"[CLIENT_CONNECTED][{clientHandler.id}][{clientHandler.ip}]"); }
         void ClientDisconnected(ClientHandler clientHandler, string error) { Console.WriteLine($"[CLIENT_DISCONNECTED][{clientHandler.id}][{clientHandler.ip}]: {error}"); }
+        
+        // TODO! !!!!!!!!!!!!!!!!!!!!!!
         void MessageReceived(string message, ClientHandler ch, MessageProtocol mp) 
         {
             //Console.WriteLine($"[CLIENT_MESSAGE][{mp}][{id}][{ip}]: {message}"); 

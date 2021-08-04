@@ -4,6 +4,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using static GameServer.Util_Connection;
+using static GameServer.Util_Server;
 
 namespace GameServer
 {
@@ -28,7 +30,6 @@ namespace GameServer
             udpListenTask.Start();
         }
 
-        static EndPoint remote;
         #region Listen UPD - doesn't require established connection
         private static void ListenUDP()
         {
@@ -36,7 +37,7 @@ namespace GameServer
             {
                 listenSocketUdp.Bind(ipEndPointUdp);
                 byte[] data = new byte[1024];
-                remote = new IPEndPoint(IPAddress.Any, portUdp);
+                EndPoint remote; remote = new IPEndPoint(IPAddress.Any, portUdp);
 
                 int bytes;
                 while (listening)
@@ -52,24 +53,23 @@ namespace GameServer
                         while (listenSocketUdp.Available > 0);
 
                         IPEndPoint remoteIp = remote as IPEndPoint;
-                        string ip = ConnectionExtensions.GetRemoteIp(remoteIp);
-                        ClientHandler clientToBind = Server.TryToGetClientWithIp(ip);
+                        string ip = Util_Connection.GetRemoteIp(remoteIp);
+                        ClientHandler clientToBind = TryToGetClientWithIp(ip);
 
                         if (clientToBind == null)
                         {
-                            Console.WriteLine($"[SYSTEM_ERROR]: didn't find client in clients list with ip {ip}");
+                            //Console.WriteLine($"[SYSTEM_ERROR]: didn't find client in clients list with ip {ip}");
+                            Util_UDP.AddEndPoint(remoteIp, ip);
                             continue;
-                        }
-
-                        // on first UDP message bind IPEndPoint to selected ClientHandler
-                        if (builder.ToString().StartsWith("init_udp"))
+                        }else if (builder.ToString().StartsWith("init_udp"))
                         {
+                            if (clientToBind.udpEndPoint != null) continue;
                             clientToBind.udpEndPoint = remoteIp;
                             Console.WriteLine($"[SYSTEM_MESSAGE]: initialized IPEndPoint for UDP messaging of client [{clientToBind.id}][{clientToBind.ip}]");
                         }
                         else
                         {
-                            Server.OnMessageReceived(builder.ToString(), clientToBind, Server.MessageProtocol.UDP);
+                            OnMessageReceived(builder.ToString(), clientToBind, MessageProtocol.UDP);
                         }
                     }
                     catch(Exception e)

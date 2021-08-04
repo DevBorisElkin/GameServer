@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
-using static GameServer.Server;
+﻿using System.Numerics;
+using static GameServer.Util_Connection;
+using static GameServer.Util_Server;
+using static GameServer.PlayroomManager;
 using static GameServer.NetworkingMessageAttributes;
 
 namespace GameServer
@@ -19,19 +18,19 @@ namespace GameServer
             client.SendMessageTcp($"{CONFIRM_ENTER_PLAY_ROOM}|{playroomNumber}");
 
             // tell all other clients who are in Playroom that one client connected to it
-            Server.SendMessageToAllClientsInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{playroomNumber}|" +
+            SendMessageToAllClientsInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{playroomNumber}|" +
                 $"{client.player.position.X},{client.player.position.Y},{client.player.position.Z}|{nickname}|{client.ip}", MessageProtocol.TCP, client);
 
-            Server.TurnOn_Playroom();
+            Check_TurnOn_Playroom();
         }
         public static void DisconnectPlayerFromPlayroom(this ClientHandler client, int playroomNumber, string nickname)
         {
             client.player = null;
 
             // tell all other clients who are in Playroom that one client connected to it
-            Server.SendMessageToAllClientsInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{playroomNumber}|{nickname}|{client.ip}", MessageProtocol.TCP, client);
+            SendMessageToAllClientsInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{playroomNumber}|{nickname}|{client.ip}", MessageProtocol.TCP, client);
 
-            Server.TurnOff_Playroom();
+            Check_TurnOff_Playroom();
         }
         public static void StorePlayerPositionAndRotationOnServer(this ClientHandler client, Vector3 _position, Quaternion _rotation)
         {

@@ -38,7 +38,24 @@ namespace GameServer
         // example of message
         //
         // "players_positions_in_playroom|nickname,ip,position,rotation@nickname,ip,position,rotation@enc..."
-        public const string MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM = "players_positions_in_playroom"; 
+        public const string MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM = "players_positions_in_playroom";
 
+        // _______________________________________________________CONNECTION_CHECK________________________
+
+
+        // code for checking if player is connected
+        // example of message receiving on server to confirm
+        // "check_connected";
+        public const string CHECK_CONNECTED = "check_connected";
+
+        // code for checking if player is in playroom
+        // example of message receiving on server to confirm
+        // "check_connected_playroom|1";
+        public const string CHECK_CONNECTED_PLAYROOM = "check_connected_playroom";
+
+        // message for client that he was disconnected
+        // example of message receiving on server to confirm
+        // "client_disconnected
+        public const string CLIENT_DISCONNECTED = "client_disconnected";
     }
 }

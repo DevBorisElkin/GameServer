@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using static GameServer.Server;
 
 namespace GameServer
 {
-    public static class ConnectionExtensions
+    /// <summary>
+    /// Represents static methods that help maintaining connection
+    /// </summary>
+    public static class Util_Connection
     {
+        public enum MessageProtocol { TCP, UDP }
+
+        // Check if client connected
         public static bool SocketSimpleConnected(this ClientHandler ch)
         {
             return !((ch.handler.Poll(1000, SelectMode.SelectRead) && (ch.handler.Available == 0)) || !ch.handler.Connected);
@@ -18,6 +20,7 @@ namespace GameServer
             return !((tcpHandler.Poll(1000, SelectMode.SelectRead) && (tcpHandler.Available == 0)) || !tcpHandler.Connected);
         }
 
+        // Gets IP
         public static string GetRemoteIp(this ClientHandler ch)
         {
             string rawRemoteIP = ch.handler.RemoteEndPoint.ToString();
@@ -32,7 +35,6 @@ namespace GameServer
             string remoteIP = rawRemoteIP.Substring(0, dotsIndex);
             return remoteIP;
         }
-
         public static string GetRemoteIp(Socket tcpHandler)
         {
             string rawRemoteIP = tcpHandler.RemoteEndPoint.ToString();
@@ -40,21 +42,14 @@ namespace GameServer
             string remoteIP = rawRemoteIP.Substring(0, dotsIndex);
             return remoteIP;
         }
-
+        // Get IP and Port
         public static string GetRemoteIpAndPort(this ClientHandler ch)
         {
             return ch.handler.RemoteEndPoint.ToString();
         }
-
         public static string GetRemoteIpAndPort(Socket tcpHandler)
         {
             return tcpHandler.RemoteEndPoint.ToString();
-        }
-
-        public static bool AlreadyHasThisClient(Socket socket)
-        {
-            if (TryToGetClientWithIp(GetRemoteIp(socket)) == null) return false;
-            return true;
         }
     }
 }

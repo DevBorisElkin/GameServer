@@ -4,7 +4,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using static GameServer.Util_Connection;
+using static GameServer.NetworkingMessageAttributes;
 
 namespace GameServer
 {
@@ -18,14 +21,21 @@ namespace GameServer
         public int id;
         public string ip;
 
+        double ms_connectedCheck = 2000;
+        DateTime lastConnectedConfirmed;
+
         public ClientHandler(Socket handler, int id)
         {
             this.handler = handler;
             this.id = id;
             ip = this.GetRemoteIp();
 
+            lastConnectedConfirmed = DateTime.Now;
+
             taskListener = new Task(ListenToMessages);
             taskListener.Start();
+            connectionChecker = new Task(CheckClientConnected);
+            connectionChecker.Start();
         }
 
         #region basic methods
@@ -44,7 +54,9 @@ namespace GameServer
                     str = ReadLine2(handler, bytes);
                     if (!str.Equals(""))
                     {
-                        Server.OnMessageReceived(str, this, Server.MessageProtocol.TCP);
+                        lastConnectedConfirmed = DateTime.Now;
+                        //if(!str.Equals(CHECK_CONNECTED))
+                        Util_Server.OnMessageReceived(str, this, MessageProtocol.TCP);
                     }
                     else if (str.Equals(""))
                     {
@@ -63,14 +75,26 @@ namespace GameServer
                 }
             }
         }
-
-        string ReadLine(Socket reciever, byte[] buffer)
+        Task connectionChecker;
+        void CheckClientConnected()
         {
-            int bytesRec = reciever.Receive(buffer);
-            string data = Encoding.ASCII.GetString(buffer, 0, bytesRec);
-            return data;
-        }
+            while (handler.Connected)
+            {
+                Thread.Sleep(500);
 
+                var msSinceLastConnectionConfirmed = (DateTime.Now - lastConnectedConfirmed).TotalMilliseconds;
+                if(msSinceLastConnectionConfirmed > ms_connectedCheck)
+                {
+                    // Connection timed out, disconnect client
+                    Console.WriteLine($"[SERVER_MESSAGE]: connection for client [{id}][{ip}] timed out");
+                    ShutDownClient(3, true);
+                }
+                else
+                {
+                    SendMessageTcp(CHECK_CONNECTED);
+                }
+            }
+        }
         string ReadLine2(Socket reciever, byte[] buffer)
         {
             StringBuilder builder = new StringBuilder();
@@ -93,7 +117,9 @@ namespace GameServer
 
         public void ShutDownClient(int error = 0, bool removeFromClientsList = true)
         {
-            Server.OnClientDisconnected(this, error.ToString());
+            SendMessageTcp(CLIENT_DISCONNECTED);
+
+            Util_Server.OnClientDisconnected(this, error.ToString());
 
             if (handler.Connected)
             {
@@ -104,14 +130,5 @@ namespace GameServer
             if (removeFromClientsList) Server.clients.Remove(this.id);
         }
         #endregion
-
-
-
-        //public void SendIntoGame_PlayerConnected(string nickname)
-        //{
-        //    player = new Player(id, nickname, Vector3.Zero);
-        //
-        //    server.SendMessageToAllClients()
-        //}
     }
 }

@@ -2,70 +2,41 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using static GameServer.NetworkingMessageAttributes;
-using static GameServer.ConnectionExtensions;
+using static GameServer.Util_Connection;
 
 namespace GameServer
 {
     public static class Server
     {
-        // TODO MAKE CHANGES
         public static string ip;
-        public static int port = 8384;
+        private static int portTcp;
+
         public static Dictionary<int, ClientHandler> clients;
 
-        public static bool serverActive;
-
-        static Socket handler;
-        static Socket listenSocket;
-
-        static bool playroomActive;
-
-        #region Delegates
-        public delegate void OnServerStartedDelegate();
-        public static event OnServerStartedDelegate OnServerStartedEvent;
-
-        public delegate void OnServerShutDownDelegate();
-        public static event OnServerShutDownDelegate OnServerShutDownEvent;
-
-        public delegate void OnClientConnectedDelegate(ClientHandler client);
-        public static event OnClientConnectedDelegate OnClientConnectedEvent;
-
-        public delegate void OnClientDisconnectedDelegate(ClientHandler client, string error);
-        public static event OnClientDisconnectedDelegate OnClientDisconnectedEvent;
-
-        public delegate void OnMessageReceivedDelegate(string message, ClientHandler ch, MessageProtocol mp);
-        public static event OnMessageReceivedDelegate OnMessageReceivedEvent;
-
-        public enum MessageProtocol { TCP, UDP }
-
-
-        static void OnServerStarted() { OnServerStartedEvent?.Invoke(); }
-        static void OnServerShutDown() { OnServerShutDownEvent?.Invoke(); }
-        static void OnClientConnected(ClientHandler client) { OnClientConnectedEvent?.Invoke(client); }
-        public static void OnClientDisconnected(ClientHandler client, string error) { OnClientDisconnectedEvent?.Invoke(client, error); }
-        public static void OnMessageReceived(string message, ClientHandler ch, MessageProtocol mp) { OnMessageReceivedEvent?.Invoke(message, ch, mp); }
-        #endregion
+        private static bool serverActive;
+        private static Socket handler;
+        private static Socket listenSocket;
 
         // [START SERVER]
-        public static void StartServer(int _port)
+        public static void StartServer(int _port, int _portUdp)
         {
-            port = _port;
-            ip = GetIpOfServer().ToString();
+            UDP.StartUdpServer(_portUdp);
+            PlayroomManager.InitPlayroom();
+
+            portTcp = _port;
+            ip = Util_Server.GetIpOfServer().ToString();
 
             clients = new Dictionary<int, ClientHandler>();
 
-            IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, port);
+            IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Any, portTcp);
             listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             listenSocket.Bind(ipEndPoint);
             listenSocket.Listen(5);
             serverActive = true;
 
-            OnServerStarted();
+            Util_Server.OnServerStarted();
 
             Task listenToConnectionsTask = new Task(ListenToNewConnections);
             listenToConnectionsTask.Start();
@@ -79,15 +50,15 @@ namespace GameServer
                 while (serverActive)
                 {
                     handler = listenSocket.Accept();
-                    if (!AlreadyHasThisClient(handler))
+                    if (!Util_Server.AlreadyHasThisClient(handler))
                     {
-                        int clientId = GetFirstFreeId();
+                        int clientId = Util_Server.GetFirstFreeId();
                         ClientHandler client = new ClientHandler(handler, clientId);
                         AddClient(client, clientId);
                     }
                     else
                     {
-                        Console.WriteLine($"[SERVER_MESSAGE] reject repetetive connection from {ConnectionExtensions.GetRemoteIp(handler)}");
+                        Console.WriteLine($"[SERVER_MESSAGE] reject repetetive connection from {GetRemoteIp(handler)}");
                         handler.Shutdown(SocketShutdown.Both);
                         handler.Dispose();
                     }
@@ -102,124 +73,7 @@ namespace GameServer
                 ShutDownServer();
             }
         }
-
-        // Manage playroom 1
-        #region PlayRoom 1
-        static Task managingPlayRoom;
-        public static void TurnOn_Playroom()
-        {
-            int playersInPlayRoom = 0;
-            foreach(var a in clients.Values)
-            {
-                if (a.player != null) playersInPlayRoom++;
-            }
-            if(playersInPlayRoom <= 0)
-            {
-                Console.WriteLine($"Not enough players in play room to turn on Managing of it. [{playersInPlayRoom}]");
-                return;
-            }
-            if (!playroomActive) Console.WriteLine("Opening playroom. First player joined it.");
-
-            playroomActive = true;
-            managingPlayRoom = new Task(ManagePlayroom);
-            managingPlayRoom.Start();
-        }
-        public static void TurnOff_Playroom()
-        {
-            int playersInPlayRoom = 0;
-            foreach (var a in clients.Values)
-            {
-                if (a.player != null) playersInPlayRoom++;
-            }
-            if (playersInPlayRoom <= 0)
-            {
-                if (playroomActive) Console.WriteLine("Closing playroom. Last player left it.");
-                playroomActive = false;
-            }
-            
-        }
-
-        static void ManagePlayroom()
-        {
-            // here we will send room's position and rotation to all players connected to that room
-
-            while (playroomActive) // sending data 10 times a second
-            {
-                try
-                {
-                    foreach (var key in clients.Keys)
-                    {
-                        clients.TryGetValue(key, out ClientHandler ch);
-                        
-                        if(ch == null)
-                        {
-                            Console.WriteLine("Client handler in ManagePlayroom() == null");
-                            continue;
-                        }
-                        if (ch.udpEndPoint == null)
-                        {
-                            Console.WriteLine("ch.udpEndPoint == null");
-                            continue;
-                        }
-
-                        if (ch.player == null) continue;
-                        string generatedString = GenerateStringSendingPlayersOtherPlayersPositions(ch);
-                        if(!generatedString.Equals("empty"))
-                            UDP.SendMessageUdp(generatedString, ch.udpEndPoint);
-                    }
-                }
-                catch(Exception e)
-                {
-                    Console.WriteLine($"{e.Message} ||| + {e.StackTrace}");
-                }
-                Thread.Sleep(100);
-            }
-
-
-        }
-
-        // |nickname,ip,position,rotation@nickname,ip,position,rotation@enc..."
-        static string GenerateStringSendingPlayersOtherPlayersPositions(ClientHandler exceptThisOne)
-        {
-            string message = "";
-            try
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|");
-                foreach (var a in clients.Values)
-                {
-                    if (a.player == null) continue;
-                    if (a == exceptThisOne) continue;
-
-                    sb.Append($"{a.player.username},{a.ip},{a.player.position.X}/{a.player.position.Y}/{a.player.position.Z}," +
-                        $"{a.player.rotation.X}/{a.player.rotation.Y}/{a.player.rotation.Z}@");
-                }
-                message = sb.ToString();
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e.ToString() + " ||| " + e.StackTrace);
-            }
-            int lastIndexOfDog = message.LastIndexOf('@');
-            if(message.Length > lastIndexOfDog + 1)
-            {
-                // we can leave dog like that
-            }
-            else
-            {
-                message = message.Remove(lastIndexOfDog, 1);
-            }
-
-            if (message.Equals(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|")) return "empty";
-
-            Console.WriteLine($"Sending UDP message to all clients:\n{message}");
-            return message;
-            
-            
-
-            
-        }
-        #endregion PlayRoom 1
+        
         // [SHUT DOWN SERVER]
         public static void ShutDownServer()
         {
@@ -229,13 +83,13 @@ namespace GameServer
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
             }
-            DisposeAllClients();
-            OnServerShutDown();
+            Util_Server.DisposeAllClients();
+            Util_Server.OnServerShutDown();
         }
         // [ADD CLIENT]
         static void AddClient(ClientHandler client, int id)
         {
-            OnClientConnected(client);
+            Util_Server.OnClientConnected(client);
             clients[id] = client;
         }
         // [REMOVE CLIENT]
@@ -243,109 +97,5 @@ namespace GameServer
         {
             client.ShutDownClient();
         }
-
-        #region Util
-        static int GetFirstFreeId()
-        {
-            ClientHandler util;
-            for (int i = 1; i < 10000; i++)
-            {
-                if (!clients.TryGetValue(i, out util))
-                {
-                    return i;
-                }
-            }
-            Console.WriteLine("Error getting first free id!");
-            return -1;
-        }
-        public static ClientHandler TryToGetClientWithId(int id)
-        {
-            ClientHandler util;
-            if (clients.TryGetValue(id, out util)) { return util; }
-            else Console.WriteLine($"Error getting client with id {id}");
-            return null;
-        }
-        public static ClientHandler TryToGetClientWithIp(string ip)
-        {
-            foreach (var a in clients.Values)
-            {
-                if (a.ip.Equals(ip)) return a;
-            }
-            return null;
-        }
-
-        static void DisposeAllClients()
-        {
-            foreach (var a in clients.Values)
-            {
-                a.ShutDownClient(0, false);
-            }
-            clients = null;
-        }
-
-        // [SEND MESSAGE]
-        public static void SendMessageToAllClients(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
-        {
-            if (mp.Equals(MessageProtocol.TCP))
-            {
-                foreach(var a in clients.Values)
-                {
-                    if (clientToIgnore == a) continue;
-                    a.SendMessageTcp(message);
-                }
-            }
-            else
-            {
-                foreach (var a in clients.Values)
-                {
-                    if (clientToIgnore == a) continue;
-                    UDP.SendMessageUdp(message, a.udpEndPoint);
-                }
-            }
-        }
-        public static void SendMessageToAllClientsInPlayroom(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
-        {
-            if (mp.Equals(MessageProtocol.TCP))
-            {
-                foreach (var a in clients.Values)
-                {
-                    if (clientToIgnore == a) continue;
-                    if (a.player == null) continue;
-                    a.SendMessageTcp(message);
-                }
-            }
-            else
-            {
-                foreach (var a in clients.Values)
-                {
-                    if (clientToIgnore == a) continue;
-                    if (a.player == null) continue;
-                    UDP.SendMessageUdp(message, a.udpEndPoint);
-                }
-            }
-        }
-        public static void SendMessageToClient(string message, string ip)
-        {
-            ClientHandler clientHandler = TryToGetClientWithIp(ip);
-            if (clientHandler != null) clientHandler.SendMessageTcp(message);
-        }
-        public static void SendMessageToClient(string message, int id)
-        {
-            ClientHandler clientHandler = TryToGetClientWithId(id);
-            if (clientHandler != null) clientHandler.SendMessageTcp(message);
-        }
-        public static void SendMessageToClient(string message, ClientHandler client)
-        {
-            client.SendMessageTcp(message);
-        }
-
-
-        static IPAddress GetIpOfServer()
-        {
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[1];
-            return ipAddress;
-        }
-        #endregion
     }
 }
