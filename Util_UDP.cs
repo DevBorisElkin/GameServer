@@ -11,7 +11,7 @@ namespace GameServer
 
         public static List<UnassignedIPEndPoint> endpoints = new List<UnassignedIPEndPoint>();
 
-        public static void AddEndPoint(IPEndPoint endPoint, string ip)
+        public static void TryToStoreEndPoint(IPEndPoint endPoint, string ip)
         {
             // check if there's end point for that ip
             if(endpoints.Count > 0)
@@ -24,7 +24,7 @@ namespace GameServer
                     }
                 }
             }
-            Console.WriteLine($"[SERVER]: Stored IPEndPoint for client {ip}");
+            //Console.WriteLine($"[SERVER]: Stored IPEndPoint for client {ip}");
             endpoints.Add(new UnassignedIPEndPoint(endPoint, ip));
         }
 

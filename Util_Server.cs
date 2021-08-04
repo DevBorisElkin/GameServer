@@ -41,7 +41,7 @@ namespace GameServer
             {
                 if (a.ip.Equals(ip)) return a;
             }
-            Console.WriteLine($"[Server]: Didn't find client with ip {ip}");
+            //Console.WriteLine($"[Server]: Didn't find client with ip {ip}");
             return null;
         }
 
@@ -70,7 +70,7 @@ namespace GameServer
                 foreach (var a in clients.Values)
                 {
                     if (clientToIgnore == a) continue;
-                    UDP.SendMessageUdp(message, a.udpEndPoint);
+                    UDP.SendMessageUdp(message, a);
                 }
             }
         }
@@ -91,7 +91,7 @@ namespace GameServer
                 {
                     if (clientToIgnore == a) continue;
                     if (a.player == null) continue;
-                    UDP.SendMessageUdp(message, a.udpEndPoint);
+                    UDP.SendMessageUdp(message, a);
                 }
             }
         }
@@ -139,6 +139,34 @@ namespace GameServer
         public static void OnClientConnected(ClientHandler client) { OnClientConnectedEvent?.Invoke(client); }
         public static void OnClientDisconnected(ClientHandler client, string error) { OnClientDisconnectedEvent?.Invoke(client, error); }
         public static void OnMessageReceived(string message, ClientHandler ch, MessageProtocol mp) { OnMessageReceivedEvent?.Invoke(message, ch, mp); }
+        #endregion
+
+        #region Debug
+
+        public static void CustomDebug_ShowClients()
+        {
+            Console.WriteLine($"Clients amount: {Server.clients.Count}");
+            Console.WriteLine();
+            int i = 1;
+            foreach(var a in Server.clients.Values)
+            {
+                Console.WriteLine($"#{i} [{a.id}][{a.ip}]");
+                i++;
+            }
+            Console.WriteLine();
+        }
+
+        public static void CustomDebug_ShowStoredIPs()
+        {
+            Console.WriteLine($"IEndPoints amount: {Util_UDP.endpoints.Count}");
+            int i = 1;
+            foreach(UnassignedIPEndPoint a in Util_UDP.endpoints)
+            {
+                Console.WriteLine($"#{i} {a.endPoint.ToString()}");
+            }
+            Console.WriteLine();
+        }
+
         #endregion
     }
 }

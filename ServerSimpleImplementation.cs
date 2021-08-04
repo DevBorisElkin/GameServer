@@ -35,7 +35,17 @@ namespace GameServer
 
             if (consoleString != "")
             {
-                if (consoleString.StartsWith("tcp "))
+                if (consoleString.StartsWith('-'))
+                {
+                    if (consoleString.Equals("-clients"))
+                    {
+                        CustomDebug_ShowClients();
+                    }
+                    else if (consoleString.Equals("-ips"))
+                    {
+                        CustomDebug_ShowStoredIPs();
+                    }
+                }else if (consoleString.StartsWith("tcp "))
                 {
                     consoleString = consoleString.Replace("tcp ", "");
                     SendMessageToAllClients(consoleString);
@@ -89,7 +99,7 @@ namespace GameServer
                 ch.StorePlayerPositionAndRotationOnServer(position, rotation);
             }else if (message.StartsWith(CLIENT_DISCONNECTED_FROM_THE_PLAYROOM))
             {
-                Console.WriteLine($"[{ch.id}][{ch.ip}][{message}] Client disconnected from playroom");
+                Console.WriteLine($"[SERVER_MESSAGE]:Client [{ch.id}][{ch.ip}] disconnected from playroom");
                 string[] substrings = message.Split("|");
                 ch.DisconnectPlayerFromPlayroom(int.Parse(substrings[1]), substrings[2]);
             }

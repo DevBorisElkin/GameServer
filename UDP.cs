@@ -54,19 +54,22 @@ namespace GameServer
 
                         IPEndPoint remoteIp = remote as IPEndPoint;
                         string ip = Util_Connection.GetRemoteIp(remoteIp);
+
                         ClientHandler clientToBind = TryToGetClientWithIp(ip);
 
+                        // we can't parse UDP messages from client if TCP connection is not yet established
                         if (clientToBind == null)
                         {
-                            //Console.WriteLine($"[SYSTEM_ERROR]: didn't find client in clients list with ip {ip}");
-                            Util_UDP.AddEndPoint(remoteIp, ip);
+                            Util_UDP.TryToStoreEndPoint(remoteIp, ip);
                             continue;
-                        }else if (builder.ToString().StartsWith("init_udp"))
-                        {
-                            if (clientToBind.udpEndPoint != null) continue;
-                            clientToBind.udpEndPoint = remoteIp;
-                            Console.WriteLine($"[SYSTEM_MESSAGE]: initialized IPEndPoint for UDP messaging of client [{clientToBind.id}][{clientToBind.ip}]");
                         }
+                        // we can't parse UDP messages from client if IPEndPoint for UDP is not set yet
+                        else if (clientToBind.udpEndPoint == null)
+                        {
+                            clientToBind.udpEndPoint = remoteIp;
+                            //Console.WriteLine($"[SYSTEM_MESSAGE]: 1) initialized IPEndPoint for UDP messaging of client [{clientToBind.id}][{clientToBind.ip}]");
+                        }
+                        // everything is OK, we can work with message
                         else
                         {
                             OnMessageReceived(builder.ToString(), clientToBind, MessageProtocol.UDP);
@@ -99,12 +102,23 @@ namespace GameServer
         }
         #endregion
 
-        public static void SendMessageUdp(string message, IPEndPoint remoteIp)
+        public static void SendMessageUdp(string message, ClientHandler ch)
         {
-            if (remoteIp != null && listenSocketUdp != null)
+            if (ch.udpEndPoint == null)
+            {
+                ch.udpEndPoint = Util_UDP.TryToRetrieveEndPoint(ch.ip);
+                if (ch.udpEndPoint == null)
+                {
+                    Console.WriteLine($"[SERVER_ERROR]: Can't send an UDP message - failed to assign UDP IPEndPoint to client [{ch.id}][{ch.ip}]");
+                    return;
+                }
+                //Console.WriteLine( $"[SYSTEM_MESSAGE]: 2) initialized IPEndPoint for UDP messaging of client [{ch.id}][{ch.ip}]");
+            }
+
+            if (listenSocketUdp != null)
             {
                 byte[] data = Encoding.Unicode.GetBytes(message);
-                listenSocketUdp.SendTo(data, remoteIp);
+                listenSocketUdp.SendTo(data, ch.udpEndPoint);
             }
             else
             {

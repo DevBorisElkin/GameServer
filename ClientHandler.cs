@@ -34,7 +34,7 @@ namespace GameServer
 
             taskListener = new Task(ListenToMessages);
             taskListener.Start();
-            connectionChecker = new Task(CheckClientConnected);
+            connectionChecker = new Task(MaintainConnection);
             connectionChecker.Start();
         }
 
@@ -55,8 +55,8 @@ namespace GameServer
                     if (!str.Equals(""))
                     {
                         lastConnectedConfirmed = DateTime.Now;
-                        //if(!str.Equals(CHECK_CONNECTED))
-                        Util_Server.OnMessageReceived(str, this, MessageProtocol.TCP);
+                        if(!str.Equals(CHECK_CONNECTED))
+                            Util_Server.OnMessageReceived(str, this, MessageProtocol.TCP);
                     }
                     else if (str.Equals(""))
                     {
@@ -76,7 +76,7 @@ namespace GameServer
             }
         }
         Task connectionChecker;
-        void CheckClientConnected()
+        void MaintainConnection()
         {
             while (handler.Connected)
             {
@@ -85,7 +85,6 @@ namespace GameServer
                 var msSinceLastConnectionConfirmed = (DateTime.Now - lastConnectedConfirmed).TotalMilliseconds;
                 if(msSinceLastConnectionConfirmed > ms_connectedCheck)
                 {
-                    // Connection timed out, disconnect client
                     Console.WriteLine($"[SERVER_MESSAGE]: connection for client [{id}][{ip}] timed out");
                     ShutDownClient(3, true);
                 }
@@ -127,7 +126,11 @@ namespace GameServer
                 handler.Dispose();
             }
 
-            if (removeFromClientsList) Server.clients.Remove(this.id);
+            if (removeFromClientsList)
+            {
+                bool successfullyRemoved = Server.clients.Remove(this.id);
+                //Console.WriteLine($"[SERVER_MESSAGE]: client [{id}][{ip}] was removed from clients list: [{successfullyRemoved}]");
+            }
         }
         #endregion
     }

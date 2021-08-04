@@ -20,6 +20,7 @@ namespace GameServer
 
         static void OnClientDisconnected(ClientHandler ch, string error)
         {
+            if (ch.player == null) return;
             Util_Server.SendMessageToAllClientsInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{1}|{ch.player.username}|{ch.ip}", MessageProtocol.TCP, ch);
             ch.player = null;
             Check_TurnOff_Playroom();
@@ -74,16 +75,9 @@ namespace GameServer
                         if (ch == null || ch.player == null) 
                             continue;
 
-                        if(ch.udpEndPoint == null)
-                        {
-                            ch.udpEndPoint = Util_UDP.TryToRetrieveEndPoint(ch.ip);
-                            if (ch.udpEndPoint == null) continue;
-                            Console.WriteLine($"Successfully retrieved UDP end point for client [{ch.id}][{ch.ip}]");
-                        }
-
                         string generatedString = GenerateStringSendingPlayersOtherPlayersPositions(ch);
                         if (!generatedString.Equals("empty"))
-                            UDP.SendMessageUdp(generatedString, ch.udpEndPoint);
+                            UDP.SendMessageUdp(generatedString, ch);
                     }
                 }
                 catch (Exception e)
