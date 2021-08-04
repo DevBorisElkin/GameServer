@@ -41,7 +41,7 @@ namespace GameServer
                     {
                         CustomDebug_ShowClients();
                     }
-                    else if (consoleString.Equals("-ips"))
+                    else if (consoleString.Equals("-keys"))
                     {
                         CustomDebug_ShowStoredIPs();
                     }

@@ -21,7 +21,7 @@ namespace GameServer
         public int id;
         public string ip;
 
-        double ms_connectedCheck = 2000;
+        double ms_connectedCheck = 3000;
         DateTime lastConnectedConfirmed;
 
         public ClientHandler(Socket handler, int id)
