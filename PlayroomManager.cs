@@ -124,7 +124,7 @@ namespace GameServer
 
             if (message.Equals(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|")) return "empty";
 
-            Console.WriteLine($"Sending UDP message to all clients:\n{message}");
+            //Console.WriteLine($"Sending UDP message to all clients:\n{message}");
             return message;
         }
     }

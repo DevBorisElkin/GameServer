@@ -24,12 +24,15 @@ namespace GameServer
         double ms_connectedCheck = 3000;
         DateTime lastConnectedConfirmed;
 
+        bool connected;
+
         public ClientHandler(Socket handler, int id)
         {
             this.handler = handler;
             this.id = id;
             ip = this.GetRemoteIp();
 
+            connected = true;
             lastConnectedConfirmed = DateTime.Now;
 
             taskListener = new Task(ListenToMessages);
@@ -77,7 +80,7 @@ namespace GameServer
         Task connectionChecker;
         void MaintainConnection()
         {
-            while (handler.Connected)
+            while (connected)
             {
                 Thread.Sleep(500);
 
@@ -85,7 +88,7 @@ namespace GameServer
                 if(msSinceLastConnectionConfirmed > ms_connectedCheck)
                 {
                     Console.WriteLine($"[SERVER_MESSAGE]: connection for client [{id}][{ip}] timed out");
-                    ShutDownClient(3, true);
+                    ShutDownClient(3);
                 }
                 else
                 {
@@ -109,21 +112,34 @@ namespace GameServer
         }
         public void SendMessageTcp(string message)
         {
-            byte[] dataToSend = Encoding.Unicode.GetBytes(message);
-            handler.Send(dataToSend);
+            try
+            {
+                byte[] dataToSend = Encoding.Unicode.GetBytes(message);
+                handler.Send(dataToSend);
+            }
+            catch(Exception e)
+            {
+                //Console.WriteLine(e.Message + " " + e.StackTrace);
+            }
         }
 
         public void ShutDownClient(int error = 0, bool removeFromClientsList = true)
         {
+            connected = false;
             SendMessageTcp(CLIENT_DISCONNECTED+END_OF_FILE);
 
             Util_Server.OnClientDisconnected(this, error.ToString());
 
-            if (handler.Connected)
+            try
             {
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Dispose();
+                if (handler.Connected)
+                {
+                    handler.Shutdown(SocketShutdown.Both);
+                    handler.Dispose();
+                }
             }
+            catch (Exception e) { Console.WriteLine(e.Message + " " + e.StackTrace); }
+            
 
             if (removeFromClientsList)
             {
