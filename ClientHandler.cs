@@ -55,8 +55,7 @@ namespace GameServer
                     if (!str.Equals(""))
                     {
                         lastConnectedConfirmed = DateTime.Now;
-                        if(!str.Equals(CHECK_CONNECTED))
-                            Util_Server.OnMessageReceived(str, this, MessageProtocol.TCP);
+                        Util_Server.OnMessageReceived(str, this, MessageProtocol.TCP);
                     }
                     else if (str.Equals(""))
                     {
@@ -90,7 +89,7 @@ namespace GameServer
                 }
                 else
                 {
-                    SendMessageTcp(CHECK_CONNECTED);
+                    SendMessageTcp(CHECK_CONNECTED+END_OF_FILE);
                 }
             }
         }
@@ -116,7 +115,7 @@ namespace GameServer
 
         public void ShutDownClient(int error = 0, bool removeFromClientsList = true)
         {
-            SendMessageTcp(CLIENT_DISCONNECTED);
+            SendMessageTcp(CLIENT_DISCONNECTED+END_OF_FILE);
 
             Util_Server.OnClientDisconnected(this, error.ToString());
 

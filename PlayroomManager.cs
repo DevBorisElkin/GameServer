@@ -77,14 +77,14 @@ namespace GameServer
 
                         string generatedString = GenerateStringSendingPlayersOtherPlayersPositions(ch);
                         if (!generatedString.Equals("empty"))
-                            UDP.SendMessageUdp(generatedString, ch);
+                            Util_Server.SendMessageToClient(generatedString, ch, MessageProtocol.UDP);
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine($"{e.Message} ||| + {e.StackTrace}");
                 }
-                Thread.Sleep(100);
+                Thread.Sleep(50);
             }
 
 

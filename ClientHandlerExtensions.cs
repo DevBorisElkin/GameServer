@@ -15,7 +15,7 @@ namespace GameServer
             client.player = new Player(client.id, nickname, Vector3.Zero);
 
             // tell the client that he is accepted
-            client.SendMessageTcp($"{CONFIRM_ENTER_PLAY_ROOM}|{playroomNumber}");
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroomNumber}", client);
 
             // tell all other clients who are in Playroom that one client connected to it
             SendMessageToAllClientsInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{playroomNumber}|" +

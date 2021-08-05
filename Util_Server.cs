@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using static GameServer.Server;
 using static GameServer.Util_Connection;
+using static GameServer.NetworkingMessageAttributes;
 
 namespace GameServer
 {
@@ -54,9 +55,11 @@ namespace GameServer
             clients = null;
         }
 
+        #region MESSAGING CAN BE PERFORMED ONLY HERE !
         // [SEND MESSAGE]
         public static void SendMessageToAllClients(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
         {
+            message += END_OF_FILE;
             if (mp.Equals(MessageProtocol.TCP))
             {
                 foreach (var a in clients.Values)
@@ -76,6 +79,7 @@ namespace GameServer
         }
         public static void SendMessageToAllClientsInPlayroom(string message, MessageProtocol mp = MessageProtocol.TCP, ClientHandler clientToIgnore = null)
         {
+            message += END_OF_FILE;
             if (mp.Equals(MessageProtocol.TCP))
             {
                 foreach (var a in clients.Values)
@@ -95,21 +99,37 @@ namespace GameServer
                 }
             }
         }
-        public static void SendMessageToClient(string message, string ip)
+        public static void SendMessageToClient(string message, string ip, MessageProtocol mp = MessageProtocol.TCP)
         {
+            message += END_OF_FILE;
             ClientHandler clientHandler = TryToGetClientWithIp(ip);
-            if (clientHandler != null) clientHandler.SendMessageTcp(message);
+
+            if (clientHandler == null) return;
+            if (mp.Equals(MessageProtocol.TCP))
+            {
+                clientHandler.SendMessageTcp(message);
+            }
+            else
+            {
+                UDP.SendMessageUdp(message, clientHandler);
+            }
+            
         }
         public static void SendMessageToClient(string message, int id)
         {
+            message += END_OF_FILE;
             ClientHandler clientHandler = TryToGetClientWithId(id);
             if (clientHandler != null) clientHandler.SendMessageTcp(message);
         }
-        public static void SendMessageToClient(string message, ClientHandler client)
+        public static void SendMessageToClient(string message, ClientHandler client, MessageProtocol mp = MessageProtocol.TCP)
         {
-            client.SendMessageTcp(message);
+            message += END_OF_FILE;
+            if (mp.Equals(MessageProtocol.TCP))
+                client.SendMessageTcp(message);
+            else
+                UDP.SendMessageUdp(message, client);
         }
-
+        #endregion MESSAGIND END ------
         public static IPAddress GetIpOfServer()
         {
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());

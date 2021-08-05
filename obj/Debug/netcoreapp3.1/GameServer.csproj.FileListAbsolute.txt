@@ -4,7 +4,6 @@ C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\bin\Debug\net
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\bin\Debug\netcoreapp3.1\GameServer.runtimeconfig.dev.json
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\bin\Debug\netcoreapp3.1\GameServer.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\bin\Debug\netcoreapp3.1\GameServer.pdb
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\obj\Debug\netcoreapp3.1\GameServer.csprojAssemblyReference.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\obj\Debug\netcoreapp3.1\GameServer.AssemblyInfoInputs.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\obj\Debug\netcoreapp3.1\GameServer.AssemblyInfo.cs
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\obj\Debug\netcoreapp3.1\GameServer.csproj.CoreCompileInputs.cache
