@@ -4,6 +4,8 @@ using System.Net.Sockets;
 using static GameServer.Server;
 using static GameServer.Util_Connection;
 using static GameServer.NetworkingMessageAttributes;
+using System.Globalization;
+using System.Numerics;
 
 namespace GameServer
 {
@@ -54,6 +56,14 @@ namespace GameServer
             }
             clients = null;
         }
+
+        public static IPAddress GetIpOfServer()
+        {
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[1];
+            return ipAddress;
+        }
+        #endregion
 
         #region MESSAGING CAN BE PERFORMED ONLY HERE !
         // [SEND MESSAGE]
@@ -113,7 +123,7 @@ namespace GameServer
             {
                 UDP.SendMessageUdp(message, clientHandler);
             }
-            
+
         }
         public static void SendMessageToClient(string message, int id)
         {
@@ -130,12 +140,76 @@ namespace GameServer
                 UDP.SendMessageUdp(message, client);
         }
         #endregion MESSAGIND END ------
-        public static IPAddress GetIpOfServer()
+
+        #region Parce Messages From Clients
+
+        public static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
         {
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[1];
-            return ipAddress;
+            string[] parcedMessage = msg.Split(END_OF_FILE.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string message in parcedMessage)
+            {
+                try
+                {
+                    if (message.Contains(CHECK_CONNECTED)) continue;
+
+                    if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION))
+                    {
+                        Console.WriteLine($"[CLIENT_MESSAGE][{mp}][{ch.id}][{ch.ip}]: {message}");
+                    }
+
+                    if (ch.clientAccessLevel.Equals(ClientAccessLevel.LowestLevel))
+                    {
+                        // accept only requests for authentication and registration
+
+                    }
+                    else if (ch.clientAccessLevel.Equals(ClientAccessLevel.Authenticated))
+                    {
+                        // accept all other requests
+
+                        if (message.StartsWith(ENTER_PLAY_ROOM))
+                        // normally here should be some logic, checking, if specific playroom has space for new players to join
+                        {
+                            string[] substrings = message.Split("|");
+
+                            ch.ConnectPlayerToPlayroom(Int32.Parse(substrings[1]), substrings[2]);
+
+                            Console.WriteLine($"[{ch.id}][{ch.ip}]Client requested to connect to playroom and was accepted");
+                        }
+                        else if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
+                        {
+                            string[] substrings = message.Split("|");
+                            string[] positions = substrings[1].Split("/");
+                            Vector3 position = new Vector3(
+                                float.Parse(positions[0], CultureInfo.InvariantCulture.NumberFormat),
+                                float.Parse(positions[1], CultureInfo.InvariantCulture.NumberFormat),
+                                float.Parse(positions[2], CultureInfo.InvariantCulture.NumberFormat));
+
+                            string[] rotations = substrings[2].Split("/");
+                            Quaternion rotation = new Quaternion(
+                                float.Parse(rotations[0], CultureInfo.InvariantCulture.NumberFormat),
+                                float.Parse(rotations[1], CultureInfo.InvariantCulture.NumberFormat),
+                                float.Parse(rotations[2], CultureInfo.InvariantCulture.NumberFormat),
+                                0);
+
+                            ch.StorePlayerPositionAndRotationOnServer(position, rotation);
+                        }
+                        else if (message.StartsWith(CLIENT_DISCONNECTED_FROM_THE_PLAYROOM))
+                        {
+                            Console.WriteLine($"[SERVER_MESSAGE]:Client [{ch.id}][{ch.ip}] disconnected from playroom");
+                            string[] substrings = message.Split("|");
+                            ch.DisconnectPlayerFromPlayroom(int.Parse(substrings[1]), substrings[2]);
+                        }
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{e.Message} ||| {e.StackTrace} ||| message was:{message}");
+                }
+            }
         }
+
         #endregion
 
         #region Delegates

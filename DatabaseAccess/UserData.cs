@@ -37,11 +37,12 @@ namespace DatabaseAccess
     // here I will populate different DatabaseRequestResults
     public enum RequestResult 
     { 
-        Success = 0,
-        Fail = 1, 
-        Fail_NoConnectionToDB = 2,
-        Fail_WrongPairLoginPassword = 3,
-        Fail_LoginAlreadyTaken = 4 ,
-        Fail_NoUserWithGivenLogin = 5
+        None = 0,
+        Success = 1,
+        Fail = 2, 
+        Fail_NoConnectionToDB = 3,
+        Fail_WrongPairLoginPassword = 4,
+        Fail_LoginAlreadyTaken = 5 ,
+        Fail_NoUserWithGivenLogin = 6
     }
 }

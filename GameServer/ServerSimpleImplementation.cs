@@ -26,7 +26,7 @@ namespace GameServer
             OnServerShutDownEvent += ServerShutDown;
             OnClientConnectedEvent += ClientConnected;
             OnClientDisconnectedEvent += ClientDisconnected;
-            OnMessageReceivedEvent += MessageReceived;
+            OnMessageReceivedEvent += Connection_MessageReceived;
         }
 
         void ReadConsole()
@@ -66,60 +66,5 @@ namespace GameServer
         void ServerShutDown() { Console.WriteLine($"[SERVER_SHUTDOWN][{Server.ip}]"); }
         void ClientConnected(ClientHandler clientHandler) { Console.WriteLine($"[CLIENT_CONNECTED][{clientHandler.id}][{clientHandler.ip}]"); }
         void ClientDisconnected(ClientHandler clientHandler, string error) { Console.WriteLine($"[CLIENT_DISCONNECTED][{clientHandler.id}][{clientHandler.ip}]: {error}"); }
-        
-        // TODO! !!!!!!!!!!!!!!!!!!!!!!
-        void MessageReceived(string msg, ClientHandler ch, MessageProtocol mp) 
-        {
-            string[] parcedMessage = msg.Split(END_OF_FILE.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            foreach(string message in parcedMessage)
-            {
-                try
-                {
-                    if (!message.Contains(CHECK_CONNECTED) && !message.Contains(CLIENT_SHARES_PLAYROOM_POSITION))
-                    {
-                        Console.WriteLine($"[CLIENT_MESSAGE][{mp}][{ch.id}][{ch.ip}]: {message}");
-                    }
-
-                    // normally here should be some logic, checking, if specific playroom has space for new players to join
-                    if (message.StartsWith(ENTER_PLAY_ROOM))
-                    {
-                        string[] substrings = message.Split("|");
-
-                        ch.ConnectPlayerToPlayroom(Int32.Parse(substrings[1]), substrings[2]);
-
-                        Console.WriteLine($"[{ch.id}][{ch.ip}]Client requested to connect to playroom and was accepted");
-                    }
-                    else if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
-                    {
-                        string[] substrings = message.Split("|");
-                        string[] positions = substrings[1].Split("/");
-                        Vector3 position = new Vector3(
-                            float.Parse(positions[0], CultureInfo.InvariantCulture.NumberFormat),
-                            float.Parse(positions[1], CultureInfo.InvariantCulture.NumberFormat),
-                            float.Parse(positions[2], CultureInfo.InvariantCulture.NumberFormat));
-
-                        string[] rotations = substrings[2].Split("/");
-                        Quaternion rotation = new Quaternion(
-                            float.Parse(rotations[0], CultureInfo.InvariantCulture.NumberFormat),
-                            float.Parse(rotations[1], CultureInfo.InvariantCulture.NumberFormat),
-                            float.Parse(rotations[2], CultureInfo.InvariantCulture.NumberFormat),
-                            0);
-
-                        ch.StorePlayerPositionAndRotationOnServer(position, rotation);
-                    }
-                    else if (message.StartsWith(CLIENT_DISCONNECTED_FROM_THE_PLAYROOM))
-                    {
-                        Console.WriteLine($"[SERVER_MESSAGE]:Client [{ch.id}][{ch.ip}] disconnected from playroom");
-                        string[] substrings = message.Split("|");
-                        ch.DisconnectPlayerFromPlayroom(int.Parse(substrings[1]), substrings[2]);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"{e.Message} ||| {e.StackTrace} ||| message was:{message}");
-                }
-            }
-        }
     }
 }

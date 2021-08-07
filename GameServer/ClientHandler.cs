@@ -16,6 +16,7 @@ namespace GameServer
         public Socket handler;
         public IPEndPoint udpEndPoint;
 
+        public ClientAccessLevel clientAccessLevel;
         public Player player;
 
         public int id;
@@ -28,6 +29,7 @@ namespace GameServer
 
         public ClientHandler(Socket handler, int id)
         {
+            clientAccessLevel = ClientAccessLevel.LowestLevel;
             this.handler = handler;
             this.id = id;
             ip = this.GetRemoteIp();
@@ -148,5 +150,11 @@ namespace GameServer
             }
         }
         #endregion
+    }
+
+    public enum ClientAccessLevel
+    {
+        LowestLevel = 0,
+        Authenticated = 1
     }
 }

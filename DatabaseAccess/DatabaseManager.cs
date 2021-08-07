@@ -40,10 +40,15 @@ namespace DatabaseAccess
         /// Checks whether user with speific 'login' and 'password' exists. If such user exists it
         /// returns UserData from Database, if not, returns null; 
         /// </summary>
-        public static UserData TryToAuthenticate(string login, string password)
+        public static UserData TryToAuthenticate(object _userData)
         {
             try
             {
+                UserData info = (UserData)_userData;
+                string login = info.login;
+                string password = info.password;
+
+
                 if (mySqlConnection.State == System.Data.ConnectionState.Open)
                 {
                     MySqlCommand command = new MySqlCommand($"SELECT * FROM MainTable WHERE login = '{login}' AND pass = '{password}'", mySqlConnection);
