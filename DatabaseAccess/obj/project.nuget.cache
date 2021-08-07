@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "gqWk+aq/q2oyDCKSVRnKymsmXn4p6dr7BLbaB48Z5kzE3FQFdyXLktoJcoCdHhwSFw+vslPLnN9TB5tz8GukdA==",
+  "dgSpecHash": "rdLG9qqMS7pU+deUClFqEtCeKXaKOhbrTRkCa9WtziGKkZuPiBZcccfhhZ9HIaXi0vwOiM86gMylbsHRZJuZVg==",
   "success": true,
-  "projectFilePath": "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\GameServer\\GameServer.csproj",
+  "projectFilePath": "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\DatabaseAccess\\DatabaseAccess.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\eafor\\.nuget\\packages\\bouncycastle.netcore\\1.8.5\\bouncycastle.netcore.1.8.5.nupkg.sha512",
     "C:\\Users\\eafor\\.nuget\\packages\\google.protobuf\\3.14.0\\google.protobuf.3.14.0.nupkg.sha512",
