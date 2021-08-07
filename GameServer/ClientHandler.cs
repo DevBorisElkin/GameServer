@@ -49,7 +49,7 @@ namespace GameServer
         void ListenToMessages()
         {
             int errorMessages = 0;
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[8192];
             string str;
 
             while (handler.Connected)

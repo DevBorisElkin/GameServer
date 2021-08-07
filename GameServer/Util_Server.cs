@@ -145,7 +145,18 @@ namespace GameServer
 
         public static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
         {
-            string[] parcedMessage = msg.Split(END_OF_FILE.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (msg.Contains(CHECK_CONNECTED)) return;
+
+            Console.WriteLine($"Connection_MessageReceived(): {msg}");
+            string[] parcedMessage = msg.Split(END_OF_FILE, StringSplitOptions.RemoveEmptyEntries);
+
+            int i = 1;
+            foreach(string a in parcedMessage)
+            {
+                Console.WriteLine($"{i}) {a}");
+                i++;
+            }
+
 
             foreach (string message in parcedMessage)
             {
