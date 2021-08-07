@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DatabaseAccess;
+using static GameServer.Util_Server;
+using static GameServer.NetworkingMessageAttributes;
 
 namespace GameServer
 {
@@ -14,7 +16,7 @@ namespace GameServer
             DatabaseManager.Connect();
         }
 
-        public static async void TryToAuthenticateAsync(string _login, string _password)
+        public static async void TryToAuthenticateAsync(string _login, string _password, ClientHandler SendResponseBackTo)
         {
             UserData userData = new UserData { login = _login, password = _password };
             Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToAuthenticate, userData);
@@ -24,13 +26,14 @@ namespace GameServer
 
             if (result.requestResult.Equals(RequestResult.Success))
             {
-                //....
-                // here we tell the user back that authentication succeeded, and give back UserData that he retrieved 
+                // here we tell the user back that authentication succeeded, and give back UserData that he retrieved
+                SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}|{result.ToNetworkString()}", SendResponseBackTo);
+
             }
             else
             {
-                //....
                 // here we tell the user back that authentication failed and give some clue why it did
+                SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}", SendResponseBackTo);
             }
         }
     }

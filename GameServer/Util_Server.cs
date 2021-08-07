@@ -162,6 +162,17 @@ namespace GameServer
                     {
                         // accept only requests for authentication and registration
 
+                        if (message.Contains(LOG_IN))
+                        {
+                            // here should do some magic with database
+                            string[] substrings = message.Split("|");
+                            DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], ch);
+
+                        }else if (message.Contains(REGISTER))
+                        {
+
+                        }
+
                     }
                     else if (ch.clientAccessLevel.Equals(ClientAccessLevel.Authenticated))
                     {

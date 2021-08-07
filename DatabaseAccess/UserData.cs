@@ -33,6 +33,10 @@ namespace DatabaseAccess
         {
             return $"id:[{id}], login:[{login}], password:[{password}], nickname:[{nickname}]";
         }
+        public string ToNetworkString()
+        {
+            return $"{id},{login},{password},{nickname}";
+        }
     }
     // here I will populate different DatabaseRequestResults
     public enum RequestResult 

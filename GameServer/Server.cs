@@ -21,6 +21,7 @@ namespace GameServer
         // [START SERVER]
         public static void StartServer(int _port, int _portUdp)
         {
+            DatabaseBridge.InitDatabase();
             UDP.StartUdpServer(_portUdp);
             PlayroomManager.InitPlayroom();
 

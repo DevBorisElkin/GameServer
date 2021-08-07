@@ -7,7 +7,7 @@ namespace GameServer
     class NetworkingMessageAttributes
     {
 
-        // REGISTRATION AND AUTHENTICATION
+        //__AUTHENTICATION________________________________________________________
 
         // message to server from player that he wants to log into his account
         // example of message
@@ -15,16 +15,30 @@ namespace GameServer
         public const string LOG_IN = "log_in";
 
         // message from server to player whether player's request was accepted or not
-        // example of message if success
+        // example of message IF SUCCESS
         // "log_in_result|success_or_failure_plus_reason_if_failure|complete_user_data";
-        // example of message if fail
+
+        // example of message IF FAIL
         // "log_in_result|success_or_failure_plus_reason_if_failure";
+
         // more detailed response
         // user data: id, login, password, nickname
         // "log_in_result|Success|1,Bond_EA,test_password,Boris228";
         // "log_in_result|Fail_WrongPairLoginPassword"
         public const string LOG_IN_RESULT = "log_in_result";
 
+        //__REGISTRATION__________________________________________________________
+
+        // message to server from player that he wants to register new account
+        // example of message
+        // "register_request|user_login|user_password|user_nickname";
+        public const string REGISTER = "register_request";
+
+        // message from server to player whether player's request was accepted or not
+        // example of message
+        // "register_result|success_or_failure_plus_reason_if_failure|complete_user_data";
+        // user data: id,login,password,nickname
+        public const string REGISTER_RESULT = "register_result";
 
 
         // ____________________________________________________________________________
