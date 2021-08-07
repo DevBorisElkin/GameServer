@@ -17,13 +17,13 @@ namespace DatabaseAccess
 
             if (mySqlConnection.State == System.Data.ConnectionState.Open)
             {
-                Console.WriteLine("Successfully connected to database");
+                Console.WriteLine("[SERVER_MESSAGE]: Successfully connected to database");
 
                 MySqlCommand commandUse_database = new MySqlCommand($"USE MainData;", mySqlConnection);
                 MySqlDataReader readerUse_database = commandUse_database.ExecuteReader();
                 readerUse_database.Close();
             }
-            else Console.WriteLine($"Failed to connect to database, Connection State: {mySqlConnection.State}");
+            else Console.WriteLine($"[SERVER_MESSAGE]: Failed to connect to database, Connection State: {mySqlConnection.State}");
         }
 
         public static void Disconnect()

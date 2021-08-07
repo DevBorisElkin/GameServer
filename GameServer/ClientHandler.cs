@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -127,7 +125,9 @@ namespace GameServer
 
         public void ShutDownClient(int error = 0, bool removeFromClientsList = true)
         {
+            if (!connected) return;
             connected = false;
+            // TODO send message why disconnected client..
             SendMessageTcp(CLIENT_DISCONNECTED+END_OF_FILE);
 
             Util_Server.OnClientDisconnected(this, error.ToString());

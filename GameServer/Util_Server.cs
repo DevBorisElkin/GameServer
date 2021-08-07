@@ -35,7 +35,7 @@ namespace GameServer
         {
             ClientHandler util;
             if (clients.TryGetValue(id, out util)) { return util; }
-            else Console.WriteLine($"[Server]: Didn't find client with id {id}");
+            else Console.WriteLine($"[SERVER_MESSAGE]: Didn't find client with id {id}");
             return null;
         }
         public static ClientHandler TryToGetClientWithIp(string ip)
@@ -145,17 +145,14 @@ namespace GameServer
 
         public static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
         {
-            if (msg.Contains(CHECK_CONNECTED)) return;
-
-            Console.WriteLine($"Connection_MessageReceived(): {msg}");
             string[] parcedMessage = msg.Split(END_OF_FILE, StringSplitOptions.RemoveEmptyEntries);
 
-            int i = 1;
-            foreach(string a in parcedMessage)
-            {
-                Console.WriteLine($"{i}) {a}");
-                i++;
-            }
+            //int i = 1;
+            //foreach(string a in parcedMessage)
+            //{
+            //    Console.WriteLine($"{i}) {a}");
+            //    i++;
+            //}
 
 
             foreach (string message in parcedMessage)
@@ -164,8 +161,9 @@ namespace GameServer
                 {
                     if (message.Contains(CHECK_CONNECTED)) continue;
 
+                    // not showing CHECK_CONNECTED and SHARES_PLAYROOM because it spams in console
                     if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION))
-                    {
+                    {   
                         Console.WriteLine($"[CLIENT_MESSAGE][{mp}][{ch.id}][{ch.ip}]: {message}");
                     }
 
@@ -182,6 +180,11 @@ namespace GameServer
                         }else if (message.Contains(REGISTER))
                         {
 
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[SERVER_MESSAGE]: It appears that client {ch.ip} asks operation that he has no rights for");
+                            Console.WriteLine($"His request: {message}");
                         }
 
                     }

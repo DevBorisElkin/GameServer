@@ -28,7 +28,7 @@ namespace GameServer
             {
                 // here we tell the user back that authentication succeeded, and give back UserData that he retrieved
                 SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}|{result.ToNetworkString()}", SendResponseBackTo);
-
+                SendResponseBackTo.clientAccessLevel = ClientAccessLevel.Authenticated;
             }
             else
             {
