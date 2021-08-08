@@ -69,8 +69,8 @@ namespace GameServer
 
         // message for all other players that the player joined playroom
         // example of message
-        //         the code, playroom number, spawn coordinates, nickname
-        // "client_connected_to_playroom|1|0,0,0|nickname|ip"
+        //         the code, playroom id, spawn coordinates, nickname
+        // "client_connected_to_playroom|2342|0,0,0|nickname|ip"
         public const string CLIENT_CONNECTED_TO_THE_PLAYROOM = "client_connected_to_playroom";
 
         // message for all other players that the player disconnected from playroom

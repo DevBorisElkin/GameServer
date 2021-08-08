@@ -32,7 +32,7 @@ namespace GameServer
         public List<Player> playersInPlayroom;
 
 
-        public Playroom(int _id, string _name, bool _isPublic, string _password, Map _map, int _maxPlayers, Player creatorOfRoom)
+        public Playroom(int _id, string _name, bool _isPublic, string _password, Map _map, int _maxPlayers)
         {
             id = _id;
             name = _name;
@@ -42,19 +42,22 @@ namespace GameServer
             maxPlayers = _maxPlayers;
 
             playersInPlayroom = new List<Player>();
-            AddPlayer(creatorOfRoom);
         }
 
         public void AddPlayer(Player player)
         {
-            if(PlayersCurrAmount + 1 <= maxPlayers)
-            {
-                playersInPlayroom.Add(player);
+            playersInPlayroom.Add(player);
+            SendMessageToAllPlayersInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{id}|" +
+                $"{player.position.X},{player.position.Y},{player.position.Z}|{player.username}|{player.ch.ip}, player);
+        }
 
-            }
-            else
+        void SendMessageToAllPlayersInPlayroom(string message, Player excludePlayer, MessageProtocol mp = MessageProtocol.TCP)
+        {
+            foreach(var a in playersInPlayroom)
             {
+                if (a == excludePlayer) continue;
 
+                Util_Server.SendMessageToClient(message, a.ch, mp);
             }
         }
 

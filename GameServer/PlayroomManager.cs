@@ -64,9 +64,10 @@ namespace GameServer
                 return;
             }
 
-            ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
             int id = GenerateRandomIdForPlayroom();
-            Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers, ch.player);
+            Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers);
+            ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
+            playroom.AddPlayer(ch.player);
             playrooms.Add(playroom);
 
             // tell the client that he is accepted
@@ -91,6 +92,8 @@ namespace GameServer
             }
 
             ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
+            room.AddPlayer(ch.player);
+
             // tell the client that he is accepted
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.id}", ch);
 
