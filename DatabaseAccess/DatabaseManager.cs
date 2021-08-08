@@ -44,7 +44,7 @@ namespace DatabaseAccess
         /// Checks whether user with speific 'login' and 'password' exists. If such user exists it
         /// returns UserData from Database, if not, returns null; 
         /// </summary>
-        public static UserData TryToAuthenticate(object _userData)
+        public static UserData TryToAuthenticateAsync(object _userData)
         {
             try
             {
@@ -172,13 +172,16 @@ namespace DatabaseAccess
             return new UserData(RequestResult.Fail);
         }
 
-        public static UserData TryToRegister(string login, string password, string nickname)
+        public static UserData TryToRegisterAsync(object _userData)
         {
             try
             {
+                UserData info = (UserData)_userData;
+
                 if (mySqlConnection.State == System.Data.ConnectionState.Open)
-                {
-                    MySqlCommand command = new MySqlCommand($"SELECT * FROM MainTable WHERE login = '{login}'", mySqlConnection);
+                {   
+                    // check if user with such login already exists
+                    MySqlCommand command = new MySqlCommand($"SELECT * FROM MainTable WHERE login = '{info.login}'", mySqlConnection);
                     MySqlDataReader reader = command.ExecuteReader();
 
                     if (reader.Read())
@@ -194,13 +197,13 @@ namespace DatabaseAccess
 
                         // here need to try to add new user
                         MySqlCommand sqlCommand = new MySqlCommand($"INSERT INTO MainTable (login, pass, nickname)" +
-                            $" VALUES ('{login}', '{password}', '{nickname}')", mySqlConnection);
+                            $" VALUES ('{info.login}', '{info.password}', '{info.nickname}')", mySqlConnection);
                         int rowsAffected = sqlCommand.ExecuteNonQuery();
 
                         if (rowsAffected == 1)
                         {
                             // check that we actually added user and retrieve his full data
-                            UserData foundUser = TryToGetUserDataByLogin(login);
+                            UserData foundUser = TryToGetUserDataByLogin(info.login);
                             bool successfullyFoundUser = foundUser.requestResult.Equals(RequestResult.Success);
                             if (successfullyFoundUser)
                             {

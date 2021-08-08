@@ -13,6 +13,7 @@ namespace DatabaseAccess
         public string password;
         public string nickname;
 
+        // stores result of request to Database
         public RequestResult requestResult;
 
         public UserData() { }

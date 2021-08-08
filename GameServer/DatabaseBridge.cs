@@ -19,7 +19,7 @@ namespace GameServer
         public static async void TryToAuthenticateAsync(string _login, string _password, ClientHandler SendResponseBackTo)
         {
             UserData userData = new UserData { login = _login, password = _password };
-            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToAuthenticate, userData);
+            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToAuthenticateAsync, userData);
             await task;
 
             UserData result = task.Result;
@@ -28,12 +28,34 @@ namespace GameServer
             {
                 // here we tell the user back that authentication succeeded, and give back UserData that he retrieved
                 SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}|{result.ToNetworkString()}", SendResponseBackTo);
+                SendResponseBackTo.userData = result;
                 SendResponseBackTo.clientAccessLevel = ClientAccessLevel.Authenticated;
             }
             else
             {
                 // here we tell the user back that authentication failed and give some clue why it did
                 SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}", SendResponseBackTo);
+            }
+        }
+        public static async void TryToRegisterAsync(string _login, string _password, string _nickname, ClientHandler SendResponseBackTo)
+        {
+            UserData userData = new UserData { login = _login, password = _password, nickname = _nickname };
+            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToRegisterAsync, userData);
+            await task;
+
+            UserData result = task.Result;
+
+            if (result.requestResult.Equals(RequestResult.Success))
+            {
+                // here we tell the user back that registration succeeded, and give back UserData that he retrieved
+                SendMessageToClient($"{REGISTER_RESULT}|{result.requestResult}|{result.ToNetworkString()}", SendResponseBackTo);
+                SendResponseBackTo.userData = result;
+                SendResponseBackTo.clientAccessLevel = ClientAccessLevel.Authenticated;
+            }
+            else
+            {
+                // here we tell the user back that registration failed and give some clue why it did
+                SendMessageToClient($"{REGISTER_RESULT}|{result.requestResult}", SendResponseBackTo);
             }
         }
     }

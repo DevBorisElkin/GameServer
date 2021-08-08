@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static GameServer.Util_Connection;
 using static GameServer.NetworkingMessageAttributes;
+using DatabaseAccess;
 
 namespace GameServer
 {
@@ -15,6 +16,7 @@ namespace GameServer
         public IPEndPoint udpEndPoint;
 
         public ClientAccessLevel clientAccessLevel;
+        public UserData userData;
         public Player player;
 
         public int id;

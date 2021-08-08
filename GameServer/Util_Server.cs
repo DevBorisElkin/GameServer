@@ -179,7 +179,8 @@ namespace GameServer
 
                         }else if (message.Contains(REGISTER))
                         {
-
+                            string[] substrings = message.Split("|");
+                            DatabaseBridge.TryToRegisterAsync(substrings[1], substrings[2], substrings[3], ch);
                         }
                         else
                         {
