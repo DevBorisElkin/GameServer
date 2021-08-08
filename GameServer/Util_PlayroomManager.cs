@@ -18,9 +18,13 @@ namespace GameServer
         {
             try
             {
+                if (message.StartsWith(PLAYROOMS_DATA_REQUEST))
+                {
+                    PlayroomManager.RequestFromClient_GetPlayroomsData(ch);
+                }
                 //          0           1          2         3     4      5
                 // "create_playroom|nameOfRoom|is_public|password|map|maxPlayers";
-                if (message.StartsWith(CREATE_PLAY_ROOM))
+                else if (message.StartsWith(CREATE_PLAY_ROOM))
                 {
                     string[] substrings = message.Split("|");
 
@@ -59,13 +63,13 @@ namespace GameServer
                         float.Parse(rotations[2], CultureInfo.InvariantCulture.NumberFormat),
                         0);
 
-                    ch.StorePlayerPositionAndRotationOnServer(position, rotation);
+                    PlayroomManager.RequestFromClient_StorePlayerPositionAndRotation(ch, position, rotation);
                 }
                 else if (message.StartsWith(CLIENT_DISCONNECTED_FROM_THE_PLAYROOM))
                 {
                     Console.WriteLine($"[SERVER_MESSAGE]:Client [{ch.id}][{ch.ip}] disconnected from playroom");
                     string[] substrings = message.Split("|");
-                    ch.DisconnectPlayerFromPlayroom(int.Parse(substrings[1]), substrings[2]);
+                    PlayroomManager.RequestFromClient_DisconnectFromPlayroom(int.Parse(substrings[1]), ch);
                 }
             }
             catch(Exception e)

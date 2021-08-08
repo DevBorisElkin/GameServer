@@ -18,6 +18,8 @@ namespace GameServer
         {
             Task manageRoomsTask = new Task(ManageRooms);
             manageRoomsTask.Start();
+
+            Util_Server.OnClientDisconnectedEvent += OnClientDisconnected;
         }
 
         static void ManageRooms()
@@ -40,6 +42,27 @@ namespace GameServer
                     }
                 }
                 Thread.Sleep(500);
+            }
+        }
+        // "playrooms_data_response|playroom_data(/),playroom_data, playroom_data"
+        // data: nameOfRoom/is_public/password/map/maxPlayers
+        public static void RequestFromClient_GetPlayroomsData(ClientHandler ch)
+        {
+            try
+            {
+                string result = PLAYROOMS_DATA_RESPONSE + "|";
+                for (int i = 0; i < playrooms.Count; i++)
+                {
+                    if (i < playrooms.Count - 1)
+                        result += playrooms[i].ToNetworkString() + ",";
+                    else
+                        result += playrooms[i].ToNetworkString();
+                }
+                Util_Server.SendMessageToClient(result, ch);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.ToString());
             }
         }
 
@@ -77,6 +100,11 @@ namespace GameServer
         public static void RequestFromClient_EnterPlayroom(int room_id, ClientHandler ch, string roomPassword = "")
         {
             var room = FindPlayroomById(room_id);
+            if(room == null)
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Didn't find playroom with id {room_id}", ch);
+                return;
+            }
             if (!room.isPublic)
             {
                 if (!room.password.Equals(roomPassword))
@@ -97,15 +125,15 @@ namespace GameServer
             // tell the client that he is accepted
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.id}", ch);
 
-            // tell all other clients who are in Playroom that one client connected to it
-            //SendMessageToAllClientsInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{playroomNumber}|" +
-            //    $"{client.player.position.X},{client.player.position.Y},{client.player.position.Z}|{nickname}|{client.ip}", MessageProtocol.TCP, client);
-
             Check_TurnOn_Playroom();
         }
-        public static void RequestFromClient_EnterPasswordedPlayroom(int room_id, string room_password, ClientHandler ch)
-        { 
-        
+        public static void RequestFromClient_StorePlayerPositionAndRotation(ClientHandler client, Vector3 _position, Quaternion _rotation)
+        {
+            if (client.player != null)
+            {
+                client.player.position = _position;
+                client.player.rotation = _rotation;
+            }
         }
 
         static int GenerateRandomIdForPlayroom()
@@ -136,6 +164,38 @@ namespace GameServer
             return null;
         }
 
+        static void OnClientDisconnected(ClientHandler ch, string error)
+        {
+            if (ch.player == null) return;
+
+            if (ch.player.playroom == null) return;
+
+            Playroom playroom = ch.player.playroom;
+            bool shouldClose = ch.player.playroom.RemovePlayer(ch);
+            CheckAndClosePlayroom(playroom, shouldClose);
+        }
+
+        public static void RequestFromClient_DisconnectFromPlayroom(int playroomId, ClientHandler ch)
+        {
+            if (ch.player == null) return;
+            if (ch.player.playroom == null) return;
+
+            Playroom playroom = ch.player.playroom;
+
+            if (ch.player.playroom.id != playroomId) 
+                Console.WriteLine($"[SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {ch.player.playroom.id} | {playroomId}");
+            bool shouldClose = ch.player.playroom.RemovePlayer(ch);
+            CheckAndClosePlayroom(playroom, shouldClose);
+        }
+        static void CheckAndClosePlayroom(Playroom room, bool shouldClose)
+        {
+            if (shouldClose)
+            {
+                playrooms.Remove(room);
+                room = null;
+            }
+        }
+
         // _____OLD__________________________________________________________________________________________________
         static Task managingPlayRoom;
         static bool playroomActive;
@@ -144,16 +204,10 @@ namespace GameServer
 
         public static void InitPlayroom()
         {
-            Util_Server.OnClientDisconnectedEvent += OnClientDisconnected;
+            
         }
 
-        static void OnClientDisconnected(ClientHandler ch, string error)
-        {
-            if (ch.player == null) return;
-            Util_Server.SendMessageToAllClientsInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{1}|{ch.player.username}|{ch.ip}", MessageProtocol.TCP, ch);
-            ch.player = null;
-            Check_TurnOff_Playroom();
-        }
+        
 
 
         public static void Check_TurnOn_Playroom()

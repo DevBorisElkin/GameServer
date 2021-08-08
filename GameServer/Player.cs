@@ -14,6 +14,8 @@ namespace GameServer
         public Vector3 position;
         public Quaternion rotation;
 
+        public Playroom playroom;
+
 
         public Player(ClientHandler ch, string username, Vector3 spawnPosition)
         {

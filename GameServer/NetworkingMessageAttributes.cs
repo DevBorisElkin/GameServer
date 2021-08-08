@@ -79,8 +79,9 @@ namespace GameServer
         // when player sends to the server
         // client_disconnected_from_playroom|1|no_nickname
         // when server sends to all other clients
-        //         the code, playroom number, nickname
-        // "client_connected_to_playroom|1|nickname|ip"
+        //         the code, playroom id, nickname
+        // "client_disconnected_from_playroom|2342|nickname|ip" 
+        // TODO REMOVE UNNECESARRY ITEMS
         public const string CLIENT_DISCONNECTED_FROM_THE_PLAYROOM = "client_disconnected_from_playroom";
 
         // message from client to server about client position and rotation
@@ -95,9 +96,23 @@ namespace GameServer
         // "players_positions_in_playroom|nickname,ip,position,rotation@nickname,ip,position,rotation@enc..."
         public const string MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM = "players_positions_in_playroom";
 
+        // message from client - request to get active playrooms data
+        // example of message
+        //
+        // "playrooms_data_request"
+        public const string PLAYROOMS_DATA_REQUEST = "playrooms_data_request";
 
-        public static string[] MessagesFromClient_RelatedToPlayroom = new string[4]
+        // message to the client about active playrooms
+        // example of message
+        //
+        // "playrooms_data_response|playroom_data(/),playroom_data, playroom_data"
+        // data: nameOfRoom/is_public/password/map/maxPlayers
+        public const string PLAYROOMS_DATA_RESPONSE = "playrooms_data_response";
+
+
+        public static string[] MessagesFromClient_RelatedToPlayroom = new string[5]
         {
+            PLAYROOMS_DATA_REQUEST,
             ENTER_PLAY_ROOM,
             CREATE_PLAY_ROOM,
             CLIENT_SHARES_PLAYROOM_POSITION,

@@ -23,7 +23,7 @@ namespace GameServer
         {
             DatabaseBridge.InitDatabase();
             UDP.StartUdpServer(_portUdp);
-            PlayroomManager.InitPlayroom();
+            PlayroomManager.InitPlayroomManager();
 
             portTcp = _port;
             ip = Util_Server.GetIpOfServer().ToString();
