@@ -4,6 +4,10 @@ using System.IO;
 
 namespace DatabaseAccess
 {
+    /// <summary>
+    /// Is responsible for getting/setting data from/to DB. logins are
+    /// not case sensitive, passwords are case sensitive
+    /// </summary>
     public static class DatabaseManager
     {
         static MySqlConnection mySqlConnection;
@@ -51,7 +55,7 @@ namespace DatabaseAccess
 
                 if (mySqlConnection.State == System.Data.ConnectionState.Open)
                 {
-                    MySqlCommand command = new MySqlCommand($"SELECT * FROM MainTable WHERE login = '{login}' AND pass = '{password}'", mySqlConnection);
+                    MySqlCommand command = new MySqlCommand($"SELECT * FROM MainTable WHERE login = '{login}' AND pass = binary '{password}'", mySqlConnection);
                     MySqlDataReader reader = command.ExecuteReader();
 
                     if (reader.Read())
