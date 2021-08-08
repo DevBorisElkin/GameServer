@@ -48,6 +48,11 @@ namespace GameServer
         // "enter_playroom|1|nickname";
         public const string ENTER_PLAY_ROOM = "enter_playroom";
 
+        // code for letting know the server, that a player wants to create a playroom
+        // example of message
+        // "create_playroom|nameOfRoom|is_public|password|map|maxPlayers";
+        public const string CREATE_PLAY_ROOM = "create_playroom";
+
         // confirmation code for the player that he got accepted to the playroom
         // example of message
         // "confirm_enter_playroom|1|";
@@ -61,6 +66,10 @@ namespace GameServer
 
         // message for all other players that the player disconnected from playroom
         // example of message
+        //
+        // when player sends to the server
+        // client_disconnected_from_playroom|1|no_nickname
+        // when server sends to all other clients
         //         the code, playroom number, nickname
         // "client_connected_to_playroom|1|nickname|ip"
         public const string CLIENT_DISCONNECTED_FROM_THE_PLAYROOM = "client_disconnected_from_playroom";
@@ -77,6 +86,23 @@ namespace GameServer
         // "players_positions_in_playroom|nickname,ip,position,rotation@nickname,ip,position,rotation@enc..."
         public const string MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM = "players_positions_in_playroom";
 
+
+        public static string[] MessagesFromClient_RelatedToPlayroom = new string[4]
+        {
+            ENTER_PLAY_ROOM,
+            CREATE_PLAY_ROOM,
+            CLIENT_SHARES_PLAYROOM_POSITION,
+            CLIENT_DISCONNECTED_FROM_THE_PLAYROOM
+        };
+
+        public static bool DoesMessageRelatedToPlayroomManager(string message)
+        {
+            foreach(string a in MessagesFromClient_RelatedToPlayroom)
+            {
+                if (message.StartsWith(a)) return true;
+            }
+            return false;
+        }
         // _______________________________________________________CONNECTION_CHECK________________________
 
 

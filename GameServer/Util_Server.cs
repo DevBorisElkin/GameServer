@@ -154,7 +154,6 @@ namespace GameServer
             //    i++;
             //}
 
-
             foreach (string message in parcedMessage)
             {
                 try
@@ -192,39 +191,9 @@ namespace GameServer
                     else if (ch.clientAccessLevel.Equals(ClientAccessLevel.Authenticated))
                     {
                         // accept all other requests
-
-                        if (message.StartsWith(ENTER_PLAY_ROOM))
-                        // normally here should be some logic, checking, if specific playroom has space for new players to join
+                        if (DoesMessageRelatedToPlayroomManager(message))
                         {
-                            string[] substrings = message.Split("|");
-
-                            ch.ConnectPlayerToPlayroom(Int32.Parse(substrings[1]), substrings[2]);
-
-                            Console.WriteLine($"[{ch.id}][{ch.ip}]Client requested to connect to playroom and was accepted");
-                        }
-                        else if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
-                        {
-                            string[] substrings = message.Split("|");
-                            string[] positions = substrings[1].Split("/");
-                            Vector3 position = new Vector3(
-                                float.Parse(positions[0], CultureInfo.InvariantCulture.NumberFormat),
-                                float.Parse(positions[1], CultureInfo.InvariantCulture.NumberFormat),
-                                float.Parse(positions[2], CultureInfo.InvariantCulture.NumberFormat));
-
-                            string[] rotations = substrings[2].Split("/");
-                            Quaternion rotation = new Quaternion(
-                                float.Parse(rotations[0], CultureInfo.InvariantCulture.NumberFormat),
-                                float.Parse(rotations[1], CultureInfo.InvariantCulture.NumberFormat),
-                                float.Parse(rotations[2], CultureInfo.InvariantCulture.NumberFormat),
-                                0);
-
-                            ch.StorePlayerPositionAndRotationOnServer(position, rotation);
-                        }
-                        else if (message.StartsWith(CLIENT_DISCONNECTED_FROM_THE_PLAYROOM))
-                        {
-                            Console.WriteLine($"[SERVER_MESSAGE]:Client [{ch.id}][{ch.ip}] disconnected from playroom");
-                            string[] substrings = message.Split("|");
-                            ch.DisconnectPlayerFromPlayroom(int.Parse(substrings[1]), substrings[2]);
+                            Util_PlayroomManager.ParceMessage_Playroom(message, ch);
                         }
                     }
 

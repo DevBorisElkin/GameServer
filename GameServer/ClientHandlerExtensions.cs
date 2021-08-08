@@ -12,7 +12,7 @@ namespace GameServer
         {
             // normally here should be some logic, checking, if specific playroom has space for new players to join
 
-            client.player = new Player(client.id, nickname, Vector3.Zero);
+            client.player = new Player(client, nickname, Vector3.Zero);
 
             // tell the client that he is accepted
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroomNumber}", client);

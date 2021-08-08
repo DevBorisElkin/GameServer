@@ -5,13 +5,42 @@ using System.Threading.Tasks;
 using static GameServer.Server;
 using static GameServer.NetworkingMessageAttributes;
 using static GameServer.Util_Connection;
+using System.Collections.Generic;
+using System.Numerics;
 
 namespace GameServer
 {
     public static class PlayroomManager
     {
+        public static List<Playroom> playrooms;
+
+        public static void RequestFromClient_CreatePlayroom(ClientHandler ch, string _name, bool _isPublic, 
+            string _password, Map _map, int _maxPlayers)
+        {
+            ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
+
+
+
+            // OLD for reference
+            //// normally here should be some logic, checking, if specific playroom has space for new players to join
+            //
+            //client.player = new Player(client, nickname, Vector3.Zero);
+            //
+            //// tell the client that he is accepted
+            //Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroomNumber}", client);
+            //
+            //// tell all other clients who are in Playroom that one client connected to it
+            //SendMessageToAllClientsInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{playroomNumber}|" +
+            //    $"{client.player.position.X},{client.player.position.Y},{client.player.position.Z}|{nickname}|{client.ip}", MessageProtocol.TCP, client);
+            //
+            //Check_TurnOn_Playroom();
+        }
+
+        // _____OLD__________________________________________________________________________________________________
         static Task managingPlayRoom;
         static bool playroomActive;
+
+        public static int maximumPlayroomAmount = 5;
 
         public static void InitPlayroom()
         {
