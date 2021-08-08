@@ -32,8 +32,9 @@ namespace GameServer
         public List<Player> playersInPlayroom;
 
 
-        public Playroom(string _name, bool _isPublic, string _password, Map _map, int _maxPlayers, Player creatorOfRoom)
+        public Playroom(int _id, string _name, bool _isPublic, string _password, Map _map, int _maxPlayers, Player creatorOfRoom)
         {
+            id = _id;
             name = _name;
             isPublic = _isPublic;
             password = _password;

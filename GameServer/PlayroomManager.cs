@@ -14,26 +14,123 @@ namespace GameServer
     {
         public static List<Playroom> playrooms;
 
+        public static void InitPlayroomManager()
+        {
+            Task manageRoomsTask = new Task(ManageRooms);
+            manageRoomsTask.Start();
+        }
+
+        static void ManageRooms()
+        {
+            while (true)
+            {
+                while (playrooms.Count > 0)
+                {
+                    try
+                    {
+                        foreach (var a in playrooms)
+                        {
+                            a.ManageRoom();
+                        }
+                        Thread.Sleep(50);
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                    }
+                }
+                Thread.Sleep(500);
+            }
+        }
+
         public static void RequestFromClient_CreatePlayroom(ClientHandler ch, string _name, bool _isPublic, 
             string _password, Map _map, int _maxPlayers)
         {
+            // check if he can create playroom and that new playroom does not exceed max amount
+            // send negative response
+            if (playrooms.Count + 1 > maximumPlayroomAmount)
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Server has reached maximum amount playrooms", ch);
+                return;
+            }
+            if(_name.Length > 15)
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Name of room is too long", ch);
+                return;
+            }
+            if(_maxPlayers > 10)
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom can't keep more than 10 players", ch);
+                return;
+            }
+
             ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
+            int id = GenerateRandomIdForPlayroom();
+            Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers, ch.player);
+            playrooms.Add(playroom);
 
+            // tell the client that he is accepted
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{id}", ch);
+        }
 
+        public static void RequestFromClient_EnterPlayroom(int room_id, ClientHandler ch, string roomPassword = "")
+        {
+            var room = FindPlayroomById(room_id);
+            if (!room.isPublic)
+            {
+                if (!room.password.Equals(roomPassword))
+                {
+                    Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Wrong password", ch);
+                    return;
+                }
+            }
+            if(room.PlayersCurrAmount + 1 > room.maxPlayers)
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom is full", ch);
+                return;
+            }
 
-            // OLD for reference
-            //// normally here should be some logic, checking, if specific playroom has space for new players to join
-            //
-            //client.player = new Player(client, nickname, Vector3.Zero);
-            //
-            //// tell the client that he is accepted
-            //Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroomNumber}", client);
-            //
-            //// tell all other clients who are in Playroom that one client connected to it
+            ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
+            // tell the client that he is accepted
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.id}", ch);
+
+            // tell all other clients who are in Playroom that one client connected to it
             //SendMessageToAllClientsInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{playroomNumber}|" +
             //    $"{client.player.position.X},{client.player.position.Y},{client.player.position.Z}|{nickname}|{client.ip}", MessageProtocol.TCP, client);
-            //
-            //Check_TurnOn_Playroom();
+
+            Check_TurnOn_Playroom();
+        }
+        public static void RequestFromClient_EnterPasswordedPlayroom(int room_id, string room_password, ClientHandler ch)
+        { 
+        
+        }
+
+        static int GenerateRandomIdForPlayroom()
+        {
+            Random random = new Random();
+            int randomInt = 0;
+            int index = 0;
+            bool numberNotUnique = true;
+            while (numberNotUnique && index < 100)
+            {
+                numberNotUnique = false;
+                randomInt = random.Next(1000, 10000);
+                foreach (Playroom a in playrooms)
+                {
+                    if (a.id == randomInt) numberNotUnique = true;
+                }
+                index++;
+            }
+            return randomInt;
+        }
+
+        static Playroom FindPlayroomById(int id)
+        {
+            foreach(Playroom a in playrooms)
+            {
+                if (a.id == id) return a;
+            }
+            return null;
         }
 
         // _____OLD__________________________________________________________________________________________________

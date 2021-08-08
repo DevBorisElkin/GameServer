@@ -44,8 +44,12 @@ namespace GameServer
         // ____________________________________________________________________________
 
         // code for letting know the server, that a player wants to join that playroom
-        // example of message
-        // "enter_playroom|1|nickname";
+        // example of message if playroom has no password
+        //       code    playroom_id
+        // "enter_playroom|3251";
+        // example of message if playroom Has password
+        //     code   playroom_id  playroom_password
+        // "enter_playroom|3251|the_greatest_password_ever";
         public const string ENTER_PLAY_ROOM = "enter_playroom";
 
         // code for letting know the server, that a player wants to create a playroom
@@ -55,8 +59,13 @@ namespace GameServer
 
         // confirmation code for the player that he got accepted to the playroom
         // example of message
-        // "confirm_enter_playroom|1|";
+        // "confirm_enter_playroom|3434|";
         public const string CONFIRM_ENTER_PLAY_ROOM = "confirm_enter_playroom";
+
+        // code for the player that playroom entering was rejected
+        // example of message
+        // "reject_enter_playroom|reason_of_rejection_message|";
+        public const string REJECT_ENTER_PLAY_ROOM = "reject_enter_playroom";
 
         // message for all other players that the player joined playroom
         // example of message

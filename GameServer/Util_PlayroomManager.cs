@@ -31,14 +31,17 @@ namespace GameServer
                         substrings[3], map, Int32.Parse(substrings[5]));
                 }
                 // WILL REMAKE RESPONSE 'CONFIRM_ENTER_PLAYROOM' and there will be response: okay, or error
+                // "enter_playroom|3251|the_greatest_password_ever";
                 else if (message.StartsWith(ENTER_PLAY_ROOM))
                 // normally here should be some logic, checking, if specific playroom has space for new players to join
                 {
                     string[] substrings = message.Split("|");
 
-                    ch.ConnectPlayerToPlayroom(Int32.Parse(substrings[1]), substrings[2]);
-
-                    Console.WriteLine($"[{ch.id}][{ch.ip}]Client requested to connect to playroom and was accepted");
+                    Console.WriteLine($"[{ch.id}][{ch.ip}]Client requested to connect to playroom");
+                    if(substrings.Length == 2)
+                        PlayroomManager.RequestFromClient_EnterPlayroom(Int32.Parse(substrings[1]), ch);
+                    else if(substrings.Length == 3)
+                        PlayroomManager.RequestFromClient_EnterPlayroom(Int32.Parse(substrings[1]), ch, substrings[2]);
                 }
                 else if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
                 {
