@@ -8,38 +8,6 @@ namespace GameServer
 {
     public static class ClientHandlerExtensions
     {
-        public static void ConnectPlayerToPlayroom(this ClientHandler client, int playroomNumber, string nickname)
-        {
-            // normally here should be some logic, checking, if specific playroom has space for new players to join
-
-            client.player = new Player(client, nickname, Vector3.Zero);
-
-            // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroomNumber}", client);
-
-            // tell all other clients who are in Playroom that one client connected to it
-            SendMessageToAllClientsInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{playroomNumber}|" +
-                $"{client.player.position.X},{client.player.position.Y},{client.player.position.Z}|{nickname}|{client.ip}", MessageProtocol.TCP, client);
-
-            Check_TurnOn_Playroom();
-        }
-        public static void DisconnectPlayerFromPlayroom(this ClientHandler client, int playroomNumber, string nickname)
-        {
-            client.player = null;
-
-            // tell all other clients who are in Playroom that one client connected to it
-            SendMessageToAllClientsInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{playroomNumber}|{nickname}|{client.ip}", MessageProtocol.TCP, client);
-
-            Check_TurnOff_Playroom();
-        }
-        public static void StorePlayerPositionAndRotationOnServer(this ClientHandler client, Vector3 _position, Quaternion _rotation)
-        {
-            if(client.player != null)
-            {
-                client.player.position = _position;
-                client.player.rotation = _rotation;
-            }
-        }
-
+        // here should be some extension for parsing some incoming messages
     }
 }

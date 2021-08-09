@@ -106,7 +106,7 @@ namespace GameServer
         // example of message
         //
         // "playrooms_data_response|playroom_data(/),playroom_data, playroom_data"
-        // data: nameOfRoom/is_public/password/map/maxPlayers
+        // data: nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public const string PLAYROOMS_DATA_RESPONSE = "playrooms_data_response";
 
 

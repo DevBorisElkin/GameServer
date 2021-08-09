@@ -12,7 +12,8 @@ namespace GameServer
 {
     public static class PlayroomManager
     {
-        public static List<Playroom> playrooms;
+        public static List<Playroom> playrooms = new List<Playroom>();
+        static int maximumPlayroomAmount = 5;
 
         public static void InitPlayroomManager()
         {
@@ -45,7 +46,7 @@ namespace GameServer
             }
         }
         // "playrooms_data_response|playroom_data(/),playroom_data, playroom_data"
-        // data: nameOfRoom/is_public/password/map/maxPlayers
+        // data: nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public static void RequestFromClient_GetPlayroomsData(ClientHandler ch)
         {
             try
@@ -124,8 +125,6 @@ namespace GameServer
 
             // tell the client that he is accepted
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.id}", ch);
-
-            Check_TurnOn_Playroom();
         }
         public static void RequestFromClient_StorePlayerPositionAndRotation(ClientHandler client, Vector3 _position, Quaternion _rotation)
         {
@@ -135,7 +134,18 @@ namespace GameServer
                 client.player.rotation = _rotation;
             }
         }
+        public static void RequestFromClient_DisconnectFromPlayroom(int playroomId, ClientHandler ch)
+        {
+            if (ch.player == null) return;
+            if (ch.player.playroom == null) return;
 
+            Playroom playroom = ch.player.playroom;
+
+            if (ch.player.playroom.id != playroomId)
+                Console.WriteLine($"[SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {ch.player.playroom.id} | {playroomId}");
+            bool shouldClose = ch.player.playroom.RemovePlayer(ch);
+            CheckAndClosePlayroom(playroom, shouldClose);
+        }
         static int GenerateRandomIdForPlayroom()
         {
             Random random = new Random();
@@ -174,19 +184,7 @@ namespace GameServer
             bool shouldClose = ch.player.playroom.RemovePlayer(ch);
             CheckAndClosePlayroom(playroom, shouldClose);
         }
-
-        public static void RequestFromClient_DisconnectFromPlayroom(int playroomId, ClientHandler ch)
-        {
-            if (ch.player == null) return;
-            if (ch.player.playroom == null) return;
-
-            Playroom playroom = ch.player.playroom;
-
-            if (ch.player.playroom.id != playroomId) 
-                Console.WriteLine($"[SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {ch.player.playroom.id} | {playroomId}");
-            bool shouldClose = ch.player.playroom.RemovePlayer(ch);
-            CheckAndClosePlayroom(playroom, shouldClose);
-        }
+        
         static void CheckAndClosePlayroom(Playroom room, bool shouldClose)
         {
             if (shouldClose)
@@ -196,119 +194,5 @@ namespace GameServer
             }
         }
 
-        // _____OLD__________________________________________________________________________________________________
-        static Task managingPlayRoom;
-        static bool playroomActive;
-
-        public static int maximumPlayroomAmount = 5;
-
-        public static void InitPlayroom()
-        {
-            
-        }
-
-        
-
-
-        public static void Check_TurnOn_Playroom()
-        {
-            int playersInPlayRoom = 0;
-            foreach (var a in clients.Values)
-            {
-                if (a.player != null) playersInPlayRoom++;
-            }
-            if (playersInPlayRoom <= 0)
-            {
-                Console.WriteLine($"[SERVER_ERROR]: Not enough players in play room to turn on Managing of it. [{playersInPlayRoom}]");
-                return;
-            }
-            if (!playroomActive) Console.WriteLine("Opening playroom. First player joined it.");
-
-            playroomActive = true;
-            managingPlayRoom = new Task(ManagePlayroom);
-            managingPlayRoom.Start();
-        }
-        public static void Check_TurnOff_Playroom()
-        {
-            int playersInPlayRoom = 0;
-            foreach (var a in clients.Values)
-            {
-                if (a.player != null) playersInPlayRoom++;
-            }
-            if (playersInPlayRoom <= 0)
-            {
-                if (playroomActive) Console.WriteLine("Closing playroom. Last player left it.");
-                playroomActive = false;
-            }
-
-        }
-
-        static void ManagePlayroom()
-        {
-            // here we will send room's position and rotation to all players connected to that room
-
-            while (playroomActive) // sending data 10 times a second
-            {
-                try
-                {
-                    foreach (var key in clients.Keys)
-                    {
-                        clients.TryGetValue(key, out ClientHandler ch);
-
-                        if (ch == null || ch.player == null) 
-                            continue;
-
-                        string generatedString = GenerateStringSendingPlayersOtherPlayersPositions(ch);
-                        if (!generatedString.Equals("empty"))
-                            Util_Server.SendMessageToClient(generatedString, ch, MessageProtocol.UDP);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"{e.Message} ||| + {e.StackTrace}");
-                }
-                Thread.Sleep(50);
-            }
-
-
-        }
-
-        // |nickname,ip,position,rotation@nickname,ip,position,rotation@enc..."
-        static string GenerateStringSendingPlayersOtherPlayersPositions(ClientHandler exceptThisOne)
-        {
-            string message = "";
-            try
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|");
-                foreach (var a in clients.Values)
-                {
-                    if (a.player == null) continue;
-                    if (a == exceptThisOne) continue;
-
-                    sb.Append($"{a.player.username},{a.ip},{a.player.position.X}/{a.player.position.Y}/{a.player.position.Z}," +
-                        $"{a.player.rotation.X}/{a.player.rotation.Y}/{a.player.rotation.Z}@");
-                }
-                message = sb.ToString();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString() + " ||| " + e.StackTrace);
-            }
-            int lastIndexOfDog = message.LastIndexOf('@');
-            if (message.Length > lastIndexOfDog + 1)
-            {
-                // we can leave dog like that
-            }
-            else
-            {
-                message = message.Remove(lastIndexOfDog, 1);
-            }
-
-            if (message.Equals(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|")) return "empty";
-
-            //Console.WriteLine($"Sending UDP message to all clients:\n{message}");
-            return message;
-        }
     }
 }
