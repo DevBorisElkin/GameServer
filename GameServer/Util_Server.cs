@@ -183,8 +183,8 @@ namespace GameServer
                         }
                         else
                         {
-                            Console.WriteLine($"[SERVER_MESSAGE]: It appears that client {ch.ip} asks operation that he has no rights for");
-                            Console.WriteLine($"His request: {message}");
+                            Console.WriteLine($"[SERVER_MESSAGE]: It appears that client {ch.ip} " +
+                                $"asks operation that he has no rights for, his request: {message}");
                         }
 
                     }

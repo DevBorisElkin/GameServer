@@ -59,7 +59,7 @@ namespace GameServer
 
         // confirmation code for the player that he got accepted to the playroom
         // example of message
-        // "confirm_enter_playroom|3434|";
+        // "confirm_enter_playroom|id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers"
         public const string CONFIRM_ENTER_PLAY_ROOM = "confirm_enter_playroom";
 
         // code for the player that playroom entering was rejected

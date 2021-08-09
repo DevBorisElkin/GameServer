@@ -69,7 +69,10 @@ namespace GameServer
             {
                 foreach(Player a in playersInPlayroom)
                 {
-                    a.SendPositionsOfOtherPlayers(GeneratePositionsDataOfAllPlayers(a));
+                    string generatedString = GeneratePositionsDataOfAllPlayers(a);
+                    if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("empty"))
+                        continue;
+                    a.SendPositionsOfOtherPlayers(generatedString);
                 }
             }
         }
@@ -125,7 +128,7 @@ namespace GameServer
                 Console.WriteLine(e.ToString() + " ||| " + e.StackTrace);
             }
             int lastIndexOfDog = message.LastIndexOf('@');
-            if (message.Length < lastIndexOfDog + 1)
+            if (message.Length <= lastIndexOfDog + 1)
             {
                 message = message.Remove(lastIndexOfDog, 1);
             }

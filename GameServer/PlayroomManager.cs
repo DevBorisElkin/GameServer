@@ -77,14 +77,24 @@ namespace GameServer
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Server has reached maximum amount playrooms", ch);
                 return;
             }
-            if(_name.Length > 15)
+            if (_name.Length < 5)
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Name of room is too short", ch);
+                return;
+            }
+            if (_name.Length > 20)
             {
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Name of room is too long", ch);
                 return;
             }
-            if(_maxPlayers > 10)
+            if (_maxPlayers > 10)
             {
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom can't keep more than 10 players", ch);
+                return;
+            }
+            if (!_isPublic && (_password.Length < 5 || _password.Length > 15))
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Password length is wrong", ch);
                 return;
             }
 
@@ -95,7 +105,7 @@ namespace GameServer
             playrooms.Add(playroom);
 
             // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{id}", ch);
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroom.ToNetworkString()}", ch);
         }
 
         public static void RequestFromClient_EnterPlayroom(int room_id, ClientHandler ch, string roomPassword = "")
@@ -124,7 +134,7 @@ namespace GameServer
             room.AddPlayer(ch.player);
 
             // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.id}", ch);
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}", ch);
         }
         public static void RequestFromClient_StorePlayerPositionAndRotation(ClientHandler client, Vector3 _position, Quaternion _rotation)
         {
