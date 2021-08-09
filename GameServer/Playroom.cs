@@ -133,10 +133,10 @@ namespace GameServer
             return message;
         }
         // "playrooms_data_response|playroom_data(/),playroom_data, playroom_data"
-        // data: nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
+        // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public string ToNetworkString()
         {
-            return $"{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}";
+            return $"{id}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}";
         }
     }
 

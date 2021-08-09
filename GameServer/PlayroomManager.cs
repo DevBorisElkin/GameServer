@@ -46,7 +46,7 @@ namespace GameServer
             }
         }
         // "playrooms_data_response|playroom_data(/),playroom_data, playroom_data"
-        // data: nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
+        // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public static void RequestFromClient_GetPlayroomsData(ClientHandler ch)
         {
             try
