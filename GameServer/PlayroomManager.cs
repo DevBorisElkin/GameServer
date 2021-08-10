@@ -97,6 +97,11 @@ namespace GameServer
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Password length is wrong", ch);
                 return;
             }
+            if (!UDP.TryToRetrieveEndPoint(ch))
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Client has no UDP end point assigned", ch);
+                return;
+            }
 
             int id = GenerateRandomIdForPlayroom();
             Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers);
@@ -104,6 +109,7 @@ namespace GameServer
             playroom.AddPlayer(ch.player);
             playrooms.Add(playroom);
 
+            Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to create playroom and his request was accepted");
             // tell the client that he is accepted
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroom.ToNetworkString()}", ch);
         }
@@ -129,10 +135,16 @@ namespace GameServer
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom is full", ch);
                 return;
             }
+            if (!UDP.TryToRetrieveEndPoint(ch))
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Client has no UDP end point assigned", ch);
+                return;
+            }
 
             ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
             room.AddPlayer(ch.player);
 
+            Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
             // tell the client that he is accepted
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}", ch);
         }
@@ -153,6 +165,8 @@ namespace GameServer
 
             if (ch.player.playroom.id != playroomId)
                 Console.WriteLine($"[SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {ch.player.playroom.id} | {playroomId}");
+
+            Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] notified about leaving playroom [{playroomId}]");
             bool shouldClose = ch.player.playroom.RemovePlayer(ch);
             CheckAndClosePlayroom(playroom, shouldClose);
         }

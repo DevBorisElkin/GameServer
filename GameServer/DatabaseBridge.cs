@@ -30,6 +30,7 @@ namespace GameServer
                 SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}|{result.ToNetworkString()}", SendResponseBackTo);
                 SendResponseBackTo.userData = result;
                 SendResponseBackTo.clientAccessLevel = ClientAccessLevel.Authenticated;
+                Console.WriteLine($"[SERVER_MESSAGE]: client [{SendResponseBackTo.ip}] requested to authenticate and got accepted");
             }
             else
             {
@@ -51,6 +52,7 @@ namespace GameServer
                 SendMessageToClient($"{REGISTER_RESULT}|{result.requestResult}|{result.ToNetworkString()}", SendResponseBackTo);
                 SendResponseBackTo.userData = result;
                 SendResponseBackTo.clientAccessLevel = ClientAccessLevel.Authenticated;
+                Console.WriteLine($"[SERVER_MESSAGE]: client [{SendResponseBackTo.ip}] requested to register and got accepted");
             }
             else
             {

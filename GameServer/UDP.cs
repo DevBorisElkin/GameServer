@@ -67,7 +67,7 @@ namespace GameServer
                         else if (clientToBind.udpEndPoint == null)
                         {
                             clientToBind.udpEndPoint = remoteIp;
-                            //Console.WriteLine($"[SYSTEM_MESSAGE]: 1) initialized IPEndPoint for UDP messaging of client [{clientToBind.id}][{clientToBind.ip}]");
+                            Console.WriteLine($"[SYSTEM_MESSAGE]: 1) initialized IPEndPoint for UDP messaging of client [{clientToBind.id}][{clientToBind.ip}]");
                         }
                         // everything is OK, we can work with message
                         else
@@ -104,16 +104,7 @@ namespace GameServer
 
         public static void SendMessageUdp(string message, ClientHandler ch)
         {
-            if (ch.udpEndPoint == null)
-            {
-                ch.udpEndPoint = Util_UDP.TryToRetrieveEndPoint(ch.ip);
-                if (ch.udpEndPoint == null)
-                {
-                    Console.WriteLine($"[SERVER_ERROR]: Can't send an UDP message - failed to assign UDP IPEndPoint to client [{ch.id}][{ch.ip}]");
-                    return;
-                }
-                //Console.WriteLine( $"[SYSTEM_MESSAGE]: 2) initialized IPEndPoint for UDP messaging of client [{ch.id}][{ch.ip}]");
-            }
+            if (!TryToRetrieveEndPoint(ch)) return;
 
             if (listenSocketUdp != null)
             {
@@ -125,6 +116,23 @@ namespace GameServer
                 Console.WriteLine("Remote end point has not beed defined yet, or listenSocketUdp is equal to null");
             }
 
+        }
+
+        public static bool TryToRetrieveEndPoint(ClientHandler ch)
+        {
+            if (ch.udpEndPoint == null)
+            {
+                ch.udpEndPoint = Util_UDP.TryToRetrieveEndPoint(ch.ip);
+                if (ch.udpEndPoint == null)
+                {
+                    Console.WriteLine($"[SERVER_ERROR]: Unable to interact with client via UDP" +
+                        $" - failed to assign UDP IPEndPoint to client [{ch.id}][{ch.ip}]");
+                    return false;
+                }
+                Console.WriteLine($"[SYSTEM_MESSAGE]: 2) Retrieved IPEndPoint for UDP messaging of client [{ch.id}][{ch.ip}]");
+                return true;
+            }
+            else return true;
         }
 
         static void WriteAddressToConsole()

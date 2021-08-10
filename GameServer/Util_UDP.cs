@@ -24,7 +24,7 @@ namespace GameServer
                     }
                 }
             }
-            //Console.WriteLine($"[SERVER]: Stored IPEndPoint for client {ip}");
+            Console.WriteLine($"[SERVER]: Stored IPEndPoint for client {ip}");
             endpoints.Add(new UnassignedIPEndPoint(endPoint, ip));
         }
 
