@@ -28,9 +28,7 @@ namespace GameServer
         }
         public int maxPlayers;
 
-
         public List<Player> playersInPlayroom;
-
 
         public Playroom(int _id, string _name, bool _isPublic, string _password, Map _map, int _maxPlayers)
         {
@@ -49,10 +47,10 @@ namespace GameServer
             player.playroom = this;
             playersInPlayroom.Add(player);
 
+            // TODO not necessary
             SendMessageToAllPlayersInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{id}|" +
                 $"{player.position.X},{player.position.Y},{player.position.Z}|{player.username}|{player.ch.ip}", player);
         }
-
         void SendMessageToAllPlayersInPlayroom(string message, Player excludePlayer, MessageProtocol mp = MessageProtocol.TCP)
         {
             foreach(var a in playersInPlayroom)
@@ -62,7 +60,7 @@ namespace GameServer
                 Util_Server.SendMessageToClient(message, a.ch, mp);
             }
         }
-
+        // olny responsible for sending players' positions
         public void ManageRoom()
         {
             if(PlayersCurrAmount > 1)

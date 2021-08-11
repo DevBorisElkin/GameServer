@@ -109,7 +109,6 @@ namespace GameServer
         // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public const string PLAYROOMS_DATA_RESPONSE = "playrooms_data_response";
 
-
         public static string[] MessagesFromClient_RelatedToPlayroom = new string[5]
         {
             PLAYROOMS_DATA_REQUEST,
@@ -118,10 +117,24 @@ namespace GameServer
             CLIENT_SHARES_PLAYROOM_POSITION,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM
         };
-
         public static bool DoesMessageRelatedToPlayroomManager(string message)
         {
             foreach(string a in MessagesFromClient_RelatedToPlayroom)
+            {
+                if (message.StartsWith(a)) return true;
+            }
+            return false;
+        }
+
+        // Messages that client receives from server, related to playroom action
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[2]
+        {
+            MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
+            CLIENT_DISCONNECTED_FROM_THE_PLAYROOM
+        };
+        public static bool DoesMessageRelatedToOnlineGameManager(string message)
+        {
+            foreach (string a in MessagesToClient_RelatedToPlayroom)
             {
                 if (message.StartsWith(a)) return true;
             }
