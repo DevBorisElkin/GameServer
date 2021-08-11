@@ -32,7 +32,8 @@ namespace GameServer
         public void CheckAndMakeShot(string message)
         {
             var msSinceLastShotWasMade = (DateTime.Now - lastShotTime).TotalMilliseconds;
-            if (msSinceLastShotWasMade <= PlayroomManager.reloadTime) return; // basically he needs to wait for reload
+            
+            if (msSinceLastShotWasMade <= TimeSpan.FromSeconds(PlayroomManager.reloadTime).TotalMilliseconds) return; // basically he needs to wait for reload
 
             lastShotTime = DateTime.Now;
 
