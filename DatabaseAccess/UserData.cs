@@ -12,6 +12,7 @@ namespace DatabaseAccess
         public string login;
         public string password;
         public string nickname;
+        public string ip;
 
         // stores result of request to Database
         public RequestResult requestResult;
@@ -32,11 +33,11 @@ namespace DatabaseAccess
 
         public override string ToString()
         {
-            return $"id:[{id}], login:[{login}], password:[{password}], nickname:[{nickname}]";
+            return $"id:[{id}], login:[{login}], password:[{password}], nickname:[{nickname}], ip:[{ip}]";
         }
         public string ToNetworkString()
         {
-            return $"{id},{login},{password},{nickname}";
+            return $"{id},{login},{password},{nickname},{ip}";
         }
     }
     // here I will populate different DatabaseRequestResults

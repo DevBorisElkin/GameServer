@@ -51,7 +51,7 @@ namespace GameServer
             SendMessageToAllPlayersInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{id}|" +
                 $"{player.position.X},{player.position.Y},{player.position.Z}|{player.username}|{player.ch.ip}", player);
         }
-        void SendMessageToAllPlayersInPlayroom(string message, Player excludePlayer, MessageProtocol mp = MessageProtocol.TCP)
+        public void SendMessageToAllPlayersInPlayroom(string message, Player excludePlayer, MessageProtocol mp = MessageProtocol.TCP)
         {
             foreach(var a in playersInPlayroom)
             {
@@ -70,14 +70,9 @@ namespace GameServer
                     string generatedString = GeneratePositionsDataOfAllPlayers(a);
                     if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("empty"))
                         continue;
-                    a.SendPositionsOfOtherPlayers(generatedString);
+                    Util_Server.SendMessageToClient(generatedString, a.ch, MessageProtocol.UDP);
                 }
             }
-        }
-
-        public void PerformPlayerAction()
-        {
-
         }
 
         /// <summary>

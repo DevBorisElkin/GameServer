@@ -71,6 +71,13 @@ namespace GameServer
                     string[] substrings = message.Split("|");
                     PlayroomManager.RequestFromClient_DisconnectFromPlayroom(int.Parse(substrings[1]), ch);
                 }
+                else if (message.StartsWith(SHOT_REQUEST))
+                {
+                    if(ch.player != null && ch.player.playroom != null)
+                    {
+                        ch.player.CheckAndMakeShot(message);
+                    }
+                }
             }
             catch(Exception e)
             {

@@ -15,6 +15,8 @@ namespace GameServer
         public static List<Playroom> playrooms = new List<Playroom>();
         static int maximumPlayroomAmount = 5;
 
+        public const float reloadTime = 1.4f;
+
         public static void InitPlayroomManager()
         {
             Task manageRoomsTask = new Task(ManageRooms);
@@ -156,6 +158,7 @@ namespace GameServer
                 client.player.rotation = _rotation;
             }
         }
+
         public static void RequestFromClient_DisconnectFromPlayroom(int playroomId, ClientHandler ch)
         {
             if (ch.player == null) return;

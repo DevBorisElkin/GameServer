@@ -23,6 +23,7 @@ namespace GameServer
             await task;
 
             UserData result = task.Result;
+            result.ip = SendResponseBackTo.ip;
 
             if (result.requestResult.Equals(RequestResult.Success))
             {
@@ -45,6 +46,7 @@ namespace GameServer
             await task;
 
             UserData result = task.Result;
+            result.ip = SendResponseBackTo.ip;
 
             if (result.requestResult.Equals(RequestResult.Success))
             {

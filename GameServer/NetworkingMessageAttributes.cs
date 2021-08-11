@@ -22,8 +22,8 @@ namespace GameServer
         // "log_in_result|success_or_failure_plus_reason_if_failure";
 
         // more detailed response
-        // user data: id, login, password, nickname
-        // "log_in_result|Success|1,Bond_EA,test_password,Boris228";
+        // user data: id, login, password, nickname, ip
+        // "log_in_result|Success|1,Bond_EA,test_password,Boris228,198.0.0.196";
         // "log_in_result|Fail_WrongPairLoginPassword"
         public const string LOG_IN_RESULT = "log_in_result";
 
@@ -37,7 +37,7 @@ namespace GameServer
         // message from server to player whether player's request was accepted or not
         // example of message
         // "register_result|success_or_failure_plus_reason_if_failure|complete_user_data";
-        // user data: id,login,password,nickname
+        // user data: id,login,password,nickname,ip
         public const string REGISTER_RESULT = "register_result";
 
 
@@ -109,13 +109,14 @@ namespace GameServer
         // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public const string PLAYROOMS_DATA_RESPONSE = "playrooms_data_response";
 
-        public static string[] MessagesFromClient_RelatedToPlayroom = new string[5]
+        public static string[] MessagesFromClient_RelatedToPlayroom = new string[6]
         {
             PLAYROOMS_DATA_REQUEST,
             ENTER_PLAY_ROOM,
             CREATE_PLAY_ROOM,
             CLIENT_SHARES_PLAYROOM_POSITION,
-            CLIENT_DISCONNECTED_FROM_THE_PLAYROOM
+            CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
+            SHOT_REQUEST
         };
         public static bool DoesMessageRelatedToPlayroomManager(string message)
         {
@@ -127,10 +128,11 @@ namespace GameServer
         }
 
         // Messages that client receives from server, related to playroom action
-        public static string[] MessagesToClient_RelatedToPlayroom = new string[2]
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[3]
         {
             MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
-            CLIENT_DISCONNECTED_FROM_THE_PLAYROOM
+            CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
+            SHOT_RESULT
         };
         public static bool DoesMessageRelatedToOnlineGameManager(string message)
         {
@@ -161,5 +163,18 @@ namespace GameServer
         // string that is attached to the end of each message sent
         // "client_disconnected<EOF>
         public const string END_OF_FILE = "<EOF>";
+
+        // _______________________ACTIVE_ACTIONS_IN_PLAYROOM_______________________
+
+        // message to server - request to make a shot
+        // we already know ID of player who makes shot
+        // code|posOfShootingPoint|rotationAtRequestTime
+        // "shot_request|123/45/87|543/34/12";
+        public const string SHOT_REQUEST = "shot_request";
+
+        // message to players - shows shot data
+        // code|posOfShootingPoint|rotationAtRequestTime|ipOfShootingPlayer
+        // "shot_result|123/45/87|543/34/1|198.0.0.126";
+        public const string SHOT_RESULT = "shot_result";
     }
 }

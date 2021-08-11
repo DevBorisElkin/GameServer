@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Numerics;
 using System.Text;
 using static GameServer.Util_Connection;
+using static GameServer.NetworkingMessageAttributes;
 
 namespace GameServer
 {
@@ -13,6 +15,7 @@ namespace GameServer
 
         public Vector3 position;
         public Quaternion rotation;
+        public DateTime lastShotTime;
 
         public Playroom playroom;
 
@@ -23,11 +26,34 @@ namespace GameServer
             this.username = username;
             position = spawnPosition;
             rotation = Quaternion.Identity;
+            lastShotTime = DateTime.Now;
         }
 
-        public void SendPositionsOfOtherPlayers(string message)
+        public void CheckAndMakeShot(string message)
         {
-            Util_Server.SendMessageToClient(message, ch, MessageProtocol.UDP);
+            var msSinceLastShotWasMade = (DateTime.Now - lastShotTime).TotalMilliseconds;
+            if (msSinceLastShotWasMade <= PlayroomManager.reloadTime) return; // basically he needs to wait for reload
+
+            lastShotTime = DateTime.Now;
+
+            string[] substrings = message.Split("|");
+            string[] positions = substrings[1].Split("/");
+            Vector3 position = new Vector3(
+                float.Parse(positions[0], CultureInfo.InvariantCulture.NumberFormat),
+                float.Parse(positions[1], CultureInfo.InvariantCulture.NumberFormat),
+                float.Parse(positions[2], CultureInfo.InvariantCulture.NumberFormat));
+
+            string[] rotations = substrings[2].Split("/");
+            Quaternion rotation = new Quaternion(
+                float.Parse(rotations[0], CultureInfo.InvariantCulture.NumberFormat),
+                float.Parse(rotations[1], CultureInfo.InvariantCulture.NumberFormat),
+                float.Parse(rotations[2], CultureInfo.InvariantCulture.NumberFormat),
+                0);
+
+            // code|posOfShootingPoint|rotationAtRequestTime|ipOfShootingPlayer
+            // "shot_result|123/45/87|543/34/1|198.0.0.126";
+            string msg = $"{SHOT_RESULT}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}|{ch.ip}";
+            playroom.SendMessageToAllPlayersInPlayroom(msg, null, MessageProtocol.TCP);
         }
     }
 }
