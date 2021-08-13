@@ -16,7 +16,7 @@ namespace GameServer
         static int maximumPlayroomAmount = 5;
 
         public const float reloadTime = 1.4f;
-        public const float jumpCooldownTime = 4f;
+        public const float jumpCooldownTime = 2f;
 
         public static void InitPlayroomManager()
         {
