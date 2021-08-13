@@ -78,6 +78,13 @@ namespace GameServer
                         ch.player.CheckAndMakeShot(message);
                     }
                 }
+                else if (message.StartsWith(JUMP_REQUEST))
+                {
+                    if (ch.player != null && ch.player.playroom != null)
+                    {
+                        ch.player.CheckAndMakeJump();
+                    }
+                }
             }
             catch(Exception e)
             {
