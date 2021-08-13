@@ -16,6 +16,7 @@ namespace GameServer
         public Vector3 position;
         public Quaternion rotation;
         public DateTime lastShotTime;
+        public DateTime lastJumpTime;
 
         public Playroom playroom;
 
@@ -27,6 +28,7 @@ namespace GameServer
             position = spawnPosition;
             rotation = Quaternion.Identity;
             lastShotTime = DateTime.Now;
+            lastJumpTime = DateTime.Now;
         }
 
         public void CheckAndMakeShot(string message)
@@ -55,6 +57,15 @@ namespace GameServer
             // "shot_result|123/45/87|543/34/1|198.0.0.126";
             string msg = $"{SHOT_RESULT}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}|{ch.ip}";
             playroom.SendMessageToAllPlayersInPlayroom(msg, null, MessageProtocol.TCP);
+        }
+        public void CheckAndMakeJump()
+        {
+            var msSinceLastJumpWasMade = (DateTime.Now - lastJumpTime).TotalMilliseconds;
+
+            if (msSinceLastJumpWasMade <= TimeSpan.FromSeconds(PlayroomManager.jumpCooldownTime).TotalMilliseconds) return; // basically he needs to wait for reload
+
+            lastJumpTime = DateTime.Now;
+            Util_Server.SendMessageToClient($"{JUMP_RESULT}", ch, MessageProtocol.TCP);
         }
     }
 }

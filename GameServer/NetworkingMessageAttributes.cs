@@ -109,14 +109,15 @@ namespace GameServer
         // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public const string PLAYROOMS_DATA_RESPONSE = "playrooms_data_response";
 
-        public static string[] MessagesFromClient_RelatedToPlayroom = new string[6]
+        public static string[] MessagesFromClient_RelatedToPlayroom = new string[7]
         {
             PLAYROOMS_DATA_REQUEST,
             ENTER_PLAY_ROOM,
             CREATE_PLAY_ROOM,
             CLIENT_SHARES_PLAYROOM_POSITION,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
-            SHOT_REQUEST
+            SHOT_REQUEST,
+            JUMP_REQUEST
         };
         public static bool DoesMessageRelatedToPlayroomManager(string message)
         {
@@ -128,11 +129,12 @@ namespace GameServer
         }
 
         // Messages that client receives from server, related to playroom action
-        public static string[] MessagesToClient_RelatedToPlayroom = new string[3]
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[4]
         {
             MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
-            SHOT_RESULT
+            SHOT_RESULT,
+            JUMP_RESULT
         };
         public static bool DoesMessageRelatedToOnlineGameManager(string message)
         {
@@ -176,5 +178,14 @@ namespace GameServer
         // code|posOfShootingPoint|rotationAtRequestTime|ipOfShootingPlayer
         // "shot_result|123/45/87|543/34/1|198.0.0.126";
         public const string SHOT_RESULT = "shot_result";
+
+        // message to server - request to make a jump
+        // we already know ID of player who wants to jump
+        // "jump_request -- just a code, that's all that required
+        public const string JUMP_REQUEST = "jump_request";
+
+        // message to player, result of jumping request
+        // "jump_result -- just a code, that's all that required
+        public const string JUMP_RESULT = "jump_result";
     }
 }
