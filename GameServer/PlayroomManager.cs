@@ -109,12 +109,12 @@ namespace GameServer
             int id = GenerateRandomIdForPlayroom();
             Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers);
             ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
-            playroom.AddPlayer(ch.player);
+            string scoresString = playroom.AddPlayer(ch.player);
             playrooms.Add(playroom);
 
             Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to create playroom and his request was accepted");
             // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroom.ToNetworkString()}", ch);
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroom.ToNetworkString()}|{scoresString}", ch);
         }
 
         public static void RequestFromClient_EnterPlayroom(int room_id, ClientHandler ch, string roomPassword = "")
@@ -145,11 +145,11 @@ namespace GameServer
             }
 
             ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
-            room.AddPlayer(ch.player);
+            string scoresString = room.AddPlayer(ch.player);
 
             Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
             // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}", ch);
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}|{scoresString}", ch);
         }
         public static void RequestFromClient_StorePlayerPositionAndRotation(ClientHandler client, Vector3 _position, Quaternion _rotation)
         {

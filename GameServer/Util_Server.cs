@@ -161,7 +161,7 @@ namespace GameServer
                     if (message.Contains(CHECK_CONNECTED)) continue;
 
                     // not showing CHECK_CONNECTED and SHARES_PLAYROOM because it spams in console
-                    if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION) && !message.Contains(SHOT_REQUEST))
+                    if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION) && !message.Contains(SHOT_REQUEST) && !message.Contains(JUMP_REQUEST))
                     {   
                         Console.WriteLine($"[CLIENT_MESSAGE][{mp}][{ch.id}][{ch.ip}]: {message}");
                     }

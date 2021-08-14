@@ -42,14 +42,13 @@ namespace GameServer
             playersInPlayroom = new List<Player>();
         }
 
-        public void AddPlayer(Player player)
+        // returns pure scores string
+        public string AddPlayer(Player player)
         {
             player.playroom = this;
             playersInPlayroom.Add(player);
 
-            // TODO not necessary
-            SendMessageToAllPlayersInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{id}|" +
-                $"{player.position.X},{player.position.Y},{player.position.Z}|{player.username}|{player.ch.ip}", player);
+            return OnScoresChange(player);
         }
         public void SendMessageToAllPlayersInPlayroom(string message, Player excludePlayer, MessageProtocol mp = MessageProtocol.TCP)
         {
@@ -84,8 +83,9 @@ namespace GameServer
             playersInPlayroom.Remove(ch.player);
             ch.player = null;
 
+            OnScoresChange(null);
+            
             // check if we should close playroom
-
             if (playersInPlayroom.Count <= 0)
             {
                 Console.WriteLine($"[SERVER_MESSAGE]: Last player left playroom with id [{id}], closing it");
@@ -133,6 +133,34 @@ namespace GameServer
         public string ToNetworkString()
         {
             return $"{id}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}";
+        }
+
+        public string OnScoresChange(Player playerToIgnore)
+        {
+            string newScoresString = GeneratePlayersScoresString();
+            SendMessageToAllPlayersInPlayroom($"{PLAYERS_SCORES_IN_PLAYROOM}|"+newScoresString, playerToIgnore);
+            return newScoresString;
+        }
+
+        // players_scores|data @data@data
+        // {fullFataOfPlayersInThatRoom} => ip/nickname/kills/deaths@ip/nickname/kills/deaths@ip/nickname/kills/deaths
+        public string GeneratePlayersScoresString()
+        {
+            string result = "";
+            for (int i = 0; i < playersInPlayroom.Count; i++)
+            {
+                if(i < playersInPlayroom.Count - 1)
+                {
+                    result += $"{playersInPlayroom[i].ch.ip}/{playersInPlayroom[i].username}/" +
+                        $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}@";
+                }
+                else
+                {
+                    result += $"{playersInPlayroom[i].ch.ip}/{playersInPlayroom[i].username}/" +
+                        $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}";
+                }
+            }
+            return result;
         }
     }
 

@@ -20,6 +20,9 @@ namespace GameServer
 
         public Playroom playroom;
 
+        public int stats_kills;
+        public int stats_deaths;
+
 
         public Player(ClientHandler ch, string username, Vector3 spawnPosition)
         {
@@ -29,6 +32,9 @@ namespace GameServer
             rotation = Quaternion.Identity;
             lastShotTime = DateTime.Now;
             lastJumpTime = DateTime.Now;
+
+            stats_kills = 0;
+            stats_deaths = 0;
         }
 
         public void CheckAndMakeShot(string message)
