@@ -110,8 +110,18 @@ namespace GameServer
                     startedRecoveringJump = DateTime.Now;
                 }
                 //Console.WriteLine("Trying to send to client: " + $"{JUMP_AMOUNT}|{currentJumpsAmount}");
-                Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}", ch, MessageProtocol.TCP);
+                Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}|false", ch, MessageProtocol.TCP);
             }
+        }
+        // "player_died|killer_ip|reasonOfDeath
+        public void PlayerDied(string message)
+        {
+            string[] substrings = message.Split("|");
+            // TODO CHANGE SCORE
+
+            currentJumpsAmount = maxJumpsAmount;
+            isRecoveringJump = false;
+            Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}|true", ch, MessageProtocol.TCP);
         }
     }
 }

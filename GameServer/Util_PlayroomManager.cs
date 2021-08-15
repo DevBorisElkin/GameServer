@@ -84,6 +84,12 @@ namespace GameServer
                     {
                         ch.player.CheckAndMakeJump();
                     }
+                }else if (message.StartsWith(PLAYER_DIED))
+                {
+                    if (ch.player != null && ch.player.playroom != null)
+                    {
+                        ch.player.PlayerDied(message);
+                    }
                 }
             }
             catch(Exception e)

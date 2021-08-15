@@ -109,7 +109,7 @@ namespace GameServer
         // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public const string PLAYROOMS_DATA_RESPONSE = "playrooms_data_response";
 
-        public static string[] MessagesFromClient_RelatedToPlayroom = new string[7]
+        public static string[] MessagesFromClient_RelatedToPlayroom = new string[8]
         {
             PLAYROOMS_DATA_REQUEST,
             ENTER_PLAY_ROOM,
@@ -117,7 +117,8 @@ namespace GameServer
             CLIENT_SHARES_PLAYROOM_POSITION,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
             SHOT_REQUEST,
-            JUMP_REQUEST
+            JUMP_REQUEST,
+            PLAYER_DIED
         };
         public static bool DoesMessageRelatedToPlayroomManager(string message)
         {
@@ -191,7 +192,7 @@ namespace GameServer
         public const string JUMP_RESULT = "jump_result";
 
         // message to player, informing on new amount of jumps
-        // "jump_amount|2 // 2 = current available amount of jumps
+        // "jump_amount|2|true // 2 = current available amount of jumps // true = setAfterRevive
         public const string JUMP_AMOUNT = "jump_amount";
 
         // _______________________PLAYERS_SCORE_IN_PLAYROOM_______________________
@@ -199,5 +200,9 @@ namespace GameServer
         // players_scores|data@data@data
         // {fullFataOfPlayersInThatRoom} => ip/nickname/kills/deaths@ip/nickname/kills/deaths@ip/nickname/kills/deaths
         public const string PLAYERS_SCORES_IN_PLAYROOM = "players_scores";
+
+        // message to server, informing that the player has died
+        // "player_died|killer_ip|reasonOfDeath
+        public const string PLAYER_DIED = "player_died";
     }
 }
