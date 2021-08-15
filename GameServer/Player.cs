@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using static GameServer.Util_Connection;
 using static GameServer.NetworkingMessageAttributes;
+using static GameServer.PlayroomManager;
 
 namespace GameServer
 {
@@ -23,6 +24,10 @@ namespace GameServer
         public int stats_kills;
         public int stats_deaths;
 
+        public int currentJumpsAmount;
+        bool isRecoveringJump;
+        DateTime startedRecoveringJump;
+
 
         public Player(ClientHandler ch, string username, Vector3 spawnPosition)
         {
@@ -32,6 +37,9 @@ namespace GameServer
             rotation = Quaternion.Identity;
             lastShotTime = DateTime.Now;
             lastJumpTime = DateTime.Now;
+
+            currentJumpsAmount = maxJumpsAmount;
+            isRecoveringJump = false;
 
             stats_kills = 0;
             stats_deaths = 0;
@@ -66,12 +74,44 @@ namespace GameServer
         }
         public void CheckAndMakeJump()
         {
-            var msSinceLastJumpWasMade = (DateTime.Now - lastJumpTime).TotalMilliseconds;
+            if(currentJumpsAmount > 0)
+            {
+                currentJumpsAmount--;
 
-            if (msSinceLastJumpWasMade <= TimeSpan.FromSeconds(PlayroomManager.jumpCooldownTime).TotalMilliseconds) return; // basically he needs to wait for reload
+                if (!isRecoveringJump)
+                {
+                    startedRecoveringJump = DateTime.Now;
+                    isRecoveringJump = true;
+                }
 
-            lastJumpTime = DateTime.Now;
-            Util_Server.SendMessageToClient($"{JUMP_RESULT}", ch, MessageProtocol.TCP);
+                //Console.WriteLine("Trying to send to client: "+ $"{JUMP_RESULT}|{currentJumpsAmount}");
+                Util_Server.SendMessageToClient($"{JUMP_RESULT}|{currentJumpsAmount}", ch, MessageProtocol.TCP);
+            }
+        }
+
+        public void CheckAndAddJumps()
+        {
+            if (currentJumpsAmount >= maxJumpsAmount) return;
+            if (!isRecoveringJump) return;
+
+
+            var msSinceStartedRecoveringJump = (DateTime.Now - startedRecoveringJump).TotalMilliseconds;
+
+            if (msSinceStartedRecoveringJump >= TimeSpan.FromSeconds(PlayroomManager.jumpCooldownTime).TotalMilliseconds)
+            {
+                if(currentJumpsAmount + 1 >= maxJumpsAmount)
+                {
+                    currentJumpsAmount += 1;
+                    isRecoveringJump = false;
+                }
+                else
+                {
+                    currentJumpsAmount += 1;
+                    startedRecoveringJump = DateTime.Now;
+                }
+                //Console.WriteLine("Trying to send to client: " + $"{JUMP_AMOUNT}|{currentJumpsAmount}");
+                Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}", ch, MessageProtocol.TCP);
+            }
         }
     }
 }

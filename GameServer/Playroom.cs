@@ -62,10 +62,13 @@ namespace GameServer
         // olny responsible for sending players' positions
         public void ManageRoom()
         {
-            if(PlayersCurrAmount > 1)
+            if(PlayersCurrAmount >= 1)
             {
                 foreach(Player a in playersInPlayroom)
                 {
+                    // jumps amount first
+                    a.CheckAndAddJumps();
+
                     string generatedString = GeneratePositionsDataOfAllPlayers(a);
                     if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("empty"))
                         continue;

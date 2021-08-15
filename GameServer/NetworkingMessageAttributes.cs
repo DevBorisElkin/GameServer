@@ -6,7 +6,6 @@ namespace GameServer
 {
     class NetworkingMessageAttributes
     {
-
         //__AUTHENTICATION________________________________________________________
 
         // message to server from player that he wants to log into his account
@@ -59,7 +58,7 @@ namespace GameServer
 
         // confirmation code for the player that he got accepted to the playroom
         // example of message
-        // "confirm_enter_playroom|id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers|{fullFataOfPlayersInThatRoom}"
+        // "confirm_enter_playroom|id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers|{fullFataOfPlayersInThatRoom}|maxJumpsAmount"
         // {fullFataOfPlayersInThatRoom} => ip/nickname/kills/deaths@ip/nickname/kills/deaths@ip/nickname/kills/deaths
         public const string CONFIRM_ENTER_PLAY_ROOM = "confirm_enter_playroom";
 
@@ -130,12 +129,13 @@ namespace GameServer
         }
 
         // Messages that client receives from server, related to playroom action
-        public static string[] MessagesToClient_RelatedToPlayroom = new string[5]
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[6]
         {
             MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
             SHOT_RESULT,
             JUMP_RESULT,
+            JUMP_AMOUNT,
             PLAYERS_SCORES_IN_PLAYROOM
         };
         public static bool DoesMessageRelatedToOnlineGameManager(string message)
@@ -187,8 +187,12 @@ namespace GameServer
         public const string JUMP_REQUEST = "jump_request";
 
         // message to player, result of jumping request
-        // "jump_result -- just a code, that's all that required
+        // "jump_result|4 // 4 = current available amount of jumps
         public const string JUMP_RESULT = "jump_result";
+
+        // message to player, informing on new amount of jumps
+        // "jump_amount|2 // 2 = current available amount of jumps
+        public const string JUMP_AMOUNT = "jump_amount";
 
         // _______________________PLAYERS_SCORE_IN_PLAYROOM_______________________
         // message to players with scores of all existing players in the playroom

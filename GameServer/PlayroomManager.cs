@@ -16,7 +16,8 @@ namespace GameServer
         static int maximumPlayroomAmount = 5;
 
         public const float reloadTime = 1.4f;
-        public const float jumpCooldownTime = 2f;
+        public const float jumpCooldownTime = 25f;
+        public const int maxJumpsAmount = 5;
 
         public static void InitPlayroomManager()
         {
@@ -114,7 +115,7 @@ namespace GameServer
 
             Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to create playroom and his request was accepted");
             // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroom.ToNetworkString()}|{scoresString}", ch);
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroom.ToNetworkString()}|{scoresString}|{maxJumpsAmount}", ch);
         }
 
         public static void RequestFromClient_EnterPlayroom(int room_id, ClientHandler ch, string roomPassword = "")
@@ -149,7 +150,7 @@ namespace GameServer
 
             Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
             // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}|{scoresString}", ch);
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}|{scoresString}|{maxJumpsAmount}", ch);
         }
         public static void RequestFromClient_StorePlayerPositionAndRotation(ClientHandler client, Vector3 _position, Quaternion _rotation)
         {
