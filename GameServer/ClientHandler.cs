@@ -22,7 +22,8 @@ namespace GameServer
         public int id;
         public string ip;
 
-        double ms_connectedCheck = 3000;
+        static double ms_totalConnectedCheck = 6000; // 3000
+        static int ms_checkDisconnectedClient = 2000; // 500
         DateTime lastConnectedConfirmed;
 
         bool connected;
@@ -84,10 +85,10 @@ namespace GameServer
         {
             while (connected)
             {
-                Thread.Sleep(500);
+                Thread.Sleep(ms_checkDisconnectedClient);
 
                 var msSinceLastConnectionConfirmed = (DateTime.Now - lastConnectedConfirmed).TotalMilliseconds;
-                if(msSinceLastConnectionConfirmed > ms_connectedCheck)
+                if(msSinceLastConnectionConfirmed > ms_totalConnectedCheck)
                 {
                     Console.WriteLine($"[SERVER_MESSAGE]: connection for client [{id}][{ip}] timed out");
                     ShutDownClient(3);

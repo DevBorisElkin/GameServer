@@ -148,13 +148,6 @@ namespace GameServer
         {
             string[] parcedMessage = msg.Split(END_OF_FILE, StringSplitOptions.RemoveEmptyEntries);
 
-            //int i = 1;
-            //foreach(string a in parcedMessage)
-            //{
-            //    Console.WriteLine($"{i}) {a}");
-            //    i++;
-            //}
-
             foreach (string message in parcedMessage)
             {
                 try
@@ -164,8 +157,9 @@ namespace GameServer
                     // not showing CHECK_CONNECTED and SHARES_PLAYROOM because it spams in console
                     if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION) && !message.Contains(SHOT_REQUEST) && !message.Contains(JUMP_REQUEST))
                     {   
-                        Console.WriteLine($"[CLIENT_MESSAGE][{mp}][{ch.id}][{ch.ip}]: {message}");
+                        Console.WriteLine($"[CLIENT_MESSAGE][{mp}][{ch.id}][{ch.ip}]: {message} | {DateTime.Now}");
                     }
+                    if (message.Contains(CHECK_CONNECTED)) continue;
 
                     if (ch.clientAccessLevel.Equals(ClientAccessLevel.LowestLevel))
                     {
