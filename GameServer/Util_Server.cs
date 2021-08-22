@@ -6,6 +6,7 @@ using static GameServer.Util_Connection;
 using static GameServer.NetworkingMessageAttributes;
 using System.Globalization;
 using System.Numerics;
+using System.Threading.Tasks;
 
 namespace GameServer
 {
@@ -143,7 +144,7 @@ namespace GameServer
 
         #region Parce Messages From Clients
 
-        public static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
+        public async static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
         {
             string[] parcedMessage = msg.Split(END_OF_FILE, StringSplitOptions.RemoveEmptyEntries);
 
@@ -174,7 +175,7 @@ namespace GameServer
                         {
                             // here should do some magic with database
                             string[] substrings = message.Split("|");
-                            DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], ch);
+                            await DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], ch);
 
                         }else if (message.Contains(REGISTER))
                         {

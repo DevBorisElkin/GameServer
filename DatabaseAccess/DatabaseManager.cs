@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace DatabaseAccess
 {
@@ -44,11 +45,10 @@ namespace DatabaseAccess
         /// Checks whether user with speific 'login' and 'password' exists. If such user exists it
         /// returns UserData from Database, if not, returns null; 
         /// </summary>
-        public static UserData TryToAuthenticateAsync(object _userData)
+        public static async Task<UserData> TryToAuthenticateAsync(UserData info)
         {
             try
             {
-                UserData info = (UserData)_userData;
                 string login = info.login;
                 string password = info.password;
 
@@ -56,9 +56,11 @@ namespace DatabaseAccess
                 if (mySqlConnection.State == System.Data.ConnectionState.Open)
                 {
                     MySqlCommand command = new MySqlCommand($"SELECT * FROM MainTable WHERE login = '{login}' AND pass = binary '{password}'", mySqlConnection);
-                    MySqlDataReader reader = command.ExecuteReader();
+                    //MySqlDataReader reader = command.ExecuteReader();
+                    var reader = await command.ExecuteReaderAsync();
+                    
 
-                    if (reader.Read())
+                    if (await reader.ReadAsync())
                     {
                         int id = Int32.Parse(reader["id"].ToString());
                         string nickname = reader["nickname"].ToString();
@@ -69,7 +71,7 @@ namespace DatabaseAccess
                     else
                     {
                         // didn't find any record of 'login' + 'password'
-                        reader.Close();
+                        await reader.CloseAsync();
                         return new UserData(RequestResult.Fail_WrongPairLoginPassword);
                     }
                 }

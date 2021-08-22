@@ -16,13 +16,12 @@ namespace GameServer
             DatabaseManager.Connect();
         }
 
-        public static async void TryToAuthenticateAsync(string _login, string _password, ClientHandler SendResponseBackTo)
+        public static async Task TryToAuthenticateAsync(string _login, string _password, ClientHandler SendResponseBackTo)
         {
             UserData userData = new UserData { login = _login, password = _password };
-            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToAuthenticateAsync, userData);
-            await task;
+            UserData result = await DatabaseManager.TryToAuthenticateAsync(userData);
+            //Task<UserData>.Factory.StartNew(DatabaseManager.TryToAuthenticateAsync, userData);
 
-            UserData result = task.Result;
             result.ip = SendResponseBackTo.ip;
 
             if (result.requestResult.Equals(RequestResult.Success))
