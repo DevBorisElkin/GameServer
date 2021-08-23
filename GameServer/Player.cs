@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
-using static GameServer.Util_Connection;
-using static GameServer.NetworkingMessageAttributes;
+using static GameServer.Util_Server;
+using static GeneralUsage.NetworkingMessageAttributes;
 using static GameServer.PlayroomManager;
 
 namespace GameServer

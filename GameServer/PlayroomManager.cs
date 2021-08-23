@@ -3,8 +3,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static GameServer.Server;
-using static GameServer.NetworkingMessageAttributes;
-using static GameServer.Util_Connection;
+using static GeneralUsage.NetworkingMessageAttributes;
+using static GameServer.Util_Server;
 using System.Collections.Generic;
 using System.Numerics;
 

@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using static GameServer.Util_Connection;
 using static GameServer.Util_Server;
 
 namespace GameServer
@@ -53,14 +52,14 @@ namespace GameServer
                         while (listenSocketUdp.Available > 0);
 
                         IPEndPoint remoteIp = remote as IPEndPoint;
-                        string ip = Util_Connection.GetRemoteIp(remoteIp);
+                        string ip = Util_Server.GetRemoteIp(remoteIp);
 
                         ClientHandler clientToBind = TryToGetClientWithIp(ip);
 
                         // we can't parse UDP messages from client if TCP connection is not yet established
                         if (clientToBind == null)
                         {
-                            Util_UDP.TryToStoreEndPoint(remoteIp, ip);
+                            Util_Server.TryToStoreEndPoint(remoteIp, ip);
                             continue;
                         }
                         // we can't parse UDP messages from client if IPEndPoint for UDP is not set yet
@@ -122,7 +121,7 @@ namespace GameServer
         {
             if (ch.udpEndPoint == null)
             {
-                ch.udpEndPoint = Util_UDP.TryToRetrieveEndPoint(ch.ip);
+                ch.udpEndPoint = Util_Server.TryToRetrieveEndPoint(ch.ip);
                 if (ch.udpEndPoint == null)
                 {
                     Console.WriteLine($"[SERVER_ERROR]: Unable to interact with client via UDP" +

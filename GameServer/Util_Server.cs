@@ -2,11 +2,11 @@
 using System.Net;
 using System.Net.Sockets;
 using static GameServer.Server;
-using static GameServer.Util_Connection;
-using static GameServer.NetworkingMessageAttributes;
+using static GeneralUsage.NetworkingMessageAttributes;
 using System.Globalization;
 using System.Numerics;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace GameServer
 {
@@ -63,6 +63,108 @@ namespace GameServer
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[1];
             return ipAddress;
+        }
+        #endregion
+
+        #region Util Connection
+        public enum MessageProtocol { TCP, UDP }
+
+        // Check if client connected
+        public static bool SocketSimpleConnected(this ClientHandler ch)
+        {
+            return !((ch.handler.Poll(1000, SelectMode.SelectRead) && (ch.handler.Available == 0)) || !ch.handler.Connected);
+        }
+        public static bool SocketSimpleConnected(Socket tcpHandler)
+        {
+            return !((tcpHandler.Poll(1000, SelectMode.SelectRead) && (tcpHandler.Available == 0)) || !tcpHandler.Connected);
+        }
+
+        // Gets IP
+        public static string GetRemoteIp(this ClientHandler ch)
+        {
+            string rawRemoteIP = ch.handler.RemoteEndPoint.ToString();
+            int dotsIndex = rawRemoteIP.LastIndexOf(":");
+            string remoteIP = rawRemoteIP.Substring(0, dotsIndex);
+            return remoteIP;
+        }
+        public static string GetRemoteIp(EndPoint ep)
+        {
+            string rawRemoteIP = ep.ToString();
+            int dotsIndex = rawRemoteIP.LastIndexOf(":");
+            string remoteIP = rawRemoteIP.Substring(0, dotsIndex);
+            return remoteIP;
+        }
+        public static string GetRemoteIp(Socket tcpHandler)
+        {
+            string rawRemoteIP = tcpHandler.RemoteEndPoint.ToString();
+            int dotsIndex = rawRemoteIP.LastIndexOf(":");
+            string remoteIP = rawRemoteIP.Substring(0, dotsIndex);
+            return remoteIP;
+        }
+        // Get IP and Port
+        public static string GetRemoteIpAndPort(this ClientHandler ch)
+        {
+            return ch.handler.RemoteEndPoint.ToString();
+        }
+        public static string GetRemoteIpAndPort(Socket tcpHandler)
+        {
+            return tcpHandler.RemoteEndPoint.ToString();
+        }
+        #endregion
+
+        #region Util UDP -> stack UDP IPEndPoints and assign them when cient TCP connects
+        public class UnassignedIPEndPoint
+        {
+            public IPEndPoint endPoint;
+            public string ip;
+
+            public UnassignedIPEndPoint(IPEndPoint _endPoint, string _ip)
+            {
+                endPoint = _endPoint;
+                ip = _ip;
+            }
+        }
+
+        public static List<UnassignedIPEndPoint> udpEndpoints = new List<UnassignedIPEndPoint>();
+
+        public static void TryToStoreEndPoint(IPEndPoint endPoint, string ip)
+        {
+            // check if there's end point for that ip
+            if (udpEndpoints.Count > 0)
+            {
+                foreach (var a in udpEndpoints)
+                {
+                    if (a.ip.Equals(ip))
+                    {
+                        return;
+                    }
+                }
+            }
+            Console.WriteLine($"[SERVER]: Stored IPEndPoint for client {ip}");
+            udpEndpoints.Add(new UnassignedIPEndPoint(endPoint, ip));
+        }
+
+        public static IPEndPoint TryToRetrieveEndPoint(string ip)
+        {
+            IPEndPoint result = null;
+            UnassignedIPEndPoint unassigned = null;
+
+
+            foreach (var a in udpEndpoints)
+            {
+                if (a.ip.Equals(ip))
+                {
+                    unassigned = a;
+                    break;
+                }
+            }
+
+            if (unassigned != null)
+            {
+                result = unassigned.endPoint;
+                udpEndpoints.Remove(unassigned);
+            }
+            return result;
         }
         #endregion
 
@@ -188,7 +290,7 @@ namespace GameServer
                         // accept all other requests
                         if (DoesMessageRelatedToPlayroomManager(message))
                         {
-                            Util_PlayroomManager.ParceMessage_Playroom(message, ch);
+                            ParceMessage_Playroom(message, ch);
                         }
                     }
 
@@ -200,6 +302,90 @@ namespace GameServer
             }
         }
 
+        public static void ParceMessage_Playroom(string message, ClientHandler ch)
+        {
+            try
+            {
+                if (message.StartsWith(PLAYROOMS_DATA_REQUEST))
+                {
+                    PlayroomManager.RequestFromClient_GetPlayroomsData(ch);
+                }
+                //          0           1          2         3     4      5
+                // "create_playroom|nameOfRoom|is_public|password|map|maxPlayers";
+                else if (message.StartsWith(CREATE_PLAY_ROOM))
+                {
+                    string[] substrings = message.Split("|");
+
+                    bool.TryParse(substrings[2], out bool isPublic);
+                    Enum.TryParse(substrings[4], out Map map);
+
+                    PlayroomManager.RequestFromClient_CreatePlayroom(ch, substrings[1], isPublic,
+                        substrings[3], map, Int32.Parse(substrings[5]));
+                }
+                // WILL REMAKE RESPONSE 'CONFIRM_ENTER_PLAYROOM' and there will be response: okay, or error
+                // "enter_playroom|3251|the_greatest_password_ever";
+                else if (message.StartsWith(ENTER_PLAY_ROOM))
+                // normally here should be some logic, checking, if specific playroom has space for new players to join
+                {
+                    string[] substrings = message.Split("|");
+
+                    Console.WriteLine($"[{ch.id}][{ch.ip}]Client requested to connect to playroom");
+                    if (substrings.Length == 2)
+                        PlayroomManager.RequestFromClient_EnterPlayroom(Int32.Parse(substrings[1]), ch);
+                    else if (substrings.Length == 3)
+                        PlayroomManager.RequestFromClient_EnterPlayroom(Int32.Parse(substrings[1]), ch, substrings[2]);
+                }
+                else if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
+                {
+                    string[] substrings = message.Split("|");
+                    string[] positions = substrings[1].Split("/");
+                    Vector3 position = new Vector3(
+                        float.Parse(positions[0], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(positions[1], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(positions[2], CultureInfo.InvariantCulture.NumberFormat));
+
+                    string[] rotations = substrings[2].Split("/");
+                    Quaternion rotation = new Quaternion(
+                        float.Parse(rotations[0], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(rotations[1], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(rotations[2], CultureInfo.InvariantCulture.NumberFormat),
+                        0);
+
+                    PlayroomManager.RequestFromClient_StorePlayerPositionAndRotation(ch, position, rotation);
+                }
+                else if (message.StartsWith(CLIENT_DISCONNECTED_FROM_THE_PLAYROOM))
+                {
+                    Console.WriteLine($"[SERVER_MESSAGE]:Client [{ch.id}][{ch.ip}] disconnected from playroom");
+                    string[] substrings = message.Split("|");
+                    PlayroomManager.RequestFromClient_DisconnectFromPlayroom(int.Parse(substrings[1]), ch);
+                }
+                else if (message.StartsWith(SHOT_REQUEST))
+                {
+                    if (ch.player != null && ch.player.playroom != null)
+                    {
+                        ch.player.CheckAndMakeShot(message);
+                    }
+                }
+                else if (message.StartsWith(JUMP_REQUEST))
+                {
+                    if (ch.player != null && ch.player.playroom != null)
+                    {
+                        ch.player.CheckAndMakeJump();
+                    }
+                }
+                else if (message.StartsWith(PLAYER_DIED))
+                {
+                    if (ch.player != null && ch.player.playroom != null)
+                    {
+                        ch.player.PlayerDied(message);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
         #endregion
 
         #region Delegates
@@ -226,7 +412,6 @@ namespace GameServer
         #endregion
 
         #region Debug
-
         public static void CustomDebug_ShowClients()
         {
             Console.WriteLine($"Clients amount: {Server.clients.Count}");
@@ -242,9 +427,9 @@ namespace GameServer
 
         public static void CustomDebug_ShowStoredIPs()
         {
-            Console.WriteLine($"IEndPoints amount: {Util_UDP.endpoints.Count}");
+            Console.WriteLine($"IEndPoints amount: {udpEndpoints.Count}");
             int i = 1;
-            foreach(UnassignedIPEndPoint a in Util_UDP.endpoints)
+            foreach(UnassignedIPEndPoint a in udpEndpoints)
             {
                 Console.WriteLine($"#{i} {a.endPoint.ToString()}");
             }

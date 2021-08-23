@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace GameServer
+namespace GeneralUsage
 {
-    class NetworkingMessageAttributes
+    public static class NetworkingMessageAttributes
     {
         //__AUTHENTICATION________________________________________________________
 
@@ -122,7 +124,7 @@ namespace GameServer
         };
         public static bool DoesMessageRelatedToPlayroomManager(string message)
         {
-            foreach(string a in MessagesFromClient_RelatedToPlayroom)
+            foreach (string a in MessagesFromClient_RelatedToPlayroom)
             {
                 if (message.StartsWith(a)) return true;
             }

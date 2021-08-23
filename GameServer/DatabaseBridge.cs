@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DatabaseAccess;
 using static GameServer.Util_Server;
-using static GameServer.NetworkingMessageAttributes;
+using static GeneralUsage.NetworkingMessageAttributes;
 
 namespace GameServer
 {

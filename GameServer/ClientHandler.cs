@@ -4,8 +4,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static GameServer.Util_Connection;
-using static GameServer.NetworkingMessageAttributes;
+using static GameServer.Util_Server;
+using static GeneralUsage.NetworkingMessageAttributes;
 using DatabaseAccess;
 
 namespace GameServer
