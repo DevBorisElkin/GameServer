@@ -60,7 +60,7 @@ namespace GeneralUsage
 
         // confirmation code for the player that he got accepted to the playroom
         // example of message
-        // "confirm_enter_playroom|id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers|{fullFataOfPlayersInThatRoom}|maxJumpsAmount"
+        // "confirm_enter_playroom|id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers|{fullFataOfPlayersInThatRoom}|maxJumpsAmount|initialSpawnPosition"
         // {fullFataOfPlayersInThatRoom} => ip/nickname/kills/deaths@ip/nickname/kills/deaths@ip/nickname/kills/deaths
         public const string CONFIRM_ENTER_PLAY_ROOM = "confirm_enter_playroom";
 
@@ -132,14 +132,16 @@ namespace GeneralUsage
         }
 
         // Messages that client receives from server, related to playroom action
-        public static string[] MessagesToClient_RelatedToPlayroom = new string[6]
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[8]
         {
             MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
             SHOT_RESULT,
             JUMP_RESULT,
             JUMP_AMOUNT,
-            PLAYERS_SCORES_IN_PLAYROOM
+            PLAYERS_SCORES_IN_PLAYROOM,
+            PLAYER_REVIVED,
+            SPAWN_DEATH_PARTICLES
         };
         public static bool DoesMessageRelatedToOnlineGameManager(string message)
         {
@@ -206,5 +208,13 @@ namespace GeneralUsage
         // message to server, informing that the player has died
         // "player_died|killer_ip|reasonOfDeath
         public const string PLAYER_DIED = "player_died";
+
+        // message to the player, informing that he has been revived
+        // "player_revived|0/0/0|current_amount_of_jumps
+        public const string PLAYER_REVIVED = "player_revived";
+
+        // message to all players to spawn death particles
+        // "sp_d_p|0/0/0|0/0/0
+        public const string SPAWN_DEATH_PARTICLES = "sp_d_p";
     }
 }

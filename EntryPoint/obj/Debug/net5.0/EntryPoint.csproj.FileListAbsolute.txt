@@ -1,8 +1,3 @@
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.csproj.AssemblyReference.cache
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.GeneratedMSBuildEditorConfig.editorconfig
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.AssemblyInfoInputs.cache
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.AssemblyInfo.cs
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.csproj.CoreCompileInputs.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\EntryPoint.exe
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\EntryPoint.deps.json
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\EntryPoint.runtimeconfig.json
@@ -35,6 +30,11 @@ C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bi
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\GameServer.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\DatabaseAccess.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\GeneralUsage.pdb
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.csproj.AssemblyReference.cache
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.GeneratedMSBuildEditorConfig.editorconfig
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.AssemblyInfoInputs.cache
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.AssemblyInfo.cs
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.csproj.CoreCompileInputs.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.csproj.CopyComplete
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\ref\EntryPoint.dll

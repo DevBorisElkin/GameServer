@@ -6,6 +6,9 @@ using System.Text;
 using static GameServer.Util_Server;
 using static GeneralUsage.NetworkingMessageAttributes;
 using static GameServer.PlayroomManager;
+using static GeneralUsage.PlayroomManager_MapData;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace GameServer
 {
@@ -28,6 +31,8 @@ namespace GameServer
         bool isRecoveringJump;
         DateTime startedRecoveringJump;
 
+        public bool isAlive;
+
 
         public Player(ClientHandler ch, string username, Vector3 spawnPosition)
         {
@@ -43,10 +48,13 @@ namespace GameServer
 
             stats_kills = 0;
             stats_deaths = 0;
+
+            isAlive = true;
         }
 
         public void CheckAndMakeShot(string message)
         {
+            if (!isAlive) return;
             var msSinceLastShotWasMade = (DateTime.Now - lastShotTime).TotalMilliseconds;
             
             if (msSinceLastShotWasMade <= TimeSpan.FromSeconds(PlayroomManager.reloadTime).TotalMilliseconds) return; // basically he needs to wait for reload
@@ -74,7 +82,8 @@ namespace GameServer
         }
         public void CheckAndMakeJump()
         {
-            if(currentJumpsAmount > 0)
+            if (!isAlive) return;
+            if (currentJumpsAmount > 0)
             {
                 currentJumpsAmount--;
 
@@ -116,12 +125,29 @@ namespace GameServer
         // "player_died|killer_ip|reasonOfDeath
         public void PlayerDied(string message)
         {
+            isAlive = false;
             string[] substrings = message.Split("|");
             // TODO CHANGE SCORE
 
             currentJumpsAmount = maxJumpsAmount;
             isRecoveringJump = false;
-            Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}|true", ch, MessageProtocol.TCP);
+            //Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}|true", ch, MessageProtocol.TCP);
+
+            revivePlayer = null;
+            revivePlayer = new Task(RevivePlayer);
+            revivePlayer.Start();
+        }
+
+        Task revivePlayer;
+        void RevivePlayer()
+        {
+            Thread.Sleep(1000);
+
+            Vector3 spawnPos = GetRandomSpawnPointByMap(playroom.map);
+            isAlive = true;
+            // SEND MESSAGE TO OTHER CLIENTS THAT PLAYER DIED AND SPAWN PARTICLES
+            Util_Server.SendMessageToAllClients($"{SPAWN_DEATH_PARTICLES}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}", MessageProtocol.TCP, null);
+            Util_Server.SendMessageToClient($"{PLAYER_REVIVED}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}|{currentJumpsAmount}", ch, MessageProtocol.TCP);
         }
     }
 }

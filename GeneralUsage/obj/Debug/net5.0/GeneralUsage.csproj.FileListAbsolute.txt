@@ -1,12 +1,12 @@
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\bin\Debug\net5.0\GeneralUsage.deps.json
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\bin\Debug\net5.0\GeneralUsage.dll
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\bin\Debug\net5.0\ref\GeneralUsage.dll
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\bin\Debug\net5.0\GeneralUsage.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\obj\Debug\net5.0\GeneralUsage.csproj.AssemblyReference.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\obj\Debug\net5.0\GeneralUsage.GeneratedMSBuildEditorConfig.editorconfig
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\obj\Debug\net5.0\GeneralUsage.AssemblyInfoInputs.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\obj\Debug\net5.0\GeneralUsage.AssemblyInfo.cs
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\obj\Debug\net5.0\GeneralUsage.csproj.CoreCompileInputs.cache
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\bin\Debug\net5.0\GeneralUsage.deps.json
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\bin\Debug\net5.0\GeneralUsage.dll
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\bin\Debug\net5.0\ref\GeneralUsage.dll
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\bin\Debug\net5.0\GeneralUsage.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\obj\Debug\net5.0\GeneralUsage.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\obj\Debug\net5.0\ref\GeneralUsage.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GeneralUsage\obj\Debug\net5.0\GeneralUsage.pdb

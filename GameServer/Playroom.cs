@@ -6,6 +6,8 @@ using static GameServer.Server;
 using static GeneralUsage.NetworkingMessageAttributes;
 using static GameServer.Util_Server;
 using System.Collections.Generic;
+using static GameServer.PlayroomManager;
+using static GeneralUsage.PlayroomManager_MapData;
 
 namespace GameServer
 {
@@ -166,6 +168,4 @@ namespace GameServer
             return result;
         }
     }
-
-    public enum Map { DefaultMap }
 }

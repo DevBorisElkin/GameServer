@@ -7,6 +7,8 @@ using static GeneralUsage.NetworkingMessageAttributes;
 using static GameServer.Util_Server;
 using System.Collections.Generic;
 using System.Numerics;
+using static GeneralUsage.PlayroomManager_MapData;
+using static GeneralUsage.PlayroomManager_MapData;
 
 namespace GameServer
 {
@@ -112,10 +114,13 @@ namespace GameServer
             ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
             string scoresString = playroom.AddPlayer(ch.player);
             playrooms.Add(playroom);
+            Vector3 spawnPos = GetRandomSpawnPointByMap(_map);
 
             Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to create playroom and his request was accepted");
             // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{playroom.ToNetworkString()}|{scoresString}|{maxJumpsAmount}", ch);
+
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|" +
+                $"{playroom.ToNetworkString()}|{scoresString}|{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", ch);
         }
 
         public static void RequestFromClient_EnterPlayroom(int room_id, ClientHandler ch, string roomPassword = "")
@@ -147,14 +152,16 @@ namespace GameServer
 
             ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
             string scoresString = room.AddPlayer(ch.player);
+            Vector3 spawnPos = GetRandomSpawnPointByMap(room.map);
 
             Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
             // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}|{scoresString}|{maxJumpsAmount}", ch);
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}|{scoresString}|" +
+                $"{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", ch);
         }
         public static void RequestFromClient_StorePlayerPositionAndRotation(ClientHandler client, Vector3 _position, Quaternion _rotation)
         {
-            if (client.player != null)
+            if (client.player != null && client.player.isAlive)
             {
                 client.player.position = _position;
                 client.player.rotation = _rotation;
@@ -222,6 +229,5 @@ namespace GameServer
                 room = null;
             }
         }
-
     }
 }
