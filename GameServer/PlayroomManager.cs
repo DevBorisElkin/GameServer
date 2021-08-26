@@ -174,8 +174,7 @@ namespace ServerCore
                 Console.WriteLine($"[SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {client.player.playroom.id} | {playroomId}");
 
             Console.WriteLine($"[SERVER_MESSAGE]: Client [{client.ch.ip}] notified about leaving playroom [{playroomId}]");
-            bool shouldClose = client.player.playroom.RemovePlayer(client);
-            CheckAndClosePlayroom(playroom, shouldClose);
+            if(client.player.playroom.RemovePlayer(client)) ClosePlayroom(playroom);
         }
         static int GenerateRandomIdForPlayroom()
         {
@@ -214,17 +213,14 @@ namespace ServerCore
             if (assignedClient.player.playroom == null) return;
 
             Playroom playroom = assignedClient.player.playroom;
-            bool shouldClose = assignedClient.player.playroom.RemovePlayer(assignedClient);
-            CheckAndClosePlayroom(playroom, shouldClose);
+            if(assignedClient.player.playroom.RemovePlayer(assignedClient)) ClosePlayroom(playroom);
+            
         }
         
-        static void CheckAndClosePlayroom(Playroom room, bool shouldClose)
+        static void ClosePlayroom(Playroom room)
         {
-            if (shouldClose)
-            {
-                playrooms.Remove(room);
-                room = null;
-            }
+            playrooms.Remove(room);
+            room = null;
         }
     }
 }
