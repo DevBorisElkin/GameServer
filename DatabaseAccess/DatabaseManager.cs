@@ -13,8 +13,8 @@ namespace DatabaseAccess
     {
         static MySqlConnection mySqlConnection;
 
-        #region Connect/Disconnect
-        public static void Connect()
+        #region Connect/Disconnect/Check Connection
+        public static void Connect(bool reboot = false)
         {
             string connectionString = File.ReadAllText(@"C:\MyProjectPasswords\MultiplayerGame_1\AccessToDataBase.txt");
             mySqlConnection = new MySqlConnection(connectionString);
@@ -22,7 +22,8 @@ namespace DatabaseAccess
 
             if (mySqlConnection.State == System.Data.ConnectionState.Open)
             {
-                Console.WriteLine("[SERVER_MESSAGE]: Successfully connected to database");
+                if(!reboot) Console.WriteLine("[SERVER_MESSAGE]: Successfully connected to database");
+                else Console.WriteLine("[SERVER_MESSAGE]: Successfully rebooted database connection");
 
                 MySqlCommand commandUse_database = new MySqlCommand($"USE MainData;", mySqlConnection);
                 MySqlDataReader readerUse_database = commandUse_database.ExecuteReader();
@@ -36,8 +37,29 @@ namespace DatabaseAccess
             if (mySqlConnection.State == System.Data.ConnectionState.Open)
             {
                 mySqlConnection.Close();
-                Console.WriteLine("Database connection closed");
+                Console.WriteLine("[SERVER_MESSAGE]: Database connection closed");
+                Connect();
             }
+        }
+
+        public static bool IsConnected()
+        {
+            if (mySqlConnection.State == System.Data.ConnectionState.Open) return true;
+            else return false;
+        }
+
+        public static void Reboot()
+        {
+            if(mySqlConnection != null)
+            {
+                try
+                {
+                    mySqlConnection.Close();
+                    Connect(true);
+                }
+                catch (Exception e) { Console.WriteLine(e); }
+            }
+            else { Console.WriteLine("[SERVER_MESSAGE]: Couldn't reboot database connection because mySqlObject is null"); }
         }
         #endregion
 

@@ -27,12 +27,9 @@ namespace EntryPoint
             {
                 DatabaseBridge.InitDatabase();
                 PlayroomManager.InitPlayroomManager();
-
                 SubscribeToEvents();
-
                 connected_clients = new List<Client>();
                 Server.StartServer(portTcp, portUdp);
-
                 while (true) ReadConsole();
             }
             void SubscribeToEvents()
@@ -150,7 +147,6 @@ namespace EntryPoint
                                     $"asks operation that he has no rights for, his request: {message}");
                             }
                         }
-
                     }
                     catch (Exception e)
                     {
@@ -161,7 +157,6 @@ namespace EntryPoint
 
             public static void ParceMessage_Playroom(string message, Client client)
             {
-                
                 try
                 {
                     if (message.StartsWith(PLAYROOMS_DATA_REQUEST))

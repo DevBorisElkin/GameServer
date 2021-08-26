@@ -7,14 +7,37 @@ using DatabaseAccess;
 using static ServerCore.Util_Server;
 using static ServerCore.NetworkingMessageAttributes;
 using static ServerCore.ClientHandler;
+using System.Threading;
 
 namespace ServerCore
 {
     public static class DatabaseBridge
     {
+        public static int checkDBConnectionMinutes = 1;
+
         public static void InitDatabase()
         {
             DatabaseManager.Connect();
+            StartDBConnectionCheck();
+        }
+        public static void StartDBConnectionCheck()
+        {
+            DatabaseConnectionCheckTask = new Task(CheckDBConnection);
+            DatabaseConnectionCheckTask.Start();
+        }
+        static Task DatabaseConnectionCheckTask;
+        static void CheckDBConnection()
+        {
+            while (true)
+            {
+                Thread.Sleep((int)(TimeSpan.FromMinutes(checkDBConnectionMinutes).TotalMilliseconds));
+                CheckAndRebootIfNeeded();
+            }
+        }
+
+        static void CheckAndRebootIfNeeded()
+        {
+            if (!DatabaseManager.IsConnected()) DatabaseManager.Reboot();
         }
 
         public static async Task TryToAuthenticateAsync(string _login, string _password, Client SendResponseBackTo)
