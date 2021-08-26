@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using static GameServer.Util_Server;
+using static ServerCore.Util_Server;
 
-namespace GameServer
+namespace ServerCore
 {
     public static class Server
     {
@@ -21,10 +21,8 @@ namespace GameServer
         // [START SERVER]
         public static void StartServer(int _port, int _portUdp)
         {
-            DatabaseBridge.InitDatabase();
             UDP.StartUdpServer(_portUdp);
-            PlayroomManager.InitPlayroomManager();
-
+            
             portTcp = _port;
             ip = Util_Server.GetIpOfServer().ToString();
 

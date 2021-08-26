@@ -2,15 +2,12 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static GameServer.Server;
-using static GeneralUsage.NetworkingMessageAttributes;
-using static GameServer.Util_Server;
+using static ServerCore.NetworkingMessageAttributes;
 using System.Collections.Generic;
 using System.Numerics;
-using static GeneralUsage.PlayroomManager_MapData;
-using static GeneralUsage.PlayroomManager_MapData;
+using static ServerCore.PlayroomManager_MapData;
 
-namespace GameServer
+namespace ServerCore
 {
     public static class PlayroomManager
     {
@@ -51,9 +48,7 @@ namespace GameServer
                 Thread.Sleep(500);
             }
         }
-        // "playrooms_data_response|playroom_data(/),playroom_data, playroom_data"
-        // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
-        public static void RequestFromClient_GetPlayroomsData(ClientHandler ch)
+        public static void RequestFromClient_GetPlayroomsData(Client client)
         {
             try
             {
@@ -65,7 +60,7 @@ namespace GameServer
                     else
                         result += playrooms[i].ToNetworkString();
                 }
-                Util_Server.SendMessageToClient(result, ch);
+                Util_Server.SendMessageToClient(result, client.ch);
             }
             catch(Exception e)
             {
@@ -73,93 +68,93 @@ namespace GameServer
             }
         }
 
-        public static void RequestFromClient_CreatePlayroom(ClientHandler ch, string _name, bool _isPublic, 
+        public static void RequestFromClient_CreatePlayroom(Client client, string _name, bool _isPublic, 
             string _password, Map _map, int _maxPlayers)
         {
             // check if he can create playroom and that new playroom does not exceed max amount
             // send negative response
             if (playrooms.Count + 1 > maximumPlayroomAmount)
             {
-                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Server has reached maximum amount playrooms", ch);
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Server has reached maximum amount playrooms", client.ch);
                 return;
             }
             if (_name.Length < 5)
             {
-                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Name of room is too short", ch);
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Name of room is too short", client.ch);
                 return;
             }
             if (_name.Length > 20)
             {
-                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Name of room is too long", ch);
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Name of room is too long", client.ch);
                 return;
             }
             if (_maxPlayers > 10)
             {
-                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom can't keep more than 10 players", ch);
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom can't keep more than 10 players", client.ch);
                 return;
             }
             if (!_isPublic && (_password.Length < 5 || _password.Length > 15))
             {
-                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Password length is wrong", ch);
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Password length is wrong", client.ch);
                 return;
             }
-            if (!UDP.TryToRetrieveEndPoint(ch))
+            if (!UDP.TryToRetrieveEndPoint(client.ch))
             {
-                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Client has no UDP end point assigned", ch);
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Client has no UDP end point assigned", client.ch);
                 return;
             }
 
             int id = GenerateRandomIdForPlayroom();
             Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers);
-            ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
-            string scoresString = playroom.AddPlayer(ch.player);
+            client.player = new Player(client, client.userData.nickname, Vector3.Zero);
+            string scoresString = playroom.AddPlayer(client.player);
             playrooms.Add(playroom);
             Vector3 spawnPos = GetRandomSpawnPointByMap(_map);
 
-            Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to create playroom and his request was accepted");
+            Console.WriteLine($"[SERVER_MESSAGE]: Client [{client.ch.ip}] requested to create playroom and his request was accepted");
             // tell the client that he is accepted
 
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|" +
-                $"{playroom.ToNetworkString()}|{scoresString}|{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", ch);
+                $"{playroom.ToNetworkString()}|{scoresString}|{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", client.ch);
         }
 
-        public static void RequestFromClient_EnterPlayroom(int room_id, ClientHandler ch, string roomPassword = "")
+        public static void RequestFromClient_EnterPlayroom(int room_id, Client client, string roomPassword = "")
         {
             var room = FindPlayroomById(room_id);
             if(room == null)
             {
-                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Didn't find playroom with id {room_id}", ch);
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Didn't find playroom with id {room_id}", client.ch);
                 return;
             }
             if (!room.isPublic)
             {
                 if (!room.password.Equals(roomPassword))
                 {
-                    Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Wrong password", ch);
+                    Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Wrong password", client.ch);
                     return;
                 }
             }
             if(room.PlayersCurrAmount + 1 > room.maxPlayers)
             {
-                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom is full", ch);
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom is full", client.ch);
                 return;
             }
-            if (!UDP.TryToRetrieveEndPoint(ch))
+            if (!UDP.TryToRetrieveEndPoint(client.ch))
             {
-                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Client has no UDP end point assigned", ch);
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Client has no UDP end point assigned", client.ch);
                 return;
             }
 
-            ch.player = new Player(ch, ch.userData.nickname, Vector3.Zero);
-            string scoresString = room.AddPlayer(ch.player);
+            client.player = new Player(client, client.userData.nickname, Vector3.Zero);
+            string scoresString = room.AddPlayer(client.player);
             Vector3 spawnPos = GetRandomSpawnPointByMap(room.map);
 
-            Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
+            Console.WriteLine($"[SERVER_MESSAGE]: Client [{client.ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
             // tell the client that he is accepted
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}|{scoresString}|" +
-                $"{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", ch);
+                $"{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", client.ch);
         }
-        public static void RequestFromClient_StorePlayerPositionAndRotation(ClientHandler client, Vector3 _position, Quaternion _rotation)
+        public static void RequestFromClient_StorePlayerPositionAndRotation(Client client, Vector3 _position, Quaternion _rotation)
         {
             if (client.player != null && client.player.isAlive)
             {
@@ -168,18 +163,18 @@ namespace GameServer
             }
         }
 
-        public static void RequestFromClient_DisconnectFromPlayroom(int playroomId, ClientHandler ch)
+        public static void RequestFromClient_DisconnectFromPlayroom(int playroomId, Client client)
         {
-            if (ch.player == null) return;
-            if (ch.player.playroom == null) return;
+            if (client.player == null) return;
+            if (client.player.playroom == null) return;
 
-            Playroom playroom = ch.player.playroom;
+            Playroom playroom = client.player.playroom;
 
-            if (ch.player.playroom.id != playroomId)
-                Console.WriteLine($"[SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {ch.player.playroom.id} | {playroomId}");
+            if (client.player.playroom.id != playroomId)
+                Console.WriteLine($"[SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {client.player.playroom.id} | {playroomId}");
 
-            Console.WriteLine($"[SERVER_MESSAGE]: Client [{ch.ip}] notified about leaving playroom [{playroomId}]");
-            bool shouldClose = ch.player.playroom.RemovePlayer(ch);
+            Console.WriteLine($"[SERVER_MESSAGE]: Client [{client.ch.ip}] notified about leaving playroom [{playroomId}]");
+            bool shouldClose = client.player.playroom.RemovePlayer(client);
             CheckAndClosePlayroom(playroom, shouldClose);
         }
         static int GenerateRandomIdForPlayroom()
@@ -212,12 +207,14 @@ namespace GameServer
 
         static void OnClientDisconnected(ClientHandler ch, string error)
         {
-            if (ch.player == null) return;
+            Client assignedClient = Client.GetClientByClientHandler(ch);
+            if (assignedClient == null) { Console.WriteLine("Error, didn't find client by client handler in Playroom Manager"); return; }
+            if (assignedClient.player == null) return;
 
-            if (ch.player.playroom == null) return;
+            if (assignedClient.player.playroom == null) return;
 
-            Playroom playroom = ch.player.playroom;
-            bool shouldClose = ch.player.playroom.RemovePlayer(ch);
+            Playroom playroom = assignedClient.player.playroom;
+            bool shouldClose = assignedClient.player.playroom.RemovePlayer(assignedClient);
             CheckAndClosePlayroom(playroom, shouldClose);
         }
         

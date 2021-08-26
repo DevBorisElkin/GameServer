@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using static GameServer.Server;
-using static GeneralUsage.NetworkingMessageAttributes;
+using static ServerCore.Server;
+using static ServerCore.NetworkingMessageAttributes;
 using System.Globalization;
 using System.Numerics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using static GeneralUsage.PlayroomManager_MapData;
 
-namespace GameServer
+namespace ServerCore
 {
     public static class Util_Server
     {
@@ -54,7 +53,7 @@ namespace GameServer
         {
             foreach (var a in Server.clients.Values)
             {
-                a.ShutDownClient(0, false);
+                a.ShutDownClient(0);
             }
             clients = null;
         }
@@ -73,7 +72,7 @@ namespace GameServer
         // Check if client connected
         public static bool SocketSimpleConnected(this ClientHandler ch)
         {
-            return !((ch.handler.Poll(1000, SelectMode.SelectRead) && (ch.handler.Available == 0)) || !ch.handler.Connected);
+            return !((ch.tcpHandler.Poll(1000, SelectMode.SelectRead) && (ch.tcpHandler.Available == 0)) || !ch.tcpHandler.Connected);
         }
         public static bool SocketSimpleConnected(Socket tcpHandler)
         {
@@ -83,7 +82,7 @@ namespace GameServer
         // Gets IP
         public static string GetRemoteIp(this ClientHandler ch)
         {
-            string rawRemoteIP = ch.handler.RemoteEndPoint.ToString();
+            string rawRemoteIP = ch.tcpHandler.RemoteEndPoint.ToString();
             int dotsIndex = rawRemoteIP.LastIndexOf(":");
             string remoteIP = rawRemoteIP.Substring(0, dotsIndex);
             return remoteIP;
@@ -105,7 +104,7 @@ namespace GameServer
         // Get IP and Port
         public static string GetRemoteIpAndPort(this ClientHandler ch)
         {
-            return ch.handler.RemoteEndPoint.ToString();
+            return ch.tcpHandler.RemoteEndPoint.ToString();
         }
         public static string GetRemoteIpAndPort(Socket tcpHandler)
         {
@@ -199,7 +198,6 @@ namespace GameServer
                 foreach (var a in clients.Values)
                 {
                     if (clientToIgnore == a) continue;
-                    if (a.player == null) continue;
                     a.SendMessageTcp(message);
                 }
             }
@@ -208,7 +206,6 @@ namespace GameServer
                 foreach (var a in clients.Values)
                 {
                     if (clientToIgnore == a) continue;
-                    if (a.player == null) continue;
                     UDP.SendMessageUdp(message, a);
                 }
             }
@@ -244,150 +241,6 @@ namespace GameServer
                 UDP.SendMessageUdp(message, client);
         }
         #endregion MESSAGIND END ------
-
-        #region Parce Messages From Clients
-
-        public async static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
-        {
-            string[] parcedMessage = msg.Split(END_OF_FILE, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string message in parcedMessage)
-            {
-                try
-                {
-                    if (message.Contains(CHECK_CONNECTED)) continue;
-
-                    // not showing CHECK_CONNECTED and SHARES_PLAYROOM because it spams in console
-                    if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION) && !message.Contains(SHOT_REQUEST) && !message.Contains(JUMP_REQUEST))
-                    {   
-                        Console.WriteLine($"[CLIENT_MESSAGE][{mp}][{ch.id}][{ch.ip}]: {message} | {DateTime.Now}");
-                    }
-                    if (message.Contains(CHECK_CONNECTED)) continue;
-
-                    if (ch.clientAccessLevel.Equals(ClientAccessLevel.LowestLevel))
-                    {
-                        // accept only requests for authentication and registration
-
-                        if (message.Contains(LOG_IN))
-                        {
-                            // here should do some magic with database
-                            string[] substrings = message.Split("|");
-                            await DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], ch);
-
-                        }else if (message.Contains(REGISTER))
-                        {
-                            string[] substrings = message.Split("|");
-                            DatabaseBridge.TryToRegisterAsync(substrings[1], substrings[2], substrings[3], ch);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"[SERVER_MESSAGE]: It appears that client {ch.ip} " +
-                                $"asks operation that he has no rights for, his request: {message}");
-                        }
-
-                    }
-                    else if (ch.clientAccessLevel.Equals(ClientAccessLevel.Authenticated))
-                    {
-                        // accept all other requests
-                        if (DoesMessageRelatedToPlayroomManager(message))
-                        {
-                            ParceMessage_Playroom(message, ch);
-                        }
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"{e.Message} ||| {e.StackTrace} ||| message was:{message}");
-                }
-            }
-        }
-
-        public static void ParceMessage_Playroom(string message, ClientHandler ch)
-        {
-            try
-            {
-                if (message.StartsWith(PLAYROOMS_DATA_REQUEST))
-                {
-                    PlayroomManager.RequestFromClient_GetPlayroomsData(ch);
-                }
-                //          0           1          2         3     4      5
-                // "create_playroom|nameOfRoom|is_public|password|map|maxPlayers";
-                else if (message.StartsWith(CREATE_PLAY_ROOM))
-                {
-                    string[] substrings = message.Split("|");
-
-                    bool.TryParse(substrings[2], out bool isPublic);
-                    Enum.TryParse(substrings[4], out Map map);
-
-                    PlayroomManager.RequestFromClient_CreatePlayroom(ch, substrings[1], isPublic,
-                        substrings[3], map, Int32.Parse(substrings[5]));
-                }
-                // WILL REMAKE RESPONSE 'CONFIRM_ENTER_PLAYROOM' and there will be response: okay, or error
-                // "enter_playroom|3251|the_greatest_password_ever";
-                else if (message.StartsWith(ENTER_PLAY_ROOM))
-                // normally here should be some logic, checking, if specific playroom has space for new players to join
-                {
-                    string[] substrings = message.Split("|");
-
-                    Console.WriteLine($"[{ch.id}][{ch.ip}]Client requested to connect to playroom");
-                    if (substrings.Length == 2)
-                        PlayroomManager.RequestFromClient_EnterPlayroom(Int32.Parse(substrings[1]), ch);
-                    else if (substrings.Length == 3)
-                        PlayroomManager.RequestFromClient_EnterPlayroom(Int32.Parse(substrings[1]), ch, substrings[2]);
-                }
-                else if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
-                {
-                    string[] substrings = message.Split("|");
-                    string[] positions = substrings[1].Split("/");
-                    Vector3 position = new Vector3(
-                        float.Parse(positions[0], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(positions[1], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(positions[2], CultureInfo.InvariantCulture.NumberFormat));
-
-                    string[] rotations = substrings[2].Split("/");
-                    Quaternion rotation = new Quaternion(
-                        float.Parse(rotations[0], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(rotations[1], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(rotations[2], CultureInfo.InvariantCulture.NumberFormat),
-                        0);
-
-                    PlayroomManager.RequestFromClient_StorePlayerPositionAndRotation(ch, position, rotation);
-                }
-                else if (message.StartsWith(CLIENT_DISCONNECTED_FROM_THE_PLAYROOM))
-                {
-                    Console.WriteLine($"[SERVER_MESSAGE]:Client [{ch.id}][{ch.ip}] disconnected from playroom");
-                    string[] substrings = message.Split("|");
-                    PlayroomManager.RequestFromClient_DisconnectFromPlayroom(int.Parse(substrings[1]), ch);
-                }
-                else if (message.StartsWith(SHOT_REQUEST))
-                {
-                    if (ch.player != null && ch.player.playroom != null)
-                    {
-                        ch.player.CheckAndMakeShot(message);
-                    }
-                }
-                else if (message.StartsWith(JUMP_REQUEST))
-                {
-                    if (ch.player != null && ch.player.playroom != null)
-                    {
-                        ch.player.CheckAndMakeJump();
-                    }
-                }
-                else if (message.StartsWith(PLAYER_DIED))
-                {
-                    if (ch.player != null && ch.player.playroom != null)
-                    {
-                        ch.player.PlayerDied(message);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-        }
-        #endregion
 
         #region Delegates
         public delegate void OnServerStartedDelegate();
@@ -438,5 +291,11 @@ namespace GameServer
         }
 
         #endregion
+
+        public enum ClientAccessLevel
+        {
+            LowestLevel = 0,
+            Authenticated = 1
+        }
     }
 }

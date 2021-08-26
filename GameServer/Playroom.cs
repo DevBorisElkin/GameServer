@@ -2,14 +2,14 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static GameServer.Server;
-using static GeneralUsage.NetworkingMessageAttributes;
-using static GameServer.Util_Server;
+using static ServerCore.Server;
+using static ServerCore.NetworkingMessageAttributes;
+using static ServerCore.Util_Server;
 using System.Collections.Generic;
-using static GameServer.PlayroomManager;
-using static GeneralUsage.PlayroomManager_MapData;
+using static ServerCore.PlayroomManager;
+using static ServerCore.PlayroomManager_MapData;
 
-namespace GameServer
+namespace ServerCore
 {
     public class Playroom
     {
@@ -58,7 +58,7 @@ namespace GameServer
             {
                 if (a == excludePlayer) continue;
 
-                Util_Server.SendMessageToClient(message, a.ch, mp);
+                Util_Server.SendMessageToClient(message, a.client.ch, mp);
             }
         }
         // olny responsible for sending players' positions
@@ -74,7 +74,7 @@ namespace GameServer
                     string generatedString = GeneratePositionsDataOfAllPlayers(a);
                     if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("empty"))
                         continue;
-                    Util_Server.SendMessageToClient(generatedString, a.ch, MessageProtocol.UDP);
+                    Util_Server.SendMessageToClient(generatedString, a.client.ch, MessageProtocol.UDP);
                 }
             }
         }
@@ -82,11 +82,11 @@ namespace GameServer
         /// <summary>
         /// Returns true if last player leaves it
         /// </summary>
-        public bool RemovePlayer(ClientHandler ch)
+        public bool RemovePlayer(Client client)
         {
-            SendMessageToAllPlayersInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{id}|{ch.player.username}|{ch.ip}", ch.player, MessageProtocol.TCP);
-            playersInPlayroom.Remove(ch.player);
-            ch.player = null;
+            SendMessageToAllPlayersInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{id}|{client.player.username}|{client.ch.ip}", client.player, MessageProtocol.TCP);
+            playersInPlayroom.Remove(client.player);
+            client.player = null;
 
             OnScoresChange(null);
             
@@ -112,7 +112,7 @@ namespace GameServer
                 {
                     if (player == excludePlayer) continue;
 
-                    sb.Append($"{player.username},{player.ch.ip},{player.position.X}/{player.position.Y}/{player.position.Z}," +
+                    sb.Append($"{player.username},{player.client.ch.ip},{player.position.X}/{player.position.Y}/{player.position.Z}," +
                         $"{player.rotation.X}/{player.rotation.Y}/{player.rotation.Z}@");
                 }
                 message = sb.ToString();
@@ -156,12 +156,12 @@ namespace GameServer
             {
                 if(i < playersInPlayroom.Count - 1)
                 {
-                    result += $"{playersInPlayroom[i].ch.ip}/{playersInPlayroom[i].username}/" +
+                    result += $"{playersInPlayroom[i].client.ch.ip}/{playersInPlayroom[i].username}/" +
                         $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}@";
                 }
                 else
                 {
-                    result += $"{playersInPlayroom[i].ch.ip}/{playersInPlayroom[i].username}/" +
+                    result += $"{playersInPlayroom[i].client.ch.ip}/{playersInPlayroom[i].username}/" +
                         $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}";
                 }
             }

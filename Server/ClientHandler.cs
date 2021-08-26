@@ -4,20 +4,15 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static GameServer.Util_Server;
-using static GeneralUsage.NetworkingMessageAttributes;
-using DatabaseAccess;
+using static ServerCore.Util_Server;
+using static ServerCore.NetworkingMessageAttributes;
 
-namespace GameServer
+namespace ServerCore
 {
     public class ClientHandler
     {
-        public Socket handler;
+        public Socket tcpHandler;
         public IPEndPoint udpEndPoint;
-
-        public ClientAccessLevel clientAccessLevel;
-        public UserData userData;
-        public Player player;
 
         public int id;
         public string ip;
@@ -30,8 +25,8 @@ namespace GameServer
 
         public ClientHandler(Socket handler, int id)
         {
-            clientAccessLevel = ClientAccessLevel.LowestLevel;
-            this.handler = handler;
+            //clientAccessLevel = ClientAccessLevel.LowestLevel;
+            this.tcpHandler = handler;
             this.id = id;
             ip = this.GetRemoteIp();
 
@@ -53,11 +48,11 @@ namespace GameServer
             byte[] bytes = new byte[8192];
             string str;
 
-            while (handler.Connected)
+            while (tcpHandler.Connected)
             {
                 try
                 {
-                    str = ReadLine2(handler, bytes);
+                    str = ReadLine2(tcpHandler, bytes);
                     if (!str.Equals(""))
                     {
                         lastConnectedConfirmed = DateTime.Now;
@@ -118,7 +113,7 @@ namespace GameServer
             try
             {
                 byte[] dataToSend = Encoding.Unicode.GetBytes(message);
-                handler.Send(dataToSend);
+                tcpHandler.Send(dataToSend);
             }
             catch(Exception e)
             {
@@ -133,14 +128,14 @@ namespace GameServer
             // TODO send message why disconnected client..
             SendMessageTcp(CLIENT_DISCONNECTED+END_OF_FILE);
 
-            Util_Server.OnClientDisconnected(this, error.ToString());
+            OnClientDisconnected(this, error.ToString());
 
             try
             {
-                if (handler.Connected)
+                if (tcpHandler.Connected)
                 {
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Dispose();
+                    tcpHandler.Shutdown(SocketShutdown.Both);
+                    tcpHandler.Dispose();
                 }
             }
             catch (Exception e) { Console.WriteLine(e.Message + " " + e.StackTrace); }
@@ -155,9 +150,5 @@ namespace GameServer
         #endregion
     }
 
-    public enum ClientAccessLevel
-    {
-        LowestLevel = 0,
-        Authenticated = 1
-    }
+    
 }

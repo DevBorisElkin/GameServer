@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GeneralUsage
+namespace ServerCore
 {
     public static class PlayroomManager_MapData
     {

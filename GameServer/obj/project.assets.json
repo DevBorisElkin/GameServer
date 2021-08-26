@@ -298,6 +298,16 @@
         "runtime": {
           "bin/placeholder/GeneralUsage.dll": {}
         }
+      },
+      "ServerCore/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "compile": {
+          "bin/placeholder/ServerCore.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ServerCore.dll": {}
+        }
       }
     }
   },
@@ -864,12 +874,18 @@
       "type": "project",
       "path": "../GeneralUsage/GeneralUsage.csproj",
       "msbuildProject": "../GeneralUsage/GeneralUsage.csproj"
+    },
+    "ServerCore/1.0.0": {
+      "type": "project",
+      "path": "../Server/ServerCore.csproj",
+      "msbuildProject": "../Server/ServerCore.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net5.0": [
       "DatabaseAccess >= 1.0.0",
-      "GeneralUsage >= 1.0.0"
+      "GeneralUsage >= 1.0.0",
+      "ServerCore >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -911,6 +927,9 @@
             },
             "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\GeneralUsage\\GeneralUsage.csproj": {
               "projectPath": "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\GeneralUsage\\GeneralUsage.csproj"
+            },
+            "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\Server\\ServerCore.csproj": {
+              "projectPath": "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\Server\\ServerCore.csproj"
             }
           }
         }

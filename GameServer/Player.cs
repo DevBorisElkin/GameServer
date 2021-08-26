@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
-using static GameServer.Util_Server;
-using static GeneralUsage.NetworkingMessageAttributes;
-using static GameServer.PlayroomManager;
-using static GeneralUsage.PlayroomManager_MapData;
+using static ServerCore.Util_Server;
+using static ServerCore.NetworkingMessageAttributes;
+using static ServerCore.ClientHandler;
+using static ServerCore.PlayroomManager;
+using static ServerCore.PlayroomManager_MapData;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace GameServer
+namespace ServerCore
 {
     public class Player
     {
-        public ClientHandler ch;
+        public ServerCore.Client client;
         public string username;
 
         public Vector3 position;
@@ -34,9 +35,9 @@ namespace GameServer
         public bool isAlive;
 
 
-        public Player(ClientHandler ch, string username, Vector3 spawnPosition)
+        public Player(Client client, string username, Vector3 spawnPosition)
         {
-            this.ch = ch;
+            this.client = client;
             this.username = username;
             position = spawnPosition;
             rotation = Quaternion.Identity;
@@ -77,7 +78,7 @@ namespace GameServer
 
             // code|posOfShootingPoint|rotationAtRequestTime|ipOfShootingPlayer
             // "shot_result|123/45/87|543/34/1|198.0.0.126";
-            string msg = $"{SHOT_RESULT}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}|{ch.ip}";
+            string msg = $"{SHOT_RESULT}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}|{client.ch.ip}";
             playroom.SendMessageToAllPlayersInPlayroom(msg, null, MessageProtocol.TCP);
         }
         public void CheckAndMakeJump()
@@ -94,7 +95,7 @@ namespace GameServer
                 }
 
                 //Console.WriteLine("Trying to send to client: "+ $"{JUMP_RESULT}|{currentJumpsAmount}");
-                Util_Server.SendMessageToClient($"{JUMP_RESULT}|{currentJumpsAmount}", ch, MessageProtocol.TCP);
+                Util_Server.SendMessageToClient($"{JUMP_RESULT}|{currentJumpsAmount}", client.ch, MessageProtocol.TCP);
             }
         }
 
@@ -119,7 +120,7 @@ namespace GameServer
                     startedRecoveringJump = DateTime.Now;
                 }
                 //Console.WriteLine("Trying to send to client: " + $"{JUMP_AMOUNT}|{currentJumpsAmount}");
-                Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}|false", ch, MessageProtocol.TCP);
+                Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}|false", client.ch, MessageProtocol.TCP);
             }
         }
         // "player_died|killer_ip|reasonOfDeath
@@ -147,7 +148,7 @@ namespace GameServer
             isAlive = true;
             // SEND MESSAGE TO OTHER CLIENTS THAT PLAYER DIED AND SPAWN PARTICLES
             Util_Server.SendMessageToAllClients($"{SPAWN_DEATH_PARTICLES}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}", MessageProtocol.TCP, null);
-            Util_Server.SendMessageToClient($"{PLAYER_REVIVED}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}|{currentJumpsAmount}", ch, MessageProtocol.TCP);
+            Util_Server.SendMessageToClient($"{PLAYER_REVIVED}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}|{currentJumpsAmount}", client.ch, MessageProtocol.TCP);
         }
     }
 }

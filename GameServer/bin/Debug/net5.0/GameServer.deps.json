@@ -9,7 +9,8 @@
       "GameServer/1.0.0": {
         "dependencies": {
           "DatabaseAccess": "1.0.0",
-          "GeneralUsage": "1.0.0"
+          "GeneralUsage": "1.0.0",
+          "ServerCore": "1.0.0"
         },
         "runtime": {
           "GameServer.dll": {}
@@ -227,6 +228,11 @@
         "runtime": {
           "GeneralUsage.dll": {}
         }
+      },
+      "ServerCore/1.0.0": {
+        "runtime": {
+          "ServerCore.dll": {}
+        }
       }
     }
   },
@@ -375,6 +381,11 @@
       "sha512": ""
     },
     "GeneralUsage/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ServerCore/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

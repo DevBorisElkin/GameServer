@@ -4,9 +4,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using static GameServer.Util_Server;
+using static ServerCore.Util_Server;
 
-namespace GameServer
+namespace ServerCore
 {
     public static class UDP
     {
