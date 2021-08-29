@@ -297,5 +297,8 @@ namespace ServerCore
             LowestLevel = 0,
             Authenticated = 1
         }
+
+        public enum ReasonOfDeath { ByOtherPlayer, Suicide }
+        public enum DeathDetails { FellOutOfMap, TouchedSpikes }
     }
 }

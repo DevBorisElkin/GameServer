@@ -132,7 +132,7 @@ namespace ServerCore
         }
 
         // Messages that client receives from server, related to playroom action
-        public static string[] MessagesToClient_RelatedToPlayroom = new string[8]
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[9]
         {
             MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
@@ -141,7 +141,8 @@ namespace ServerCore
             JUMP_AMOUNT,
             PLAYERS_SCORES_IN_PLAYROOM,
             PLAYER_REVIVED,
-            SPAWN_DEATH_PARTICLES
+            SPAWN_DEATH_PARTICLES,
+            PLAYER_WAS_KILLED_MESSAGE
         };
         public static bool DoesMessageRelatedToOnlineGameManager(string message)
         {
@@ -205,8 +206,12 @@ namespace ServerCore
         // {fullFataOfPlayersInThatRoom} => ip/nickname/kills/deaths@ip/nickname/kills/deaths@ip/nickname/kills/deaths
         public const string PLAYERS_SCORES_IN_PLAYROOM = "players_scores";
 
+        // message to players notifying that a player in the playroom was killed
+        // player_was_killed_message|playerDeadNickname/playerDeadIP|playerKillerNickname/playerKilledIP|deathDetails
+        public const string PLAYER_WAS_KILLED_MESSAGE = "player_was_killed_message";
+
         // message to server, informing that the player has died
-        // "player_died|killer_ip|reasonOfDeath
+        // "player_died|killer_ip|deathDetails
         public const string PLAYER_DIED = "player_died";
 
         // message to the player, informing that he has been revived

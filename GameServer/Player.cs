@@ -127,8 +127,8 @@ namespace ServerCore
         public void PlayerDied(string message)
         {
             isAlive = false;
-            string[] substrings = message.Split("|");
-            // TODO CHANGE SCORE
+            
+            ChangeScoresOnPlayerDied(message);
 
             currentJumpsAmount = maxJumpsAmount;
             isRecoveringJump = false;
@@ -142,13 +142,42 @@ namespace ServerCore
         Task revivePlayer;
         void RevivePlayer()
         {
-            Thread.Sleep(1000);
+            Thread.Sleep(3000);
 
             Vector3 spawnPos = GetRandomSpawnPointByMap(playroom.map);
             isAlive = true;
             // SEND MESSAGE TO OTHER CLIENTS THAT PLAYER DIED AND SPAWN PARTICLES
             Util_Server.SendMessageToAllClients($"{SPAWN_DEATH_PARTICLES}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}", MessageProtocol.TCP, null);
             Util_Server.SendMessageToClient($"{PLAYER_REVIVED}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}|{currentJumpsAmount}", client.ch, MessageProtocol.TCP);
+        }
+
+        void ChangeScoresOnPlayerDied(string message)
+        {
+            stats_deaths++;
+
+            string[] substrings = message.Split("|");
+            string killerIp = substrings[1];
+            string deathDetails = substrings[2];
+
+            Player killer = null;
+
+            // find killer player if exists and assign points
+            if (!killerIp.Equals("none"))
+            {
+                foreach(Player pl in playroom.playersInPlayroom)
+                {
+                    if (pl.client.ch.ip == killerIp) killer = pl;
+                }
+                if (killer != null) killer.stats_kills++;
+            }
+            playroom.OnScoresChange(null);
+            // player_was_killed_message|playerDeadNickname/playerDeadIP|playerKillerNickname/playerKilledIP|deathDetails
+
+            if(killer != null)
+                playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{username}/{client.ch.ip}|{killer.username}/{killer.client.ch.ip}|{deathDetails}", null, MessageProtocol.TCP);
+            else
+                playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{username}/{client.ch.ip}|none/none|{deathDetails}", null, MessageProtocol.TCP);
+
         }
     }
 }

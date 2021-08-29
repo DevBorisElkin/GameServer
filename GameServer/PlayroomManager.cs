@@ -156,7 +156,7 @@ namespace ServerCore
         }
         public static void RequestFromClient_StorePlayerPositionAndRotation(Client client, Vector3 _position, Quaternion _rotation)
         {
-            if (client.player != null && client.player.isAlive)
+            if (client.player != null) // && client.player.isAlive)
             {
                 client.player.position = _position;
                 client.player.rotation = _rotation;
