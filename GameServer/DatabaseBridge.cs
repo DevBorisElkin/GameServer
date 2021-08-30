@@ -26,18 +26,22 @@ namespace ServerCore
             DatabaseConnectionCheckTask.Start();
         }
         static Task DatabaseConnectionCheckTask;
-        static void CheckDBConnection()
+        static async void CheckDBConnection()
         {
             while (true)
             {
                 Thread.Sleep((int)(TimeSpan.FromMinutes(checkDBConnectionMinutes).TotalMilliseconds));
-                CheckAndRebootIfNeeded();
+                await CheckAndRebootIfNeeded();
             }
         }
 
-        static void CheckAndRebootIfNeeded()
+        static UserData userDataCheckDBConnection = new UserData { login = "Bob_EA", password = "abobon" };
+        static async Task CheckAndRebootIfNeeded()
         {
-            if (!DatabaseManager.IsConnected()) DatabaseManager.Reboot();
+            UserData result = await DatabaseManager.TryToAuthenticateAsync(userDataCheckDBConnection);
+
+            if (!result.requestResult.Equals(RequestResult.Success))
+                if (!DatabaseManager.IsConnected()) DatabaseManager.Reboot();
         }
 
         public static async Task TryToAuthenticateAsync(string _login, string _password, Client SendResponseBackTo)
@@ -54,12 +58,12 @@ namespace ServerCore
                 SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}|{result.ToNetworkString()}", SendResponseBackTo.ch);
                 SendResponseBackTo.userData = result;
                 SendResponseBackTo.clientAccessLevel = ClientAccessLevel.Authenticated;
-                Console.WriteLine($"[SERVER_MESSAGE]: client [{SendResponseBackTo.ch.ip}] requested to authenticate and got accepted");
+                Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: client [{SendResponseBackTo.ch.ip}] requested to authenticate and got accepted");
             }
             else
             {
                 // here we tell the user back that authentication failed and give some clue why it did
-                Console.WriteLine($"[SERVER_MESSAGE]: client [{SendResponseBackTo.ch.ip}] requested to authenticate and was rejected [{result.requestResult}]");
+                Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: client [{SendResponseBackTo.ch.ip}] requested to authenticate and was rejected [{result.requestResult}]");
                 SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}", SendResponseBackTo.ch);
             }
         }

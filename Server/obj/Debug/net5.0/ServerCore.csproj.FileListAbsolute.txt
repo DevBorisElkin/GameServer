@@ -2,6 +2,7 @@ C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\bin\De
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\bin\Debug\net5.0\ServerCore.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\bin\Debug\net5.0\ref\ServerCore.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\bin\Debug\net5.0\ServerCore.pdb
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Debug\net5.0\ServerCore.csproj.AssemblyReference.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Debug\net5.0\ServerCore.GeneratedMSBuildEditorConfig.editorconfig
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Debug\net5.0\ServerCore.AssemblyInfoInputs.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Debug\net5.0\ServerCore.AssemblyInfo.cs

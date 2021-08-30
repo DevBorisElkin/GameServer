@@ -23,7 +23,7 @@ namespace DatabaseAccess
             if (mySqlConnection.State == System.Data.ConnectionState.Open)
             {
                 if(!reboot) Console.WriteLine("[SERVER_MESSAGE]: Successfully connected to database");
-                else Console.WriteLine("[SERVER_MESSAGE]: Successfully rebooted database connection");
+                else Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: Successfully rebooted database connection");
 
                 MySqlCommand commandUse_database = new MySqlCommand($"USE MainData;", mySqlConnection);
                 MySqlDataReader readerUse_database = commandUse_database.ExecuteReader();
@@ -37,6 +37,7 @@ namespace DatabaseAccess
             if (mySqlConnection.State == System.Data.ConnectionState.Open)
             {
                 mySqlConnection.Close();
+                mySqlConnection = null;
                 Console.WriteLine("[SERVER_MESSAGE]: Database connection closed");
                 Connect();
             }
@@ -105,7 +106,7 @@ namespace DatabaseAccess
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.ToString()}");
+                Console.WriteLine($"[Database Exception][{DateTime.Now}] {e}");
             }
             return new UserData(RequestResult.Fail);
         }
