@@ -66,7 +66,7 @@ namespace ServerCore
                         else if (clientToBind.udpEndPoint == null)
                         {
                             clientToBind.udpEndPoint = remoteIp;
-                            Console.WriteLine($"[SYSTEM_MESSAGE]: 1) initialized IPEndPoint for UDP messaging of client [{clientToBind.id}][{clientToBind.ip}]");
+                            Console.WriteLine($"[{DateTime.Now}][SYSTEM_MESSAGE]: 1) initialized IPEndPoint for UDP messaging of client [{clientToBind.id}][{clientToBind.ip}]");
                         }
                         // everything is OK, we can work with message
                         else
@@ -76,13 +76,13 @@ namespace ServerCore
                     }
                     catch(Exception e)
                     {
-                        Console.WriteLine($"{e.Message} ||| {e.StackTrace}");
+                        Console.WriteLine($"[{DateTime.Now}] {e.Message} ||| {e.StackTrace}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"[{DateTime.Now}] " + ex.Message);
             }
             finally
             {
@@ -112,7 +112,7 @@ namespace ServerCore
             }
             else
             {
-                Console.WriteLine("Remote end point has not beed defined yet, or listenSocketUdp is equal to null");
+                Console.WriteLine($"[{DateTime.Now}] Remote end point has not beed defined yet, or listenSocketUdp is equal to null");
             }
 
         }
@@ -124,11 +124,11 @@ namespace ServerCore
                 ch.udpEndPoint = Util_Server.TryToRetrieveEndPoint(ch.ip);
                 if (ch.udpEndPoint == null)
                 {
-                    Console.WriteLine($"[SERVER_ERROR]: Unable to interact with client via UDP" +
+                    Console.WriteLine($"[{DateTime.Now}][SERVER_ERROR]: Unable to interact with client via UDP" +
                         $" - failed to assign UDP IPEndPoint to client [{ch.id}][{ch.ip}]");
                     return false;
                 }
-                Console.WriteLine($"[SYSTEM_MESSAGE]: 2) Retrieved IPEndPoint for UDP messaging of client [{ch.id}][{ch.ip}]");
+                Console.WriteLine($"[{DateTime.Now}][SYSTEM_MESSAGE]: 2) Retrieved IPEndPoint for UDP messaging of client [{ch.id}][{ch.ip}]");
                 return true;
             }
             else return true;

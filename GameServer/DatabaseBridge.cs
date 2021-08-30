@@ -58,12 +58,12 @@ namespace ServerCore
                 SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}|{result.ToNetworkString()}", SendResponseBackTo.ch);
                 SendResponseBackTo.userData = result;
                 SendResponseBackTo.clientAccessLevel = ClientAccessLevel.Authenticated;
-                Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: client [{SendResponseBackTo.ch.ip}] requested to authenticate and got accepted");
+                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: client [{SendResponseBackTo.ch.ip}] requested to authenticate and got accepted");
             }
             else
             {
                 // here we tell the user back that authentication failed and give some clue why it did
-                Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: client [{SendResponseBackTo.ch.ip}] requested to authenticate and was rejected [{result.requestResult}]");
+                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: client [{SendResponseBackTo.ch.ip}] requested to authenticate and was rejected [{result.requestResult}]");
                 SendMessageToClient($"{LOG_IN_RESULT}|{result.requestResult}", SendResponseBackTo.ch);
             }
         }
@@ -82,7 +82,7 @@ namespace ServerCore
                 SendMessageToClient($"{REGISTER_RESULT}|{result.requestResult}|{result.ToNetworkString()}", SendResponseBackTo.ch);
                 SendResponseBackTo.userData = result;
                 SendResponseBackTo.clientAccessLevel = ClientAccessLevel.Authenticated;
-                Console.WriteLine($"[SERVER_MESSAGE]: client [{SendResponseBackTo.ch.ip}] requested to register and got accepted");
+                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: client [{SendResponseBackTo.ch.ip}] requested to register and got accepted");
             }
             else
             {

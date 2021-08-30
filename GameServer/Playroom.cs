@@ -93,7 +93,7 @@ namespace ServerCore
             // check if we should close playroom
             if (playersInPlayroom.Count <= 0)
             {
-                Console.WriteLine($"[SERVER_MESSAGE]: Last player left playroom with id [{id}], closing it");
+                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Last player left playroom with id [{id}], closing it");
                 return true;
             }
             else return false;
@@ -123,7 +123,7 @@ namespace ServerCore
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString() + " ||| " + e.StackTrace);
+                Console.WriteLine($"[{DateTime.Now}] "+e.ToString() + " ||| " + e.StackTrace);
             }
             int lastIndexOfDog = message.LastIndexOf('@');
             if (message.Length <= lastIndexOfDog + 1)

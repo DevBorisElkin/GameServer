@@ -22,14 +22,14 @@ namespace DatabaseAccess
 
             if (mySqlConnection.State == System.Data.ConnectionState.Open)
             {
-                if(!reboot) Console.WriteLine("[SERVER_MESSAGE]: Successfully connected to database");
-                else Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: Successfully rebooted database connection");
+                if(!reboot) Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Successfully connected to database");
+                else Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Successfully rebooted database connection");
 
                 MySqlCommand commandUse_database = new MySqlCommand($"USE MainData;", mySqlConnection);
                 MySqlDataReader readerUse_database = commandUse_database.ExecuteReader();
                 readerUse_database.Close();
             }
-            else Console.WriteLine($"[SERVER_MESSAGE]: Failed to connect to database, Connection State: {mySqlConnection.State}");
+            else Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Failed to connect to database, Connection State: {mySqlConnection.State}");
         }
 
         public static void Disconnect()
@@ -38,7 +38,7 @@ namespace DatabaseAccess
             {
                 mySqlConnection.Close();
                 mySqlConnection = null;
-                Console.WriteLine("[SERVER_MESSAGE]: Database connection closed");
+                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Database connection closed");
                 Connect();
             }
         }
@@ -58,9 +58,9 @@ namespace DatabaseAccess
                     mySqlConnection.Close();
                     Connect(true);
                 }
-                catch (Exception e) { Console.WriteLine(e); }
+                catch (Exception e) { Console.WriteLine($"[{DateTime.Now}] " + e); }
             }
-            else { Console.WriteLine("[SERVER_MESSAGE]: Couldn't reboot database connection because mySqlObject is null"); }
+            else { Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Couldn't reboot database connection because mySqlObject is null"); }
         }
         #endregion
 
@@ -100,13 +100,13 @@ namespace DatabaseAccess
                 }
                 else
                 {
-                    Console.WriteLine($"Can't interact with Database because connection state is {mySqlConnection.State}");
+                    Console.WriteLine($"[{DateTime.Now}] Can't interact with Database because connection state is {mySqlConnection.State}");
                     return new UserData(RequestResult.Fail_NoConnectionToDB);
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine($"[Database Exception][{DateTime.Now}] {e}");
+                Console.WriteLine($"[{DateTime.Now}][Database Exception] {e}");
             }
             return new UserData(RequestResult.Fail);
         }
@@ -121,7 +121,7 @@ namespace DatabaseAccess
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.ToString()}");
+                Console.WriteLine($"[{DateTime.Now}] {e.ToString()}");
             }
 
             return rowsAffected == 1;
@@ -141,7 +141,7 @@ namespace DatabaseAccess
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.ToString()}");
+                Console.WriteLine($"[{DateTime.Now}] {e.ToString()}");
             }
 
             return rowsAffected == 1;
@@ -161,7 +161,7 @@ namespace DatabaseAccess
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.ToString()}");
+                Console.WriteLine($"[{DateTime.Now}] {e.ToString()}");
             }
 
             return rowsAffected == 1;
@@ -192,7 +192,7 @@ namespace DatabaseAccess
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.ToString()}");
+                Console.WriteLine($"[{DateTime.Now}] {e.ToString()}");
             }
             return new UserData(RequestResult.Fail);
         }
@@ -242,13 +242,13 @@ namespace DatabaseAccess
                 }
                 else
                 {
-                    Console.WriteLine($"Can't interact with Database because connection state is {mySqlConnection.State}");
+                    Console.WriteLine($"[{DateTime.Now}] Can't interact with Database because connection state is {mySqlConnection.State}");
                     return new UserData(RequestResult.Fail_NoConnectionToDB);
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.ToString()}");
+                Console.WriteLine($"[{DateTime.Now}] {e.ToString()}");
             }
             return new UserData(RequestResult.Fail);
         }

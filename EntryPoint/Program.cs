@@ -75,17 +75,17 @@ namespace EntryPoint
                 }
             }
 
-            void ServerStarted() { Console.WriteLine($"[SERVER_LAUNCHED][{Server.ip}]"); }
-            void ServerShutDown() { Console.WriteLine($"[SERVER_SHUTDOWN][{Server.ip}]"); }
+            void ServerStarted() { Console.WriteLine($"[{DateTime.Now}][SERVER_LAUNCHED][{Server.ip}]"); }
+            void ServerShutDown() { Console.WriteLine($"[{DateTime.Now}][SERVER_SHUTDOWN][{Server.ip}]"); }
             void ClientConnected(ClientHandler clientHandler) 
             { 
-                Console.WriteLine($"[CLIENT_CONNECTED][{clientHandler.id}][{clientHandler.ip}]");
+                Console.WriteLine($"[{DateTime.Now}][CLIENT_CONNECTED][{clientHandler.id}][{clientHandler.ip}]");
                 connected_clients.Add(new Client(clientHandler));
 
             }
             void ClientDisconnected(ClientHandler clientHandler, string error) 
             {
-                Console.WriteLine($"[CLIENT_DISCONNECTED][{clientHandler.id}][{clientHandler.ip}]: {error}");
+                Console.WriteLine($"[{DateTime.Now}][CLIENT_DISCONNECTED][{clientHandler.id}][{clientHandler.ip}]: {error}");
                 RemoveClient(clientHandler);
             }
 
@@ -94,7 +94,7 @@ namespace EntryPoint
             public async static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
             {
                 Client assignedClient = GetClientByClientHandler(ch);
-                if (assignedClient == null) { Console.WriteLine("Error, ch is not assigned to client"); return; }
+                if (assignedClient == null) { Console.WriteLine($"[{DateTime.Now}]Error, ch is not assigned to client"); return; }
 
                 string[] parcedMessage = msg.Split(END_OF_FILE, StringSplitOptions.RemoveEmptyEntries);
 
@@ -107,7 +107,7 @@ namespace EntryPoint
                         // not showing CHECK_CONNECTED and SHARES_PLAYROOM because it spams in console
                         if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION) && !message.Contains(SHOT_REQUEST) && !message.Contains(JUMP_REQUEST))
                         {
-                            Console.WriteLine($"[CLIENT_MESSAGE][{mp}][{ch.id}][{ch.ip}]: {message} | {DateTime.Now}");
+                            Console.WriteLine($"[{DateTime.Now}][CLIENT_MESSAGE][{mp}][{ch.id}][{ch.ip}]: {message} | {DateTime.Now}");
                         }
 
                         // _*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*
@@ -129,7 +129,7 @@ namespace EntryPoint
                             }
                             else
                             {
-                                Console.WriteLine($"[SERVER_MESSAGE]: 1) It appears that client {ch.ip} " +
+                                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 1) It appears that client {ch.ip} " +
                                     $"asks operation that he has no rights for, his request: {message}");
                             }
 
@@ -143,14 +143,14 @@ namespace EntryPoint
                             }
                             else
                             {
-                                Console.WriteLine($"[SERVER_MESSAGE]: 2) It appears that client {ch.ip} " +
+                                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 2) It appears that client {ch.ip} " +
                                     $"asks operation that he has no rights for, his request: {message}");
                             }
                         }
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"{e.Message} ||| {e.StackTrace} ||| message was:{message}");
+                        Console.WriteLine($"[{DateTime.Now}]{e.Message} ||| {e.StackTrace} ||| message was:{message}");
                     }
                 }
             }
@@ -178,7 +178,7 @@ namespace EntryPoint
                     {
                         string[] substrings = message.Split("|");
 
-                        Console.WriteLine($"[{client.ch.id}][{client.ch.ip}]Client requested to connect to playroom");
+                        Console.WriteLine($"[{DateTime.Now}][{client.ch.id}][{client.ch.ip}]Client requested to connect to playroom");
                         if (substrings.Length == 2)
                             PlayroomManager.RequestFromClient_EnterPlayroom(Int32.Parse(substrings[1]), client);
                         else if (substrings.Length == 3)
@@ -204,7 +204,7 @@ namespace EntryPoint
                     }
                     else if (message.StartsWith(CLIENT_DISCONNECTED_FROM_THE_PLAYROOM))
                     {
-                        Console.WriteLine($"[SERVER_MESSAGE]:Client [{client.ch.id}][{client.ch.ip}] disconnected from playroom");
+                        Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]:Client [{client.ch.id}][{client.ch.ip}] disconnected from playroom");
                         string[] substrings = message.Split("|");
                         PlayroomManager.RequestFromClient_DisconnectFromPlayroom(int.Parse(substrings[1]), client);
                     }

@@ -57,7 +57,7 @@ namespace ServerCore
                     }
                     else
                     {
-                        Console.WriteLine($"[SERVER_MESSAGE] reject repetetive connection from {GetRemoteIp(handler)}");
+                        Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE] reject repetetive connection from {GetRemoteIp(handler)}");
                         handler.Shutdown(SocketShutdown.Both);
                         handler.Dispose();
                     }
@@ -65,7 +65,7 @@ namespace ServerCore
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString() + "\n Error 1");
+                Console.WriteLine($"[{DateTime.Now}] "+e.ToString() + "\n Error 1");
             }
             finally
             {

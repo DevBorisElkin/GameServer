@@ -42,7 +42,7 @@ namespace ServerCore
                     }
                     catch(Exception e)
                     {
-                        Console.WriteLine(e.ToString());
+                        Console.WriteLine($"[{DateTime.Now}] " +e.ToString());
                     }
                 }
                 Thread.Sleep(500);
@@ -64,7 +64,7 @@ namespace ServerCore
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine($"[{DateTime.Now}] " + e.ToString());
             }
         }
 
@@ -111,7 +111,7 @@ namespace ServerCore
             playrooms.Add(playroom);
             Vector3 spawnPos = GetRandomSpawnPointByMap(_map);
 
-            Console.WriteLine($"[SERVER_MESSAGE]: Client [{client.ch.ip}] requested to create playroom and his request was accepted");
+            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.ch.ip}] requested to create playroom and his request was accepted");
             // tell the client that he is accepted
 
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|" +
@@ -149,7 +149,7 @@ namespace ServerCore
             string scoresString = room.AddPlayer(client.player);
             Vector3 spawnPos = GetRandomSpawnPointByMap(room.map);
 
-            Console.WriteLine($"[SERVER_MESSAGE]: Client [{client.ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
+            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
             // tell the client that he is accepted
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}|{scoresString}|" +
                 $"{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", client.ch);
@@ -171,9 +171,9 @@ namespace ServerCore
             Playroom playroom = client.player.playroom;
 
             if (client.player.playroom.id != playroomId)
-                Console.WriteLine($"[SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {client.player.playroom.id} | {playroomId}");
+                Console.WriteLine($"[{DateTime.Now}][SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {client.player.playroom.id} | {playroomId}");
 
-            Console.WriteLine($"[SERVER_MESSAGE]: Client [{client.ch.ip}] notified about leaving playroom [{playroomId}]");
+            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.ch.ip}] notified about leaving playroom [{playroomId}]");
             if(client.player.playroom.RemovePlayer(client)) ClosePlayroom(playroom);
         }
         static int GenerateRandomIdForPlayroom()
@@ -207,7 +207,7 @@ namespace ServerCore
         static void OnClientDisconnected(ClientHandler ch, string error)
         {
             Client assignedClient = Client.GetClientByClientHandler(ch);
-            if (assignedClient == null) { Console.WriteLine("Error, didn't find client by client handler in Playroom Manager"); return; }
+            if (assignedClient == null) { Console.WriteLine($"[{DateTime.Now}]Error, didn't find client by client handler in Playroom Manager"); return; }
             if (assignedClient.player == null) return;
 
             if (assignedClient.player.playroom == null) return;

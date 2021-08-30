@@ -29,14 +29,14 @@ namespace ServerCore
                     return i;
                 }
             }
-            Console.WriteLine("[SERVER_ERROR]: Error getting first free id!");
+            Console.WriteLine($"[{DateTime.Now}][SERVER_ERROR]: Error getting first free id!");
             return -1;
         }
         public static ClientHandler TryToGetClientWithId(int id)
         {
             ClientHandler util;
             if (clients.TryGetValue(id, out util)) { return util; }
-            else Console.WriteLine($"[SERVER_MESSAGE]: Didn't find client with id {id}");
+            else Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Didn't find client with id {id}");
             return null;
         }
         public static ClientHandler TryToGetClientWithIp(string ip)
@@ -140,7 +140,7 @@ namespace ServerCore
                     }
                 }
             }
-            Console.WriteLine($"[SERVER]: Stored IPEndPoint for client {ip}");
+            Console.WriteLine($"[{DateTime.Now}][SERVER]: Stored IPEndPoint for client {ip}");
             udpEndpoints.Add(new UnassignedIPEndPoint(endPoint, ip));
         }
 

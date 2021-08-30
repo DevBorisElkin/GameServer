@@ -23,7 +23,7 @@ namespace ServerCore
                     return data.mapSpawns[random.Next(0, data.mapSpawns.Count)];
                 }
             }
-            Console.WriteLine("Error, couldn't get random spawn coordinates for player!");
+            Console.WriteLine($"[{DateTime.Now}] Error, couldn't get random spawn coordinates for player!");
             return Vector3.Zero;
         }
 
