@@ -149,6 +149,8 @@ namespace ServerCore
             string scoresString = room.AddPlayer(client.player);
             Vector3 spawnPos = GetRandomSpawnPointByMap(room.map);
 
+            room.SendMessageToAllPlayersInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{client.ch.ip}|{client.userData.nickname}", client.player, Util_Server.MessageProtocol.TCP);
+
             Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
             // tell the client that he is accepted
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}|{scoresString}|" +
