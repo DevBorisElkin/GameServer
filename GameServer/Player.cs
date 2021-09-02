@@ -153,6 +153,7 @@ namespace ServerCore
 
         void ChangeScoresOnPlayerDied(string message)
         {
+            if (playroom.matchState != MatchState.InGame) return;
             stats_deaths++;
 
             string[] substrings = message.Split("|");

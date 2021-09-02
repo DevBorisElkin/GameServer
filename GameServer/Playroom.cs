@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Numerics;
 using static ServerCore.Server;
 using static ServerCore.NetworkingMessageAttributes;
 using static ServerCore.Util_Server;
@@ -197,6 +198,16 @@ namespace ServerCore
             {
                 matchState = MatchState.InGame;
                 SendMessageToAllPlayersInPlayroom($"{MATCH_STARTED}|{(TimeSpan.FromMinutes(timeOfMatchInMinutes).TotalSeconds)}", toIgnore, MessageProtocol.TCP);
+
+                foreach(Player a in playersInPlayroom)
+                {
+                    Vector3 newPosition = GetRandomSpawnPointByMap(map);
+                    a.currentJumpsAmount = PlayroomManager.maxJumpsAmount;
+                    Util_Server.SendMessageToClient($"{MATCH_STARTED_FORCE_OVERRIDE_POSITION_AND_JUMPS}|{a.currentJumpsAmount}|" +
+                        $"{newPosition.X/newPosition.Y/newPosition.Z}", a.client.ch, MessageProtocol.TCP);
+
+                }
+
                 LaunchPlayroomTimer();
             }
         }

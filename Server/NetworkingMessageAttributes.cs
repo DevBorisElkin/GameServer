@@ -133,7 +133,7 @@ namespace ServerCore
         }
 
         // Messages that client receives from server, related to playroom action
-        public static string[] MessagesToClient_RelatedToPlayroom = new string[13]
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[14]
         {
             MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
@@ -146,6 +146,7 @@ namespace ServerCore
             PLAYER_WAS_KILLED_MESSAGE,
             CLIENT_CONNECTED_TO_THE_PLAYROOM,
             MATCH_STARTED,
+            MATCH_STARTED_FORCE_OVERRIDE_POSITION_AND_JUMPS,
             MATCH_TIME_REMAINING,
             MATCH_FINISHED
         };
@@ -230,8 +231,13 @@ namespace ServerCore
 
         // _______________________MATCH_STATE_AND_EVENTS_______________________
         // message to all players notifying that the match has started
+        // after that message each client should receive special message, overriding his position,
+        // and also each player's jumps should be resetted
         // "match_started|645      // 645 = timeTillEndOfMatchInSeconds
         public const string MATCH_STARTED = "match_started";
+
+        // match_started_force_override|Vector3-position(/)|newJumpsAmount
+        public const string MATCH_STARTED_FORCE_OVERRIDE_POSITION_AND_JUMPS = "match_started_force_override";
 
         // message to all players notifying how much seconds left till the end of match
         // "match_time_remaining|327 // 327 = time in seconds left
