@@ -133,7 +133,7 @@ namespace ServerCore
         }
 
         // Messages that client receives from server, related to playroom action
-        public static string[] MessagesToClient_RelatedToPlayroom = new string[10]
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[13]
         {
             MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
@@ -144,7 +144,10 @@ namespace ServerCore
             PLAYER_REVIVED,
             SPAWN_DEATH_PARTICLES,
             PLAYER_WAS_KILLED_MESSAGE,
-            CLIENT_CONNECTED_TO_THE_PLAYROOM
+            CLIENT_CONNECTED_TO_THE_PLAYROOM,
+            MATCH_STARTED,
+            MATCH_TIME_REMAINING,
+            MATCH_FINISHED
         };
         public static bool DoesMessageRelatedToOnlineGameManager(string message)
         {
@@ -227,7 +230,15 @@ namespace ServerCore
 
         // _______________________MATCH_STATE_AND_EVENTS_______________________
         // message to all players notifying that the match has started
-        // "match_started_message|645|15      // 645 = timeTillEndOfMatchInSeconds, 15 = kills for Victory
-        public const string MATCH_STARTED_MESSAGE = "match_started_message";
+        // "match_started|645      // 645 = timeTillEndOfMatchInSeconds
+        public const string MATCH_STARTED = "match_started";
+
+        // message to all players notifying how much seconds left till the end of match
+        // "match_time_remaining|327 // 327 = time in seconds left
+        public const string MATCH_TIME_REMAINING = "match_time_remaining";
+
+        // message to all players notifying that the match has finished
+        // "match_finished|winnerIP|winnerNickname|matchResult
+        public const string MATCH_FINISHED = "match_finished";
     }
 }

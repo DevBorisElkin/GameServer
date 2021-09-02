@@ -167,8 +167,13 @@ namespace ServerCore
                 foreach(Player pl in playroom.playersInPlayroom)
                 {
                     if (pl.client.ch.ip == killerIp) killer = pl;
+                    break;
                 }
-                if (killer != null) killer.stats_kills++;
+                if (killer != null)
+                {
+                    killer.stats_kills++;
+                    playroom.CheckKillsForFinish();
+                }
             }
             playroom.OnScoresChange(null);
             // player_was_killed_message|playerDeadNickname/playerDeadIP|playerKillerNickname/playerKilledIP|deathDetails

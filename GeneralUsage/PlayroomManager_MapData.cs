@@ -12,8 +12,9 @@ namespace ServerCore
         #region Additional data
 
         public enum Map { DefaultMap }
-
-        public enum MatchState { WaitingForPlayers, InGame }
+        public enum MatchState { WaitingForPlayers, InGame, Finished }
+        public enum MatchResult { PlayerWon, Draw, Discarded}
+        public enum MatchFinishReason { FinishedByKills, FinishedByTime, Discarded }
 
         public static Vector3 GetRandomSpawnPointByMap(Map _map)
         {

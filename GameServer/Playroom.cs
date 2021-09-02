@@ -34,7 +34,7 @@ namespace ServerCore
         public int killsToFinish;
         public int timeOfMatchInMinutes;
 
-        public int timeToFinishInSeconds;
+        public int totalTimeToFinishInSeconds;
 
         public List<Player> playersInPlayroom;
 
@@ -59,7 +59,7 @@ namespace ServerCore
         {
             player.playroom = this;
             playersInPlayroom.Add(player);
-            ManageMatchStart();
+            ManageMatchStart(player);
 
             return OnScoresChange(player);
         }
@@ -104,6 +104,7 @@ namespace ServerCore
             // check if we should close playroom
             if (playersInPlayroom.Count <= 0)
             {
+                FinishMatch(MatchFinishReason.Discarded);
                 Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Last player left playroom with id [{id}], closing it");
                 return true;
             }
@@ -179,6 +180,7 @@ namespace ServerCore
             return result;
         }
 
+        //*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*\\
         #region Managing playroom state and other interactive events
 
         public bool IsThisNewPlayerWillStartTheMatch()
@@ -187,15 +189,100 @@ namespace ServerCore
             return false;
         }
 
-        public void ManageMatchStart()
+        public void ManageMatchStart(Player toIgnore)
         {
             if (!matchState.Equals(MatchState.WaitingForPlayers)) return;
 
-            if(PlayersCurrAmount == playersToStart)
+            if(PlayersCurrAmount >= playersToStart)
             {
                 matchState = MatchState.InGame;
-                SendMessageToAllPlayersInPlayroom($"{PLAYERS_SCORES_IN_PLAYROOM}|" + newScoresString, playerToIgnore);
+                SendMessageToAllPlayersInPlayroom($"{MATCH_STARTED}|{(TimeSpan.FromMinutes(timeOfMatchInMinutes).TotalSeconds)}", toIgnore, MessageProtocol.TCP);
+                LaunchPlayroomTimer();
             }
+        }
+
+        void LaunchPlayroomTimer()
+        {
+            totalTimeToFinishInSeconds = (int)TimeSpan.FromMinutes(timeOfMatchInMinutes).TotalSeconds;
+            MatchTimer = new Task(ManageTimeLeft);
+            MatchTimer.Start();
+        }
+
+        public Task MatchTimer;
+        void ManageTimeLeft()
+        {
+            while (matchState.Equals(MatchState.InGame))
+            {
+                totalTimeToFinishInSeconds--;
+                SendMessageToAllPlayersInPlayroom($"{MATCH_TIME_REMAINING}|{totalTimeToFinishInSeconds}", null, MessageProtocol.TCP);
+                if (totalTimeToFinishInSeconds <= 0)
+                {
+                    // finish
+                    FinishMatch(MatchFinishReason.FinishedByTime);
+                }
+                Thread.Sleep(1000);
+            }
+        }
+
+        public void CheckKillsForFinish()
+        {
+            foreach(Player a in playersInPlayroom)
+            {
+                if(a.stats_kills >= killsToFinish)
+                {
+                    FinishMatch(MatchFinishReason.FinishedByKills);
+                    break;
+                }
+            }
+        }
+        void FinishMatch(MatchFinishReason finishReason)
+        {
+            List<Player> winners = DefineWinnersOfTheMatch(finishReason);
+            matchState = MatchState.Finished;
+            if (finishReason.Equals(MatchFinishReason.Discarded) || winners == null || winners.Count == 0)
+            {
+                Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]Finished match with id [{id}], finish reason [{finishReason}], -> No winners");
+                SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|none|none|{MatchResult.Discarded}", null, MessageProtocol.TCP);
+            }
+            else
+            {
+                MatchResult matchResult;
+                string winnerIP;
+                string winnerNickname;
+                if (winners.Count > 1)
+                {
+                    matchResult = MatchResult.Draw;
+                    winnerIP = "none";
+                    winnerNickname = "none";
+                }
+                else
+                {
+                    matchResult = MatchResult.PlayerWon;
+                    winnerIP = winners[0].client.ch.ip;
+                    winnerNickname = winners[0].client.userData.nickname;
+                }
+                SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|{winnerIP}|{winnerNickname}|{matchResult}", null, MessageProtocol.TCP);
+            }
+        }
+
+        static int minKillsToCountAsVictory = 3;
+        List<Player> DefineWinnersOfTheMatch(MatchFinishReason finishReason)
+        {
+            if (finishReason.Equals(MatchFinishReason.Discarded)) return null;
+
+            List<Player> winners = new List<Player>();
+
+            int maxKillsInMatch = 0;
+            foreach(Player a in playersInPlayroom)
+                if (a.stats_kills > maxKillsInMatch) maxKillsInMatch = a.stats_kills;
+
+            if(maxKillsInMatch <= minKillsToCountAsVictory) return null;
+
+            foreach (Player a in playersInPlayroom)
+            {
+                if (a.stats_kills == maxKillsInMatch) winners.Add(a);
+            }
+            return winners;
         }
 
         #endregion
