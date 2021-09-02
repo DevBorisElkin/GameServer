@@ -60,8 +60,7 @@ namespace ServerCore
 
         // confirmation code for the player that he got accepted to the playroom
         // example of message
-        // "confirm_enter_playroom|id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers|{fullFataOfPlayersInThatRoom}|maxJumpsAmount|initialSpawnPosition|" +
-        // +"MatchState|PlayersToStartTheMatch|TimeTillTheEndOfMatch|KillsForVictory"
+        // "confirm_enter_playroom|id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers/MatchState/PlayersToStartTheMatch/TimeTillTheEndOfMatch/KillsForVictory|{fullFataOfPlayersInThatRoom}|maxJumpsAmount|initialSpawnPosition|"
         // {fullFataOfPlayersInThatRoom} => ip/nickname/kills/deaths@ip/nickname/kills/deaths@ip/nickname/kills/deaths
         public const string CONFIRM_ENTER_PLAY_ROOM = "confirm_enter_playroom";
 

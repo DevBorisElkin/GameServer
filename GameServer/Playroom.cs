@@ -51,6 +51,7 @@ namespace ServerCore
             playersToStart = _minPlayersToStart;
             killsToFinish = _minKillsToFinish;
             timeOfMatchInMinutes = _timeOfMatch;
+            totalTimeToFinishInSeconds = TimeSpan.FromMinutes(timeOfMatchInMinutes).Seconds;
 
             playersInPlayroom = new List<Player>();
         }
@@ -146,15 +147,18 @@ namespace ServerCore
             //Console.WriteLine($"Sending UDP message to all clients:\n{message}");
             return message;
         }
-        // "playrooms_data_response|playroom_data(/),playroom_data, playroom_data"
-        // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public string ToNetworkString()
         {
-            return $"{id}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}";
+            return $"{id}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{matchState}/{playersToStart}/{totalTimeToFinishInSeconds}/{killsToFinish}";
+        }
+        public string ToNetworkString(MatchState overrideStateForString)
+        {
+            return $"{id}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{overrideStateForString}/{playersToStart}/{totalTimeToFinishInSeconds}/{killsToFinish}";
         }
 
         public string OnScoresChange(Player playerToIgnore)
         {
+            if (this == null) return "none"; 
             string newScoresString = GeneratePlayersScoresString();
             SendMessageToAllPlayersInPlayroom($"{PLAYERS_SCORES_IN_PLAYROOM}|"+newScoresString, playerToIgnore);
             return newScoresString;
@@ -204,10 +208,8 @@ namespace ServerCore
                     Vector3 newPosition = GetRandomSpawnPointByMap(map);
                     a.currentJumpsAmount = PlayroomManager.maxJumpsAmount;
                     Util_Server.SendMessageToClient($"{MATCH_STARTED_FORCE_OVERRIDE_POSITION_AND_JUMPS}|{a.currentJumpsAmount}|" +
-                        $"{newPosition.X/newPosition.Y/newPosition.Z}", a.client.ch, MessageProtocol.TCP);
-
+                        $"{newPosition.X}/{newPosition.Y}/{newPosition.Z}", a.client.ch, MessageProtocol.TCP);
                 }
-
                 LaunchPlayroomTimer();
             }
         }
@@ -237,10 +239,12 @@ namespace ServerCore
 
         public void CheckKillsForFinish()
         {
+            Console.WriteLine("________Check Kills For finish");
             foreach(Player a in playersInPlayroom)
             {
                 if(a.stats_kills >= killsToFinish)
                 {
+                    Console.WriteLine($"____a.stats_kills: {a.stats_kills}_killsToFinish: {killsToFinish}___Check Kills For finish");
                     FinishMatch(MatchFinishReason.FinishedByKills);
                     break;
                 }
@@ -248,6 +252,7 @@ namespace ServerCore
         }
         void FinishMatch(MatchFinishReason finishReason)
         {
+            Console.WriteLine("Finish Match");
             List<Player> winners = DefineWinnersOfTheMatch(finishReason);
             matchState = MatchState.Finished;
             if (finishReason.Equals(MatchFinishReason.Discarded) || winners == null || winners.Count == 0)
@@ -274,6 +279,8 @@ namespace ServerCore
                 }
                 SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|{winnerIP}|{winnerNickname}|{matchResult}", null, MessageProtocol.TCP);
             }
+            DelayedClosePlayroom = new Task(ClosePlayroomWithDelay);
+            DelayedClosePlayroom.Start();
         }
 
         static int minKillsToCountAsVictory = 3;
@@ -294,6 +301,13 @@ namespace ServerCore
                 if (a.stats_kills == maxKillsInMatch) winners.Add(a);
             }
             return winners;
+        }
+
+        int delayToClosePlayroom = 1000;
+        Task DelayedClosePlayroom;
+        void ClosePlayroomWithDelay()
+        {
+            Thread.Sleep(1000);
         }
 
         #endregion
