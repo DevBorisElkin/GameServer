@@ -68,8 +68,8 @@ namespace ServerCore
             }
         }
 
-        public static void RequestFromClient_CreatePlayroom(Client client, string _name, bool _isPublic, 
-            string _password, Map _map, int _maxPlayers)
+        public static void RequestFromClient_CreatePlayroom(Client client, string _name, bool _isPublic, string _password, Map _map, int _maxPlayers,
+            int _playersToStart, int _killsToFinish, int _timeOfMatch)
         {
             // check if he can create playroom and that new playroom does not exceed max amount
             // send negative response
@@ -98,6 +98,17 @@ namespace ServerCore
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Password length is wrong", client.ch);
                 return;
             }
+
+            if (_playersToStart > _maxPlayers)
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|'Max players' can't be less than 'players to start the match'", client.ch);
+                return;
+            }
+            if (_playersToStart < 2||_playersToStart > 10 || _killsToFinish < 5 || _killsToFinish > 50 || _timeOfMatch < 3 || _timeOfMatch > 30)
+            {
+                Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Wrong parameters in additional settings", client.ch);
+                return;
+            }
             if (!UDP.TryToRetrieveEndPoint(client.ch))
             {
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Client has no UDP end point assigned", client.ch);
@@ -105,8 +116,12 @@ namespace ServerCore
             }
 
             int id = GenerateRandomIdForPlayroom();
-            Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers);
+            Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers, _playersToStart, _killsToFinish, _timeOfMatch);
             client.player = new Player(client, client.userData.nickname, Vector3.Zero);
+            MatchState matchState;
+            if (playroom.IsThisNewPlayerWillStartTheMatch()) matchState = MatchState.InGame;
+            else matchState = MatchState.WaitingForPlayers;
+
             string scoresString = playroom.AddPlayer(client.player);
             playrooms.Add(playroom);
             Vector3 spawnPos = GetRandomSpawnPointByMap(_map);
@@ -115,26 +130,27 @@ namespace ServerCore
             // tell the client that he is accepted
 
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|" +
-                $"{playroom.ToNetworkString()}|{scoresString}|{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", client.ch);
+                $"{playroom.ToNetworkString()}|{scoresString}|{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}|" +
+                $"{matchState}|{playroom.playersToStart}|{playroom.timeOfMatchInMinutes}|{playroom.killsToFinish}", client.ch);
         }
 
         public static void RequestFromClient_EnterPlayroom(int room_id, Client client, string roomPassword = "")
         {
-            var room = FindPlayroomById(room_id);
-            if(room == null)
+            var playroom = FindPlayroomById(room_id);
+            if(playroom == null)
             {
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Didn't find playroom with id {room_id}", client.ch);
                 return;
             }
-            if (!room.isPublic)
+            if (!playroom.isPublic)
             {
-                if (!room.password.Equals(roomPassword))
+                if (!playroom.password.Equals(roomPassword))
                 {
                     Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Wrong password", client.ch);
                     return;
                 }
             }
-            if(room.PlayersCurrAmount + 1 > room.maxPlayers)
+            if(playroom.PlayersCurrAmount + 1 > playroom.maxPlayers)
             {
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom is full", client.ch);
                 return;
@@ -146,15 +162,19 @@ namespace ServerCore
             }
 
             client.player = new Player(client, client.userData.nickname, Vector3.Zero);
-            string scoresString = room.AddPlayer(client.player);
-            Vector3 spawnPos = GetRandomSpawnPointByMap(room.map);
+            MatchState matchState;
+            if (playroom.IsThisNewPlayerWillStartTheMatch()) matchState = MatchState.InGame;
+            else matchState = MatchState.WaitingForPlayers;
 
-            room.SendMessageToAllPlayersInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{client.ch.ip}|{client.userData.nickname}", client.player, Util_Server.MessageProtocol.TCP);
+            string scoresString = playroom.AddPlayer(client.player);
+            Vector3 spawnPos = GetRandomSpawnPointByMap(playroom.map);
+
+            playroom.SendMessageToAllPlayersInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{client.ch.ip}|{client.userData.nickname}", client.player, Util_Server.MessageProtocol.TCP);
 
             Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
-            // tell the client that he is accepted
-            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|{room.ToNetworkString()}|{scoresString}|" +
-                $"{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", client.ch);
+            Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|" +
+                $"{playroom.ToNetworkString()}|{scoresString}|{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}|" +
+                $"{matchState}|{playroom.playersToStart}|{playroom.timeOfMatchInMinutes}|{playroom.killsToFinish}", client.ch);
         }
         public static void RequestFromClient_StorePlayerPositionAndRotation(Client client, Vector3 _position, Quaternion _rotation)
         {

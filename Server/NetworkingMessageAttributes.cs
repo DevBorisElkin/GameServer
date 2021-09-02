@@ -55,12 +55,13 @@ namespace ServerCore
 
         // code for letting know the server, that a player wants to create a playroom
         // example of message
-        // "create_playroom|nameOfRoom|is_public|password|map|maxPlayers";
+        // "create_playroom|nameOfRoom|is_public|password|map|maxPlayers|minPlayersToStart|killsToFinish|timeOfMatch";
         public const string CREATE_PLAY_ROOM = "create_playroom";
 
         // confirmation code for the player that he got accepted to the playroom
         // example of message
-        // "confirm_enter_playroom|id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers|{fullFataOfPlayersInThatRoom}|maxJumpsAmount|initialSpawnPosition"
+        // "confirm_enter_playroom|id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers|{fullFataOfPlayersInThatRoom}|maxJumpsAmount|initialSpawnPosition|" +
+        // +"MatchState|PlayersToStartTheMatch|TimeTillTheEndOfMatch|KillsForVictory"
         // {fullFataOfPlayersInThatRoom} => ip/nickname/kills/deaths@ip/nickname/kills/deaths@ip/nickname/kills/deaths
         public const string CONFIRM_ENTER_PLAY_ROOM = "confirm_enter_playroom";
 
@@ -222,5 +223,11 @@ namespace ServerCore
         // message to all players to spawn death particles
         // "sp_d_p|0/0/0|0/0/0
         public const string SPAWN_DEATH_PARTICLES = "sp_d_p";
+
+
+        // _______________________MATCH_STATE_AND_EVENTS_______________________
+        // message to all players notifying that the match has started
+        // "match_started_message|645|15      // 645 = timeTillEndOfMatchInSeconds, 15 = kills for Victory
+        public const string MATCH_STARTED_MESSAGE = "match_started_message";
     }
 }

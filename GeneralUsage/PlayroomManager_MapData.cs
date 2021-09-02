@@ -13,6 +13,8 @@ namespace ServerCore
 
         public enum Map { DefaultMap }
 
+        public enum MatchState { WaitingForPlayers, InGame }
+
         public static Vector3 GetRandomSpawnPointByMap(Map _map)
         {
             foreach(MapData data in mapDatas)

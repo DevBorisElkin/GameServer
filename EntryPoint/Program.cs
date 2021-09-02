@@ -170,8 +170,8 @@ namespace EntryPoint
                         bool.TryParse(substrings[2], out bool isPublic);
                         Enum.TryParse(substrings[4], out Map map);
 
-                        PlayroomManager.RequestFromClient_CreatePlayroom(client, substrings[1], isPublic,
-                            substrings[3], map, Int32.Parse(substrings[5]));
+                        PlayroomManager.RequestFromClient_CreatePlayroom(client, substrings[1], isPublic, substrings[3], map, 
+                         Int32.Parse(substrings[5]), Int32.Parse(substrings[6]), Int32.Parse(substrings[7]), Int32.Parse(substrings[8]));
                     }
                     else if (message.StartsWith(ENTER_PLAY_ROOM))
                     // normally here should be some logic, checking, if specific playroom has space for new players to join

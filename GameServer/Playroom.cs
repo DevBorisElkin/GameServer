@@ -19,6 +19,7 @@ namespace ServerCore
         public bool isPublic = true;
         public string password;
         public Map map = Map.DefaultMap;
+        public MatchState matchState = MatchState.WaitingForPlayers;
 
         public int PlayersCurrAmount
         {
@@ -29,10 +30,16 @@ namespace ServerCore
             }
         }
         public int maxPlayers;
+        public int playersToStart;
+        public int killsToFinish;
+        public int timeOfMatchInMinutes;
+
+        public int timeToFinishInSeconds;
 
         public List<Player> playersInPlayroom;
 
-        public Playroom(int _id, string _name, bool _isPublic, string _password, Map _map, int _maxPlayers)
+        public Playroom(int _id, string _name, bool _isPublic, string _password, Map _map, int _maxPlayers, int _minPlayersToStart, 
+            int _minKillsToFinish, int _timeOfMatch)
         {
             id = _id;
             name = _name;
@@ -40,6 +47,9 @@ namespace ServerCore
             password = _password;
             map = _map;
             maxPlayers = _maxPlayers;
+            playersToStart = _minPlayersToStart;
+            killsToFinish = _minKillsToFinish;
+            timeOfMatchInMinutes = _timeOfMatch;
 
             playersInPlayroom = new List<Player>();
         }
@@ -49,6 +59,7 @@ namespace ServerCore
         {
             player.playroom = this;
             playersInPlayroom.Add(player);
+            ManageMatchStart();
 
             return OnScoresChange(player);
         }
@@ -167,5 +178,26 @@ namespace ServerCore
             }
             return result;
         }
+
+        #region Managing playroom state and other interactive events
+
+        public bool IsThisNewPlayerWillStartTheMatch()
+        {
+            if (PlayersCurrAmount + 1 == playersToStart) return true;
+            return false;
+        }
+
+        public void ManageMatchStart()
+        {
+            if (!matchState.Equals(MatchState.WaitingForPlayers)) return;
+
+            if(PlayersCurrAmount == playersToStart)
+            {
+                matchState = MatchState.InGame;
+                SendMessageToAllPlayersInPlayroom($"{PLAYERS_SCORES_IN_PLAYROOM}|" + newScoresString, playerToIgnore);
+            }
+        }
+
+        #endregion
     }
 }
