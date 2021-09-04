@@ -118,10 +118,7 @@ namespace ServerCore
             int id = GenerateRandomIdForPlayroom();
             Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers, _playersToStart, _killsToFinish, _timeOfMatch);
             client.player = new Player(client, client.userData.nickname, Vector3.Zero);
-            MatchState matchState;
-            if (playroom.IsThisNewPlayerWillStartTheMatch()) matchState = MatchState.InGame;
-            else matchState = MatchState.WaitingForPlayers;
-
+            
             string scoresString = playroom.AddPlayer(client.player);
             playrooms.Add(playroom);
             Vector3 spawnPos = GetRandomSpawnPointByMap(_map);

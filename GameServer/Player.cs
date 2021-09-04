@@ -167,8 +167,11 @@ namespace ServerCore
             {
                 foreach(Player pl in playroom.playersInPlayroom)
                 {
-                    if (pl.client.ch.ip == killerIp) killer = pl;
-                    break;
+                    if (pl.client.ch.ip == killerIp) 
+                    {
+                        killer = pl;
+                        break;
+                    }  
                 }
                 if (killer != null)
                 {

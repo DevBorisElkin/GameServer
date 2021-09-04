@@ -201,10 +201,11 @@ namespace ServerCore
             if(PlayersCurrAmount >= playersToStart)
             {
                 matchState = MatchState.InGame;
-                SendMessageToAllPlayersInPlayroom($"{MATCH_STARTED}|{(TimeSpan.FromMinutes(timeOfMatchInMinutes).TotalSeconds)}", toIgnore, MessageProtocol.TCP);
+                //SendMessageToAllPlayersInPlayroom($"{MATCH_STARTED}|{(TimeSpan.FromMinutes(timeOfMatchInMinutes).TotalSeconds)}", toIgnore, MessageProtocol.TCP);
 
                 foreach(Player a in playersInPlayroom)
                 {
+                    if (a == toIgnore) continue;
                     Vector3 newPosition = GetRandomSpawnPointByMap(map);
                     a.currentJumpsAmount = PlayroomManager.maxJumpsAmount;
                     Util_Server.SendMessageToClient($"{MATCH_STARTED_FORCE_OVERRIDE_POSITION_AND_JUMPS}|{a.currentJumpsAmount}|" +

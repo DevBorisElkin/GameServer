@@ -2,6 +2,7 @@ C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAcces
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\bin\Debug\net5.0\DatabaseAccess.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\bin\Debug\net5.0\ref\DatabaseAccess.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\bin\Debug\net5.0\DatabaseAccess.pdb
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\obj\Debug\net5.0\DatabaseAccess.csproj.AssemblyReference.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\obj\Debug\net5.0\DatabaseAccess.GeneratedMSBuildEditorConfig.editorconfig
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\obj\Debug\net5.0\DatabaseAccess.AssemblyInfoInputs.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\obj\Debug\net5.0\DatabaseAccess.AssemblyInfo.cs
