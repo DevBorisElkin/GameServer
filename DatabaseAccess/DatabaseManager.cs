@@ -136,7 +136,7 @@ namespace DatabaseAccess
             try
             {
                 MySqlCommand command = new MySqlCommand($"UPDATE MainTable SET login = '{_new.login}', pass = '{_new.password}', " +
-                    $"nickname = '{_new.nickname}' where id = '{_old.id}'", mySqlConnection);
+                    $"nickname = '{_new.nickname}' where id = '{_old.db_id}'", mySqlConnection);
                 rowsAffected = command.ExecuteNonQuery();
             }
             catch (Exception e)
@@ -156,7 +156,7 @@ namespace DatabaseAccess
             try
             {
                 MySqlCommand command = new MySqlCommand($"UPDATE MainTable SET login = '{_new.login}', pass = '{_new.password}', " +
-                    $"nickname = '{_new.nickname}' where id = '{_new.id}'", mySqlConnection);
+                    $"nickname = '{_new.nickname}' where id = '{_new.db_id}'", mySqlConnection);
                 rowsAffected = command.ExecuteNonQuery();
             }
             catch (Exception e)

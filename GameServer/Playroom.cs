@@ -14,7 +14,7 @@ namespace ServerCore
 {
     public class Playroom
     {
-        public int id;
+        public int playroomID;
 
         public string name;
         public bool isPublic = true;
@@ -39,10 +39,10 @@ namespace ServerCore
 
         public List<Player> playersInPlayroom;
 
-        public Playroom(int _id, string _name, bool _isPublic, string _password, Map _map, int _maxPlayers, int _minPlayersToStart, 
+        public Playroom(int _playrooomID, string _name, bool _isPublic, string _password, Map _map, int _maxPlayers, int _minPlayersToStart, 
             int _minKillsToFinish, int _timeOfMatch)
         {
-            id = _id;
+            playroomID = _playrooomID;
             name = _name;
             isPublic = _isPublic;
             password = _password;
@@ -86,7 +86,7 @@ namespace ServerCore
                     a.CheckAndAddJumps();
 
                     string generatedString = GeneratePositionsDataOfAllPlayers(a);
-                    if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("empty"))
+                    if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("none"))
                         continue;
                     Util_Server.SendMessageToClient(generatedString, a.client.ch, MessageProtocol.UDP);
                 }
@@ -98,7 +98,7 @@ namespace ServerCore
         /// </summary>
         public bool RemovePlayer(Client client)
         {
-            SendMessageToAllPlayersInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{id}|{client.player.username}|{client.ch.ip}", client.player, MessageProtocol.TCP);
+            SendMessageToAllPlayersInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{playroomID}|{client.userData.db_id}|{client.ch.ip}", client.player, MessageProtocol.TCP);
             playersInPlayroom.Remove(client.player);
             client.player = null;
 
@@ -108,7 +108,7 @@ namespace ServerCore
             if (playersInPlayroom.Count <= 0)
             {
                 FinishMatch(MatchFinishReason.Discarded);
-                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Last player left playroom with id [{id}], closing it");
+                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Last player left playroom with id [{playroomID}], closing it");
                 return true;
             }
             else return false;
@@ -121,19 +121,19 @@ namespace ServerCore
             try
             {
                 StringBuilder sb = new StringBuilder();
-                // "players_positions_in_playroom|nickname,ip,position,rotation@nickname,ip,position,rotation@enc..."
+                // "players_positions_in_playroom|nickname,db_id,position,rotation@nickname,db_id,position,rotation@enc..."
                 sb.Append(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|");
                 foreach (var player in playersInPlayroom)
                 {
                     if (player == excludePlayer) continue;
 
-                    sb.Append($"{player.username},{player.client.ch.ip},{player.position.X}/{player.position.Y}/{player.position.Z}," +
+                    sb.Append($"{player.client.userData.nickname},{player.client.userData.db_id},{player.position.X}/{player.position.Y}/{player.position.Z}," +
                         $"{player.rotation.X}/{player.rotation.Y}/{player.rotation.Z}@");
                 }
                 message = sb.ToString();
                 if (message.Equals(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|"))
                 {
-                    if (message.Equals(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|")) return "empty";
+                    if (message.Equals(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|")) return "none";
                 }
             }
             catch (Exception e)
@@ -150,11 +150,11 @@ namespace ServerCore
         }
         public string ToNetworkString()
         {
-            return $"{id}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{matchState}/{playersToStart}/{totalTimeToFinishInSeconds}/{killsToFinish}";
+            return $"{playroomID}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{matchState}/{playersToStart}/{totalTimeToFinishInSeconds}/{killsToFinish}";
         }
         public string ToNetworkString(MatchState overrideStateForString)
         {
-            return $"{id}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{overrideStateForString}/{playersToStart}/{totalTimeToFinishInSeconds}/{killsToFinish}";
+            return $"{playroomID}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{overrideStateForString}/{playersToStart}/{totalTimeToFinishInSeconds}/{killsToFinish}";
         }
 
         public string OnScoresChange(Player playerToIgnore)
@@ -166,7 +166,7 @@ namespace ServerCore
         }
 
         // players_scores|data @data@data
-        // {fullFataOfPlayersInThatRoom} => ip/nickname/kills/deaths@ip/nickname/kills/deaths@ip/nickname/kills/deaths
+        // {fullFataOfPlayersInThatRoom} => db_id/nickname/kills/deaths@db_id/nickname/kills/deaths@db_id/nickname/kills/deaths
         public string GeneratePlayersScoresString()
         {
             string result = "";
@@ -174,12 +174,12 @@ namespace ServerCore
             {
                 if(i < playersInPlayroom.Count - 1)
                 {
-                    result += $"{playersInPlayroom[i].client.ch.ip}/{playersInPlayroom[i].username}/" +
+                    result += $"{playersInPlayroom[i].client.userData.db_id}/{playersInPlayroom[i].client.userData.nickname}/" +
                         $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}@";
                 }
                 else
                 {
-                    result += $"{playersInPlayroom[i].client.ch.ip}/{playersInPlayroom[i].username}/" +
+                    result += $"{playersInPlayroom[i].client.userData.db_id}/{playersInPlayroom[i].client.userData.nickname}/" +
                         $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}";
                 }
             }
@@ -241,12 +241,12 @@ namespace ServerCore
 
         public void CheckKillsForFinish()
         {
-            Console.WriteLine("________Check Kills For finish");
+            //Console.WriteLine("________Check Kills For finish");
             foreach(Player a in playersInPlayroom)
             {
                 if(a.stats_kills >= killsToFinish)
                 {
-                    Console.WriteLine($"____a.stats_kills: {a.stats_kills}_killsToFinish: {killsToFinish}___Check Kills For finish");
+                    //Console.WriteLine($"____a.stats_kills: {a.stats_kills}_killsToFinish: {killsToFinish}___Check Kills For finish");
                     FinishMatch(MatchFinishReason.FinishedByKills);
                     break;
                 }
@@ -259,27 +259,27 @@ namespace ServerCore
             matchState = MatchState.Finished;
             if (finishReason.Equals(MatchFinishReason.Discarded) || winners == null || winners.Count == 0)
             {
-                Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]Finished match with id [{id}], finish reason [{finishReason}], -> No winners");
+                Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]Finished match with id [{playroomID}], finish reason [{finishReason}], -> No winners");
                 SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|none|none|{MatchResult.Discarded}", null, MessageProtocol.TCP);
             }
             else
             {
                 MatchResult matchResult;
-                string winnerIP;
+                string winnerDbId;
                 string winnerNickname;
                 if (winners.Count > 1)
                 {
                     matchResult = MatchResult.Draw;
-                    winnerIP = "none";
+                    winnerDbId = "none";
                     winnerNickname = "none";
                 }
                 else
                 {
                     matchResult = MatchResult.PlayerWon;
-                    winnerIP = winners[0].client.ch.ip;
+                    winnerDbId = winners[0].client.userData.db_id.ToString();
                     winnerNickname = winners[0].client.userData.nickname;
                 }
-                SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|{winnerIP}|{winnerNickname}|{matchResult}", null, MessageProtocol.TCP);
+                SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|{winnerDbId}|{winnerNickname}|{matchResult}", null, MessageProtocol.TCP);
             }
             DelayedClosePlayroom = new Task(ClosePlayroomWithDelay);
             DelayedClosePlayroom.Start();

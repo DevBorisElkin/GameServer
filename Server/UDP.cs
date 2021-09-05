@@ -66,7 +66,7 @@ namespace ServerCore
                         else if (clientToBind.udpEndPoint == null)
                         {
                             clientToBind.udpEndPoint = remoteIp;
-                            Console.WriteLine($"[{DateTime.Now}][SYSTEM_MESSAGE]: 1) initialized IPEndPoint for UDP messaging of client [{clientToBind.id}][{clientToBind.ip}]");
+                            Console.WriteLine($"[{DateTime.Now}][SYSTEM_MESSAGE]: 1) initialized IPEndPoint for UDP messaging of client [{clientToBind.connectionID}][{clientToBind.ip}]");
                         }
                         // everything is OK, we can work with message
                         else
@@ -125,10 +125,10 @@ namespace ServerCore
                 if (ch.udpEndPoint == null)
                 {
                     Console.WriteLine($"[{DateTime.Now}][SERVER_ERROR]: Unable to interact with client via UDP" +
-                        $" - failed to assign UDP IPEndPoint to client [{ch.id}][{ch.ip}]");
+                        $" - failed to assign UDP IPEndPoint to client [{ch.connectionID}][{ch.ip}]");
                     return false;
                 }
-                Console.WriteLine($"[{DateTime.Now}][SYSTEM_MESSAGE]: 2) Retrieved IPEndPoint for UDP messaging of client [{ch.id}][{ch.ip}]");
+                Console.WriteLine($"[{DateTime.Now}][SYSTEM_MESSAGE]: 2) Retrieved IPEndPoint for UDP messaging of client [{ch.connectionID}][{ch.ip}]");
                 return true;
             }
             else return true;

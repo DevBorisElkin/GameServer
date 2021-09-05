@@ -14,20 +14,20 @@ namespace ServerCore
         public Socket tcpHandler;
         public IPEndPoint udpEndPoint;
 
-        public int id;
+        public int connectionID;
         public string ip;
 
-        static double ms_totalConnectedCheck = 6000; // 3000
-        static int ms_checkDisconnectedClient = 2000; // 500
+        static double ms_totalConnectedCheck = 6000;
+        static int ms_checkDisconnectedClient = 2000;
         DateTime lastConnectedConfirmed;
 
         bool connected;
 
-        public ClientHandler(Socket handler, int id)
+        public ClientHandler(Socket handler, int connectionId)
         {
             //clientAccessLevel = ClientAccessLevel.LowestLevel;
             this.tcpHandler = handler;
-            this.id = id;
+            this.connectionID = connectionId;
             ip = this.GetRemoteIp();
 
             connected = true;
@@ -85,7 +85,7 @@ namespace ServerCore
                 var msSinceLastConnectionConfirmed = (DateTime.Now - lastConnectedConfirmed).TotalMilliseconds;
                 if(msSinceLastConnectionConfirmed > ms_totalConnectedCheck)
                 {
-                    Console.WriteLine($"[SERVER_MESSAGE]: connection for client [{id}][{ip}] timed out");
+                    Console.WriteLine($"[SERVER_MESSAGE]: connection for client [{connectionID}][{ip}] timed out");
                     ShutDownClient(3);
                 }
                 else
@@ -143,7 +143,7 @@ namespace ServerCore
 
             if (removeFromClientsList)
             {
-                bool successfullyRemoved = Server.clients.Remove(this.id);
+                bool successfullyRemoved = Server.clients.Remove(this.connectionID);
                 //Console.WriteLine($"[SERVER_MESSAGE]: client [{id}][{ip}] was removed from clients list: [{successfullyRemoved}]");
             }
         }

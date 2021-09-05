@@ -16,7 +16,6 @@ namespace ServerCore
     public class Player
     {
         public ServerCore.Client client;
-        public string username;
 
         public Vector3 position;
         public Quaternion rotation;
@@ -35,10 +34,9 @@ namespace ServerCore
         public bool isAlive;
 
 
-        public Player(Client client, string username, Vector3 spawnPosition)
+        public Player(Client client, Vector3 spawnPosition)
         {
             this.client = client;
-            this.username = username;
             position = spawnPosition;
             rotation = Quaternion.Identity;
             lastShotTime = DateTime.Now;
@@ -78,7 +76,7 @@ namespace ServerCore
 
             // code|posOfShootingPoint|rotationAtRequestTime|ipOfShootingPlayer
             // "shot_result|123/45/87|543/34/1|198.0.0.126";
-            string msg = $"{SHOT_RESULT}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}|{client.ch.ip}";
+            string msg = $"{SHOT_RESULT}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}|{client.userData.db_id}";
             playroom.SendMessageToAllPlayersInPlayroom(msg, null, MessageProtocol.TCP);
         }
         public void CheckAndMakeJump()
@@ -123,7 +121,7 @@ namespace ServerCore
                 Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}|false", client.ch, MessageProtocol.TCP);
             }
         }
-        // "player_died|killer_ip|reasonOfDeath
+        // "player_died|killer_dbId|reasonOfDeath
         public void PlayerDied(string message)
         {
             isAlive = false;
@@ -157,17 +155,17 @@ namespace ServerCore
             stats_deaths++;
 
             string[] substrings = message.Split("|");
-            string killerIp = substrings[1];
+            int killerDbId = Int32.Parse(substrings[1]);
             string deathDetails = substrings[2];
 
             Player killer = null;
 
             // find killer player if exists and assign points
-            if (!killerIp.Equals("none"))
+            if (!killerDbId.Equals("none") && !killerDbId.Equals(""))
             {
                 foreach(Player pl in playroom.playersInPlayroom)
                 {
-                    if (pl.client.ch.ip == killerIp) 
+                    if (pl.client.userData.db_id == killerDbId) 
                     {
                         killer = pl;
                         break;
@@ -183,9 +181,9 @@ namespace ServerCore
             // player_was_killed_message|playerDeadNickname/playerDeadIP|playerKillerNickname/playerKilledIP|deathDetails
 
             if(killer != null)
-                playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{username}/{client.ch.ip}|{killer.username}/{killer.client.ch.ip}|{deathDetails}", null, MessageProtocol.TCP);
+                playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{client.userData.nickname}/{client.userData.db_id}|{killer.client.userData.nickname}/{killer.client.userData.nickname}|{deathDetails}", null, MessageProtocol.TCP);
             else
-                playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{username}/{client.ch.ip}|none/none|{deathDetails}", null, MessageProtocol.TCP);
+                playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{client.userData.nickname}/{client.userData.db_id}|none/none|{deathDetails}", null, MessageProtocol.TCP);
 
         }
     }

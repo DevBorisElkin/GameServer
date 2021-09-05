@@ -19,6 +19,13 @@ namespace ServerCore
             return true;
         }
 
+        public static bool DoesNotVioliateLimit(Socket socket)
+        {
+            int clientsWithSuchIPConnectedTotal = GetClientsWithSuchIPAmount(GetRemoteIp(socket));
+            if (clientsWithSuchIPConnectedTotal <= 10) return true;
+            return false;
+        }
+
         public static int GetFirstFreeId()
         {
             ClientHandler util;
@@ -47,6 +54,17 @@ namespace ServerCore
             }
             //Console.WriteLine($"[Server]: Didn't find client with ip {ip}");
             return null;
+        }
+
+        public static int GetClientsWithSuchIPAmount(string ip)
+        {
+            int amount = 0;
+            foreach (var a in clients.Values)
+            {
+                if (a.ip.Equals(ip)) amount++;
+            }
+            Console.WriteLine($"[Server]: Clients with such ip {ip} detected: {amount}");
+            return amount;
         }
 
         public static void DisposeAllClients()
@@ -273,7 +291,7 @@ namespace ServerCore
             int i = 1;
             foreach(var a in Server.clients.Values)
             {
-                Console.WriteLine($"#{i} [{a.id}][{a.ip}]");
+                Console.WriteLine($"#{i} [{a.connectionID}][{a.ip}]");
                 i++;
             }
             Console.WriteLine();

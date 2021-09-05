@@ -49,7 +49,7 @@ namespace ServerCore
                 while (serverActive)
                 {
                     handler = listenSocket.Accept();
-                    if (!Util_Server.AlreadyHasThisClient(handler))
+                    if (!Util_Server.DoesNotVioliateLimit(handler))
                     {
                         int clientId = Util_Server.GetFirstFreeId();
                         ClientHandler client = new ClientHandler(handler, clientId);
@@ -57,7 +57,7 @@ namespace ServerCore
                     }
                     else
                     {
-                        Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE] reject repetetive connection from {GetRemoteIp(handler)}");
+                        Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE] reject repetetive connection from {GetRemoteIp(handler)}, too many connections from that IP");
                         handler.Shutdown(SocketShutdown.Both);
                         handler.Dispose();
                     }

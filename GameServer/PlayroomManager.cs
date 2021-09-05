@@ -115,9 +115,9 @@ namespace ServerCore
                 return;
             }
 
-            int id = GenerateRandomIdForPlayroom();
-            Playroom playroom = new Playroom(id, _name, _isPublic, _password, _map, _maxPlayers, _playersToStart, _killsToFinish, _timeOfMatch);
-            client.player = new Player(client, client.userData.nickname, Vector3.Zero);
+            int playroomID = GenerateRandomIdForPlayroom();
+            Playroom playroom = new Playroom(playroomID, _name, _isPublic, _password, _map, _maxPlayers, _playersToStart, _killsToFinish, _timeOfMatch);
+            client.player = new Player(client, Vector3.Zero);
             
             string scoresString = playroom.AddPlayer(client.player);
             playrooms.Add(playroom);
@@ -157,7 +157,7 @@ namespace ServerCore
                 return;
             }
 
-            client.player = new Player(client, client.userData.nickname, Vector3.Zero);
+            client.player = new Player(client, Vector3.Zero);
             MatchState matchState;
             if (playroom.IsThisNewPlayerWillStartTheMatch()) matchState = MatchState.InGame;
             else matchState = MatchState.WaitingForPlayers;
@@ -187,10 +187,10 @@ namespace ServerCore
 
             Playroom playroom = client.player.playroom;
 
-            if (client.player.playroom.id != playroomId)
-                Console.WriteLine($"[{DateTime.Now}][SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {client.player.playroom.id} | {playroomId}");
+            if (client.player.playroom.playroomID != playroomId)
+                Console.WriteLine($"[{DateTime.Now}][SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {client.player.playroom.playroomID} | {playroomId}");
 
-            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.ch.ip}] notified about leaving playroom [{playroomId}]");
+            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.userData.db_id}][{client.ch.ip}] notified about leaving playroom [{playroomId}]");
             if(client.player.playroom.RemovePlayer(client)) ClosePlayroom(playroom);
         }
         static int GenerateRandomIdForPlayroom()
@@ -205,7 +205,7 @@ namespace ServerCore
                 randomInt = random.Next(1000, 10000);
                 foreach (Playroom a in playrooms)
                 {
-                    if (a.id == randomInt) numberNotUnique = true;
+                    if (a.playroomID == randomInt) numberNotUnique = true;
                 }
                 index++;
             }
@@ -216,7 +216,7 @@ namespace ServerCore
         {
             foreach(Playroom a in playrooms)
             {
-                if (a.id == id) return a;
+                if (a.playroomID == id) return a;
             }
             return null;
         }

@@ -8,7 +8,8 @@ namespace DatabaseAccess
 {
     public class UserData
     {
-        public int id;
+        // id = unickue database identifier of the user
+        public int db_id;
         public string login;
         public string password;
         public string nickname;
@@ -24,7 +25,7 @@ namespace DatabaseAccess
         }
         public UserData(int id, string login, string password, string nickname, RequestResult requestResult = RequestResult.Success)
         {
-            this.id = id;
+            this.db_id = id;
             this.login = login;
             this.password = password;
             this.nickname = nickname;
@@ -33,11 +34,11 @@ namespace DatabaseAccess
 
         public override string ToString()
         {
-            return $"id:[{id}], login:[{login}], password:[{password}], nickname:[{nickname}], ip:[{ip}]";
+            return $"id:[{db_id}], login:[{login}], password:[{password}], nickname:[{nickname}], ip:[{ip}]";
         }
         public string ToNetworkString()
         {
-            return $"{id},{login},{password},{nickname},{ip}";
+            return $"{db_id},{login},{password},{nickname},{ip}";
         }
     }
     // here I will populate different DatabaseRequestResults
