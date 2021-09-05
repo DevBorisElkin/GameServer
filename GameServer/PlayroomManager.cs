@@ -236,6 +236,12 @@ namespace ServerCore
         
         public static void ClosePlayroom(Playroom room)
         {
+            foreach(Player a in room.playersInPlayroom)
+            {
+                a.client.player = null;
+            }
+            room.playersInPlayroom = null;
+
             playrooms.Remove(room);
             room = null;
         }

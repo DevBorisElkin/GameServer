@@ -77,6 +77,7 @@ namespace ServerCore
         // olny responsible for sending players' positions
         public void ManageRoom()
         {
+            if (playersInPlayroom == null || playersInPlayroom.Count == 0) return;
             if(PlayersCurrAmount >= 1)
             {
                 foreach(Player a in playersInPlayroom)
@@ -309,6 +310,7 @@ namespace ServerCore
         void ClosePlayroomWithDelay()
         {
             Thread.Sleep(1000);
+            PlayroomManager.ClosePlayroom(this);
         }
 
         #endregion
