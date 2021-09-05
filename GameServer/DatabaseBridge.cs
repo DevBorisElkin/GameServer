@@ -87,6 +87,7 @@ namespace ServerCore
             else
             {
                 // here we tell the user back that registration failed and give some clue why it did
+                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: client [{SendResponseBackTo.ch.ip}] requested to register and got rejected. reason:[{result.requestResult}]");
                 SendMessageToClient($"{REGISTER_RESULT}|{result.requestResult}", SendResponseBackTo.ch);
             }
         }

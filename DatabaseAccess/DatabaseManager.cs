@@ -215,30 +215,38 @@ namespace DatabaseAccess
                         reader.Close();
                         return new UserData(RequestResult.Fail_LoginAlreadyTaken);
                     }
-                    else
+                    reader.Close();
+
+                    command = new MySqlCommand($"SELECT * FROM MainTable WHERE nickname = '{info.nickname}'", mySqlConnection);
+                    reader = command.ExecuteReader();
+                    if (reader.Read())
                     {
-                        // didn't find any record of 'login', keep going
+                        // can't register, login is already taken
                         reader.Close();
+                        return new UserData(RequestResult.Fail_NicknameAlreadyTaken);
+                    }
+                    reader.Close();
 
-                        // here need to try to add new user
-                        MySqlCommand sqlCommand = new MySqlCommand($"INSERT INTO MainTable (login, pass, nickname)" +
-                            $" VALUES ('{info.login}', '{info.password}', '{info.nickname}')", mySqlConnection);
-                        int rowsAffected = sqlCommand.ExecuteNonQuery();
+                    // didn't find any record of 'login', keep going
 
-                        if (rowsAffected == 1)
+                    // here need to try to add new user
+                    MySqlCommand sqlCommand = new MySqlCommand($"INSERT INTO MainTable (login, pass, nickname)" +
+                        $" VALUES ('{info.login}', '{info.password}', '{info.nickname}')", mySqlConnection);
+                    int rowsAffected = sqlCommand.ExecuteNonQuery();
+
+                    if (rowsAffected == 1)
+                    {
+                        // check that we actually added user and retrieve his full data
+                        UserData foundUser = TryToGetUserDataByLogin(info.login);
+                        bool successfullyFoundUser = foundUser.requestResult.Equals(RequestResult.Success);
+                        if (successfullyFoundUser)
                         {
-                            // check that we actually added user and retrieve his full data
-                            UserData foundUser = TryToGetUserDataByLogin(info.login);
-                            bool successfullyFoundUser = foundUser.requestResult.Equals(RequestResult.Success);
-                            if (successfullyFoundUser)
-                            {
-                                return foundUser;
-                            }
-                            else return new UserData(RequestResult.Fail);
-
+                            return foundUser;
                         }
                         else return new UserData(RequestResult.Fail);
+
                     }
+                    else return new UserData(RequestResult.Fail);
                 }
                 else
                 {

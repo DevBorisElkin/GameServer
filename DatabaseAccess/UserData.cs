@@ -49,6 +49,7 @@ namespace DatabaseAccess
         Fail_NoConnectionToDB = 3,
         Fail_WrongPairLoginPassword = 4,
         Fail_LoginAlreadyTaken = 5 ,
-        Fail_NoUserWithGivenLogin = 6
+        Fail_NicknameAlreadyTaken = 6 ,
+        Fail_NoUserWithGivenLogin = 7
     }
 }
