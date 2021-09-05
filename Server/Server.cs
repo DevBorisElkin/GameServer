@@ -49,7 +49,7 @@ namespace ServerCore
                 while (serverActive)
                 {
                     handler = listenSocket.Accept();
-                    if (!Util_Server.DoesNotVioliateLimit(handler))
+                    if (!Util_Server.ViolatesLimitForTheSameIP(handler))
                     {
                         int clientId = Util_Server.GetFirstFreeId();
                         ClientHandler client = new ClientHandler(handler, clientId);

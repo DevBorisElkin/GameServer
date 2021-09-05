@@ -19,11 +19,11 @@ namespace ServerCore
             return true;
         }
 
-        public static bool DoesNotVioliateLimit(Socket socket)
+        public static bool ViolatesLimitForTheSameIP(Socket socket)
         {
             int clientsWithSuchIPConnectedTotal = GetClientsWithSuchIPAmount(GetRemoteIp(socket));
-            if (clientsWithSuchIPConnectedTotal <= 10) return true;
-            return false;
+            if (clientsWithSuchIPConnectedTotal <= 10) return false;
+            return true;
         }
 
         public static int GetFirstFreeId()

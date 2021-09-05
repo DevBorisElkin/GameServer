@@ -79,10 +79,10 @@ namespace ServerCore
         // example of message
         //
         // when player sends to the server
-        // client_disconnected_from_playroom|1|no_nickname
+        // client_disconnected_from_playroom|playroomId|playerNickname
         // when server sends to all other clients
         //         the code, playroom id, clientDbID
-        // "client_disconnected_from_playroom|2342|nickname|ip" 
+        // "client_disconnected_from_playroom|playroomId|nickname|clientDbId" 
         public const string CLIENT_DISCONNECTED_FROM_THE_PLAYROOM = "client_disconnected_from_playroom";
 
         // message from client to server about client position and rotation

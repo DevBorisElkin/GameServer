@@ -98,7 +98,7 @@ namespace ServerCore
         /// </summary>
         public bool RemovePlayer(Client client)
         {
-            SendMessageToAllPlayersInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{playroomID}|{client.userData.db_id}|{client.ch.ip}", client.player, MessageProtocol.TCP);
+            SendMessageToAllPlayersInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{playroomID}|{client.userData.nickname}|{client.userData.db_id}", client.player, MessageProtocol.TCP);
             playersInPlayroom.Remove(client.player);
             client.player = null;
 

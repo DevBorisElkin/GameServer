@@ -161,7 +161,7 @@ namespace ServerCore
             Player killer = null;
 
             // find killer player if exists and assign points
-            if (!killerDbId.Equals("none") && !killerDbId.Equals(""))
+            if (!killerDbId.Equals(-1) && !killerDbId.Equals(""))
             {
                 foreach(Player pl in playroom.playersInPlayroom)
                 {
