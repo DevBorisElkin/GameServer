@@ -59,7 +59,7 @@ namespace ServerCore
         {
             foreach (var a in clients.Values)
             {
-                if (a.udpEndPoint.Equals(remoteEndPoint)) return a;
+                if (a.udpEndPoint != null && a.udpEndPoint.Equals(remoteEndPoint)) return a;
             }
             return null;
         }
