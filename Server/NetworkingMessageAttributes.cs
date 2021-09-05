@@ -8,6 +8,14 @@ namespace ServerCore
 {
     public static class NetworkingMessageAttributes
     {
+        // On connection established, sending client his local id in clients list
+        // "on_connection_established|12"  // 12 = local id in clients list
+        public const string ON_CONNECTION_ESTABLISHED = "on_connection_established";
+
+        // Initializing UDP
+        // "init_udp|12"  // 12 = local id in clients list
+        public const string INIT_UDP = "init_udp";
+
         //__AUTHENTICATION________________________________________________________
 
         // message to server from player that he wants to log into his account

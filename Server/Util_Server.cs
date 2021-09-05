@@ -55,6 +55,14 @@ namespace ServerCore
             //Console.WriteLine($"[Server]: Didn't find client with ip {ip}");
             return null;
         }
+        public static ClientHandler TryToGetClientWithUdpEndPoint(IPEndPoint remoteEndPoint)
+        {
+            foreach (var a in clients.Values)
+            {
+                if (a.udpEndPoint.Equals(remoteEndPoint)) return a;
+            }
+            return null;
+        }
 
         public static int GetClientsWithSuchIPAmount(string ip)
         {

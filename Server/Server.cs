@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using static ServerCore.Util_Server;
+using static ServerCore.NetworkingMessageAttributes;
 
 namespace ServerCore
 {
@@ -54,6 +55,7 @@ namespace ServerCore
                         int clientId = Util_Server.GetFirstFreeId();
                         ClientHandler client = new ClientHandler(handler, clientId);
                         AddClient(client, clientId);
+                        SendMessageToClient($"{ON_CONNECTION_ESTABLISHED}|{clientId}", client, MessageProtocol.TCP);
                     }
                     else
                     {

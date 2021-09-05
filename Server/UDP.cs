@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using static ServerCore.Util_Server;
+using static ServerCore.NetworkingMessageAttributes;
 
 namespace ServerCore
 {
@@ -51,27 +52,38 @@ namespace ServerCore
                         }
                         while (listenSocketUdp.Available > 0);
 
-                        IPEndPoint remoteIp = remote as IPEndPoint;
-                        string ip = Util_Server.GetRemoteIp(remoteIp);
-
-                        ClientHandler clientToBind = TryToGetClientWithIp(ip);
-
-                        // we can't parse UDP messages from client if TCP connection is not yet established
-                        if (clientToBind == null)
+                        string message = builder.ToString();
+                        if (message.StartsWith(INIT_UDP))
                         {
-                            Util_Server.TryToStoreEndPoint(remoteIp, ip);
-                            continue;
+                            string[] substrings = message.Split("|");
+                            int clientIdInClientsList = Int32.Parse(substrings[1]);
+                            ClientHandler client = TryToGetClientWithId(clientIdInClientsList);
+                            if(client != null)
+                            {
+                                if(client.udpEndPoint == null)
+                                {
+                                    IPEndPoint _remoteIp = remote as IPEndPoint;
+                                    client.udpEndPoint = _remoteIp;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: couldn't initialize udp end point for client with local id [{clientIdInClientsList}]");
+                                continue;
+                            }
                         }
-                        // we can't parse UDP messages from client if IPEndPoint for UDP is not set yet
-                        else if (clientToBind.udpEndPoint == null)
-                        {
-                            clientToBind.udpEndPoint = remoteIp;
-                            Console.WriteLine($"[{DateTime.Now}][SYSTEM_MESSAGE]: 1) initialized IPEndPoint for UDP messaging of client [{clientToBind.connectionID}][{clientToBind.ip}]");
-                        }
-                        // everything is OK, we can work with message
                         else
                         {
-                            OnMessageReceived(builder.ToString(), clientToBind, MessageProtocol.UDP);
+                            ClientHandler client = TryToGetClientWithUdpEndPoint(remote as IPEndPoint);
+                            if(client != null)
+                            {
+                                OnMessageReceived(message, client, MessageProtocol.UDP);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: couldn't find client with given IPEndPoint");
+
+                            }
                         }
                     }
                     catch(Exception e)
