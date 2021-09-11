@@ -3,10 +3,8 @@ C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bi
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bin\Debug\net5.0\ref\GameServer.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bin\Debug\net5.0\GameServer.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bin\Debug\net5.0\DatabaseAccess.dll
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bin\Debug\net5.0\GeneralUsage.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bin\Debug\net5.0\ServerCore.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bin\Debug\net5.0\DatabaseAccess.pdb
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bin\Debug\net5.0\GeneralUsage.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bin\Debug\net5.0\ServerCore.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\obj\Debug\net5.0\GameServer.csproj.AssemblyReference.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\obj\Debug\net5.0\GameServer.GeneratedMSBuildEditorConfig.editorconfig

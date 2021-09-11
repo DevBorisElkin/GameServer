@@ -26,11 +26,9 @@ C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bi
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\runtimes\win\lib\netcoreapp3.0\System.Windows.Extensions.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\DatabaseAccess.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\GameServer.dll
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\GeneralUsage.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\ServerCore.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\DatabaseAccess.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\GameServer.pdb
-C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\GeneralUsage.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\bin\Debug\net5.0\ServerCore.pdb
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.csproj.AssemblyReference.cache
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\EntryPoint\obj\Debug\net5.0\EntryPoint.GeneratedMSBuildEditorConfig.editorconfig

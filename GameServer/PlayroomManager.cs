@@ -163,7 +163,7 @@ namespace ServerCore
             else matchState = MatchState.WaitingForPlayers;
 
             string scoresString = playroom.AddPlayer(client.player);
-            Vector3 spawnPos = GetRandomSpawnPointByMap(playroom.map);
+            Vector3 spawnPos = GetRandomSpawnPointByMap_FarthestPos(playroom.map, playroom, client.player);
 
             playroom.SendMessageToAllPlayersInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{client.ch.ip}|{client.userData.nickname}", client.player, Util_Server.MessageProtocol.TCP);
 

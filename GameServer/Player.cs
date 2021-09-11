@@ -142,7 +142,7 @@ namespace ServerCore
         {
             Thread.Sleep(3000);
 
-            Vector3 spawnPos = GetRandomSpawnPointByMap(playroom.map);
+            Vector3 spawnPos = GetRandomSpawnPointByMap_FarthestPos(playroom.map, playroom, this);
             isAlive = true;
             // SEND MESSAGE TO OTHER CLIENTS THAT PLAYER DIED AND SPAWN PARTICLES
             Util_Server.SendMessageToAllClients($"{SPAWN_DEATH_PARTICLES}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}", MessageProtocol.TCP, null);

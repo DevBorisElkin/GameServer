@@ -10,7 +10,6 @@
         "dependencies": {
           "DatabaseAccess": "1.0.0",
           "GameServer": "1.0.0",
-          "GeneralUsage": "1.0.0",
           "ServerCore": "1.0.0"
         },
         "runtime": {
@@ -228,16 +227,10 @@
       "GameServer/1.0.0": {
         "dependencies": {
           "DatabaseAccess": "1.0.0",
-          "GeneralUsage": "1.0.0",
           "ServerCore": "1.0.0"
         },
         "runtime": {
           "GameServer.dll": {}
-        }
-      },
-      "GeneralUsage/1.0.0": {
-        "runtime": {
-          "GeneralUsage.dll": {}
         }
       },
       "ServerCore/1.0.0": {
@@ -392,11 +385,6 @@
       "sha512": ""
     },
     "GameServer/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "GeneralUsage/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
