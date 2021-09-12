@@ -194,7 +194,7 @@ namespace ServerCore
             if (PlayersCurrAmount + 1 == playersToStart) return true;
             return false;
         }
-
+        static Random random = new Random();
         public void ManageMatchStart(Player toIgnore)
         {
             if (!matchState.Equals(MatchState.WaitingForPlayers)) return;
@@ -202,15 +202,18 @@ namespace ServerCore
             if(PlayersCurrAmount >= playersToStart)
             {
                 matchState = MatchState.InGame;
-                //SendMessageToAllPlayersInPlayroom($"{MATCH_STARTED}|{(TimeSpan.FromMinutes(timeOfMatchInMinutes).TotalSeconds)}", toIgnore, MessageProtocol.TCP);
+                Vector3[] spawnPositions = GetRandomSpawnPointByMap_UnrepeatablePosition(map, playersInPlayroom.Count, out bool useRandomPositions);
 
-                foreach(Player a in playersInPlayroom)
+                for (int i = 0; i < playersInPlayroom.Count; i++)
                 {
-                    if (a == toIgnore) continue;
-                    Vector3 newPosition = GetRandomSpawnPointByMap(map);
-                    a.currentJumpsAmount = PlayroomManager.maxJumpsAmount;
-                    Util_Server.SendMessageToClient($"{MATCH_STARTED_FORCE_OVERRIDE_POSITION_AND_JUMPS}|{a.currentJumpsAmount}|" +
-                        $"{newPosition.X}/{newPosition.Y}/{newPosition.Z}", a.client.ch, MessageProtocol.TCP);
+                    Vector3 newPosition;
+                    if (!useRandomPositions)
+                        newPosition = spawnPositions[i];
+                    else newPosition = spawnPositions[random.Next(0, spawnPositions.Length)];
+
+                    playersInPlayroom[i].currentJumpsAmount = PlayroomManager.maxJumpsAmount;
+                    Util_Server.SendMessageToClient($"{MATCH_STARTED_FORCE_OVERRIDE_POSITION_AND_JUMPS}|{playersInPlayroom[i].currentJumpsAmount}|" +
+                        $"{newPosition.X}/{newPosition.Y}/{newPosition.Z}", playersInPlayroom[i].client.ch, MessageProtocol.TCP);
                 }
                 LaunchPlayroomTimer();
             }

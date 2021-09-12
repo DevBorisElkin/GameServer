@@ -32,6 +32,8 @@ namespace ServerCore
         static int spawnPointsToConsider = 3;
 
         static Random random = new Random();
+
+        // tries to retrieve the farthest position from all existing players
         public static Vector3 GetRandomSpawnPointByMap_FarthestPos(Map _map, Playroom activePlayroom, Player playerToExclude)
         {
             if (activePlayroom.playersInPlayroom.Count == 1) return GetRandomSpawnPointByMap(_map);
@@ -73,24 +75,61 @@ namespace ServerCore
                 return calculations[randomFinalIndex].spawnPos;
             }
         }
-
-        // will remember last 3 used spawn positions by playroom and will try not to use them
-        // work in progress
-        /*
-        public static Vector3 GetRandomSpawnPointByMap_UnrepeatablePosition(Map _map)
+        // tries to get random (not the same) spawn positions for all clients
+        public static Vector3[] GetRandomSpawnPointByMap_UnrepeatablePosition(Map _map, int clientsAmount, out bool useRandomPositions)
         {
-            foreach (MapData data in mapDatas)
+            MapData correctMapData = null;
+            foreach (MapData data in mapDatas) if (data.map.Equals(_map)) correctMapData = data;
+            if (correctMapData == null) 
             {
-                if (data.map.Equals(_map))
-                {
-                    Random random = new Random();
-                    return data.mapSpawns[random.Next(0, data.mapSpawns.Count)];
-                }
+                useRandomPositions = true;
+                Console.WriteLine($"[SERVER_ERROR]: couldn't get correct map data for map #2 {_map}"); return correctMapData.mapSpawns.ToArray(); 
             }
-            Console.WriteLine($"[{DateTime.Now}] Error, couldn't get random spawn coordinates for player!");
-            return Vector3.Zero;
+
+            List<MapRandomPos> mapRandomPositions = new List<MapRandomPos>();
+            Vector3[] mapRandPos;
+            foreach (var a in correctMapData.mapSpawns) mapRandomPositions.Add(new MapRandomPos(a, false));
+
+            if(clientsAmount <= correctMapData.mapSpawns.Count)
+            {
+                mapRandPos = new Vector3[clientsAmount];
+                for (int i = 0; i < mapRandPos.Length; i++)
+                {
+                    MapRandomPos chosenPos;
+                    int glitchDetection = 0;
+                    while (true)
+                    {
+                        int randPosIndex = random.Next(0, mapRandomPositions.Count);
+                        if (!mapRandomPositions[randPosIndex].alreadyTaken)
+                        {
+                            chosenPos = mapRandomPositions[randPosIndex];
+                            chosenPos.alreadyTaken = true;
+                            break;
+                        }
+                        glitchDetection++;
+                        if(glitchDetection > 200)
+                        {
+                            Console.WriteLine("While(true) loop glitched. breaking out");
+                            useRandomPositions = true;
+                            return correctMapData.mapSpawns.ToArray();
+                        }
+                    }
+                    mapRandPos[i] = chosenPos.spawnPos;
+                }
+                useRandomPositions = false;
+                return mapRandPos;
+            }
+            else
+            {
+                mapRandPos = new Vector3[correctMapData.mapSpawns.Count];
+                useRandomPositions = true;
+                // there are more clients than spawn positions, in that case returning totally random spawn positions
+                for (int i = 0; i < mapRandPos.Length; i++)
+                    mapRandPos[i] = correctMapData.mapSpawns[i];
+                return mapRandPos;
+            }
         }
-        */
+        
 
         public static List<MapData> mapDatas = new List<MapData>
         { new MapData(Map.DefaultMap, new List<Vector3> {
@@ -124,6 +163,18 @@ namespace ServerCore
             {
                 this.spawnPos = spawnPos;
                 this.totalAvgPosToAllPlayers = totalAvgPosToAllPlayers;
+            }
+        }
+
+        public class MapRandomPos
+        {
+            public Vector3 spawnPos;
+            public bool alreadyTaken;
+
+            public MapRandomPos(Vector3 spawnPos, bool alreadyTaken)
+            {
+                this.spawnPos = spawnPos;
+                this.alreadyTaken = alreadyTaken;
             }
         }
 
