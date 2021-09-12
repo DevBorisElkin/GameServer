@@ -119,7 +119,7 @@ namespace ServerCore
             Playroom playroom = new Playroom(playroomID, _name, _isPublic, _password, _map, _maxPlayers, _playersToStart, _killsToFinish, _timeOfMatch);
             client.player = new Player(client, Vector3.Zero);
             
-            string scoresString = playroom.AddPlayer(client.player);
+            string scoresString = playroom.AddPlayer(client.player, out Vector3 fakeSpawnPos);
             playrooms.Add(playroom);
             Vector3 spawnPos = GetRandomSpawnPointByMap(_map);
 
@@ -162,8 +162,7 @@ namespace ServerCore
             if (playroom.IsThisNewPlayerWillStartTheMatch()) matchState = MatchState.InGame;
             else matchState = MatchState.WaitingForPlayers;
 
-            string scoresString = playroom.AddPlayer(client.player);
-            Vector3 spawnPos = GetRandomSpawnPointByMap_FarthestPos(playroom.map, playroom, client.player);
+            string scoresString = playroom.AddPlayer(client.player, out Vector3 spawnPos);
 
             playroom.SendMessageToAllPlayersInPlayroom($"{CLIENT_CONNECTED_TO_THE_PLAYROOM}|{client.ch.ip}|{client.userData.nickname}", client.player, Util_Server.MessageProtocol.TCP);
 

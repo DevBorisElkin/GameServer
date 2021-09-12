@@ -57,11 +57,11 @@ namespace ServerCore
         }
 
         // returns pure scores string
-        public string AddPlayer(Player player)
+        public string AddPlayer(Player player, out Vector3 playerSpawnPos)
         {
             player.playroom = this;
             playersInPlayroom.Add(player);
-            ManageMatchStart(player);
+            ManageMatchStart(player, out playerSpawnPos);
 
             return OnScoresChange(player);
         }
@@ -195,11 +195,12 @@ namespace ServerCore
             return false;
         }
         static Random random = new Random();
-        public void ManageMatchStart(Player toIgnore)
+        public void ManageMatchStart(Player toIgnore, out Vector3 playerToIgnoreSpawnPos)
         {
-            if (!matchState.Equals(MatchState.WaitingForPlayers)) return;
+            playerToIgnoreSpawnPos = Vector3.Zero;
+            if (!matchState.Equals(MatchState.WaitingForPlayers)) { return; }
 
-            if(PlayersCurrAmount >= playersToStart)
+            if (PlayersCurrAmount >= playersToStart)
             {
                 matchState = MatchState.InGame;
                 Vector3[] spawnPositions = GetRandomSpawnPointByMap_UnrepeatablePosition(map, playersInPlayroom.Count, out bool useRandomPositions);
@@ -210,6 +211,13 @@ namespace ServerCore
                     if (!useRandomPositions)
                         newPosition = spawnPositions[i];
                     else newPosition = spawnPositions[random.Next(0, spawnPositions.Length)];
+
+                    if (playersInPlayroom[i] == toIgnore)
+                    {
+                        toIgnore.position = newPosition;
+                        playerToIgnoreSpawnPos = newPosition;
+                        continue;
+                    }
 
                     playersInPlayroom[i].currentJumpsAmount = PlayroomManager.maxJumpsAmount;
                     Util_Server.SendMessageToClient($"{MATCH_STARTED_FORCE_OVERRIDE_POSITION_AND_JUMPS}|{playersInPlayroom[i].currentJumpsAmount}|" +
