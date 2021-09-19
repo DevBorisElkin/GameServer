@@ -140,7 +140,19 @@ namespace ServerCore
             new Vector3(-35.16f, 20.998f, -4.9f),
             new Vector3(-7.66f, 20.984f, -42.08f),
             new Vector3(-27.8f, 14.982f, -13.96f),
-            new Vector3(-3.16f, 14.96f, -24.26f)
+            new Vector3(-3.16f, 14.96f, -24.26f),
+            new Vector3(-85.264f, 14.96f, -48.7f),
+            new Vector3(-101.88f, 14.96f, -15.4f),
+            new Vector3(-94.74f, 14.96f, 2.78f),
+            new Vector3(-2.56f, 14.96f, 38.62f),
+            new Vector3(-12.86f, 14.96f, -74.24f),
+            new Vector3(41.1f, 14.96f, -35.24f),
+            new Vector3(74.92f, 20.942f, -26.1f),
+            new Vector3(-106.6f, 14.96f, -35.26f),
+            new Vector3(-12.72f, 14.96f, -48.06f),
+            new Vector3(55.12f, 14.96f, -4.92f),
+            new Vector3(-26.66f, 14.96f, 19f),
+            new Vector3(61.64f, 14.96f, -21.1f)
         }) };
 
         public class MapData
