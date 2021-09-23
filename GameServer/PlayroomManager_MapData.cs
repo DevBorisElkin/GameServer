@@ -34,6 +34,8 @@ namespace ServerCore
         static Random random = new Random();
 
         // tries to retrieve the farthest position from all existing players
+        // if there's 1 player, returns random spawn position
+        // if there's 2-3 players, tries to get middle spawn point
         public static Vector3 GetRandomSpawnPointByMap_FarthestPos(Map _map, Playroom activePlayroom, Player playerToExclude)
         {
             if (activePlayroom.playersInPlayroom.Count == 1) return GetRandomSpawnPointByMap(_map);
@@ -61,18 +63,35 @@ namespace ServerCore
 
             // either spawns at furthest position from other players or at the middle position
             // 70% chance that it will take farthest position
-            int randomDistChoice = random.Next(0, 10);
-            if(randomDistChoice < 6)
+            int randomDistChoice = random.Next(0, 100);
+
+            if(activePlayroom.playersInPlayroom.Count > 3)
             {
-                int randomSelectedRandomRemotePos = random.Next(0, spawnPointsToConsider);
-                //Console.WriteLine("Generated random spawn pos: " + randomSelectedRandomRemotePos);
-                return calculations[randomSelectedRandomRemotePos].spawnPos;
+                if (randomDistChoice < 70)
+                {
+                    int randomSelectedRandomRemotePos = random.Next(0, spawnPointsToConsider);
+                    return calculations[randomSelectedRandomRemotePos].spawnPos;
+                }
+                else
+                {
+                    int randomMiddleIndex = calculations.Count / 2;
+                    int randomFinalIndex = randomMiddleIndex += random.Next(-2, 3);
+                    return calculations[randomFinalIndex].spawnPos;
+                }
             }
-            else
+            else if (activePlayroom.playersInPlayroom.Count <= 3)
             {
-                int randomMiddleIndex = calculations.Count / 2;
-                int randomFinalIndex = randomMiddleIndex += random.Next(-1, 2);
-                return calculations[randomFinalIndex].spawnPos;
+                if (randomDistChoice < 20)
+                {
+                    int randomSelectedRandomRemotePos = random.Next(0, spawnPointsToConsider);
+                    return calculations[randomSelectedRandomRemotePos].spawnPos;
+                }
+                else
+                {
+                    int randomMiddleIndex = calculations.Count / 2;
+                    int randomFinalIndex = randomMiddleIndex += random.Next(-2, 3);
+                    return calculations[randomFinalIndex].spawnPos;
+                }
             }
         }
         // tries to get random (not the same) spawn positions for all clients
