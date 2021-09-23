@@ -79,7 +79,7 @@ namespace ServerCore
                     return calculations[randomFinalIndex].spawnPos;
                 }
             }
-            else if (activePlayroom.playersInPlayroom.Count <= 3)
+            else
             {
                 if (randomDistChoice < 20)
                 {
