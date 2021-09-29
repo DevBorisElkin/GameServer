@@ -1,14 +1,27 @@
-﻿using System;
+﻿using ServerCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
+using static ServerCore.NetworkingMessageAttributes;
 
 namespace GameServer
 {
     public class ModifiersManager
     {
-        public enum Rune { Black, SpringGreen, DarkGreen, LightBlue, Red, Golden, RedViolet, Salmon }
+        Player currentPlayer;
+        public enum Rune { 
+            Black, // projectile modifier
+            SpringGreen, // movement modifier
+            DarkGreen, // movement modifier
+            LightBlue, // projectile modifier
+            Red, // projectile modifier
+            Golden, // attack modifier
+            RedViolet, // attack modifier
+            Salmon // movement modifier
+        }
 
         public const float RUNE_DURATION_SEC = 60f;
 
@@ -17,7 +30,14 @@ namespace GameServer
 
         public List<RuneEffect> activeRuneEffects;
 
-        public ModifiersManager()
+        public ModifiersManager(Player player)
+        {
+            currentPlayer = player;
+            ResetModifiers();
+        }
+
+        // is called on entering playroom or on death
+        public void ResetModifiers()
         {
             activeRuneEffects = new List<RuneEffect>();
         }
@@ -30,9 +50,8 @@ namespace GameServer
             {
                 if (a.IsExpired())
                 {
-                    // todo rune effect has expired, notify all players and remove from list
-
-                    // NotifyAllPlayersOfRuneEffectExpiration();
+                    //rune effect has expired, notify all players and remove from list
+                    NotifyAllPlayersOnRuneExpiraion(a.assignedRune);
                     runeEffectsToRemove.Add(a);
                 }
             }
@@ -54,6 +73,12 @@ namespace GameServer
             foreach(var a in activeRuneEffects)
                 if (a.assignedRune == rune) return true;
             return false;
+        }
+
+        void NotifyAllPlayersOnRuneExpiraion(Rune runeExpired)
+        {
+            string message = $"{RUNE_EFFECT_EXPIRED}|{currentPlayer.client.userData.db_id}|{runeExpired}";
+            currentPlayer.playroom.SendMessageToAllPlayersInPlayroom(message, null, Util_Server.MessageProtocol.TCP);
         }
 
 

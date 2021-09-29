@@ -252,5 +252,24 @@ namespace ServerCore
         // message to all players notifying that the match has finished
         // "match_finished|winnerDbId|winnerNickname|matchResult
         public const string MATCH_FINISHED = "match_finished";
+
+        // _______________________MATCH_STATE_AND_EVENTS_______________________
+        // Messages related to the clients relating runes
+
+        //       code   spawnPos runeType  uniqueRudeId
+        // "rune_spawned|0/0/0|Black|12"
+        public const string RUNE_SPAWNED = "rune_spawned";
+
+        //  code|player_db_id|runeType|runeUniqueId
+        // "rune_try_to_pick_up|12|Black|5"
+        public const string RUNE_TRY_TO_PICK_UP = "rune_try_to_pick_up";
+
+        //  code|runeUniqueId|player_db_id|runeType|nickOfGatherPlayer|60
+        // "rune_picked_up|6|12|Black|BOBISCHE|durationInSeconds"
+        public const string RUNE_PICKED_UP = "rune_picked_up";
+
+        //  code|player_db_id|runeType
+        // "rune_effect_expired|12|Black"
+        public const string RUNE_EFFECT_EXPIRED = "rune_effect_expired";
     }
 }
