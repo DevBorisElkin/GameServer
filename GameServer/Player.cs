@@ -8,6 +8,7 @@ using static ServerCore.NetworkingMessageAttributes;
 using static ServerCore.ClientHandler;
 using static ServerCore.PlayroomManager;
 using static ServerCore.PlayroomManager_MapData;
+using static ServerCore.ModifiersManager;
 using System.Threading.Tasks;
 using System.Threading;
 
@@ -33,6 +34,8 @@ namespace ServerCore
 
         public bool isAlive;
 
+        public ModifiersManager modifiersManager;
+
 
         public Player(Client client, Vector3 spawnPosition)
         {
@@ -49,6 +52,8 @@ namespace ServerCore
             stats_deaths = 0;
 
             isAlive = true;
+
+            modifiersManager = new ModifiersManager(this);
         }
 
         public void CheckAndMakeShot(string message)

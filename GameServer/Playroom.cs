@@ -9,6 +9,7 @@ using static ServerCore.Util_Server;
 using System.Collections.Generic;
 using static ServerCore.PlayroomManager;
 using static ServerCore.PlayroomManager_MapData;
+using static ServerCore.PlayroomManager_Runes;
 
 namespace ServerCore
 {
@@ -21,6 +22,8 @@ namespace ServerCore
         public string password;
         public Map map = Map.DefaultMap;
         public MatchState matchState = MatchState.WaitingForPlayers;
+
+        PlayroomManager_Runes runesManager;
 
         public int PlayersCurrAmount
         {
@@ -54,6 +57,8 @@ namespace ServerCore
             totalTimeToFinishInSeconds = TimeSpan.FromMinutes(timeOfMatchInMinutes).Seconds;
 
             playersInPlayroom = new List<Player>();
+
+            runesManager.Init(this);
         }
 
         // returns pure scores string
@@ -90,6 +95,11 @@ namespace ServerCore
                         continue;
                     Util_Server.SendMessageToClient(generatedString, a.client.ch, MessageProtocol.UDP);
                 }
+            }
+
+            if(matchState == MatchState.InGame)
+            {
+                runesManager.Update();
             }
         }
 

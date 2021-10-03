@@ -6,21 +6,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using static ServerCore.NetworkingMessageAttributes;
+using static ServerCore.Runes_MessagingManager;
 
-namespace GameServer
+namespace ServerCore
 {
     public class ModifiersManager
     {
         Player currentPlayer;
-        public enum Rune { 
-            Black, // projectile modifier
-            SpringGreen, // movement modifier
-            DarkGreen, // movement modifier
-            LightBlue, // projectile modifier
-            Red, // projectile modifier
-            Golden, // attack modifier
-            RedViolet, // attack modifier
-            Salmon // movement modifier
+        public enum Rune {
+            None = 0,
+            Black = 1, // projectile modifier
+            SpringGreen = 2, // movement modifier
+            DarkGreen = 3, // movement modifier
+            LightBlue = 4, // projectile modifier
+            Red = 5, // projectile modifier
+            Golden = 6, // attack modifier
+            RedViolet = 7, // attack modifier
+            Salmon = 8 // movement modifier
         }
 
         public const float RUNE_DURATION_SEC = 60f;
@@ -51,7 +53,7 @@ namespace GameServer
                 if (a.IsExpired())
                 {
                     //rune effect has expired, notify all players and remove from list
-                    NotifyAllPlayersOnRuneExpiraion(a.assignedRune);
+                    NotifyAllPlayersOnRuneEffectExpiraion(currentPlayer, a.assignedRune);
                     runeEffectsToRemove.Add(a);
                 }
             }
@@ -63,22 +65,36 @@ namespace GameServer
         public float GetReloadTimeMultiplier()
         {
             float basicMultiplier = 1f;
-            if (PlayerHasEffect(Rune.Black)) basicMultiplier += ReloadMult_BlackRune;
-            if (PlayerHasEffect(Rune.Golden)) basicMultiplier += ReloadMult_GoldenRune;
+            if (PlayerHasEffect(Rune.Black, out RuneEffect runeEffect)) basicMultiplier += ReloadMult_BlackRune;
+            if (PlayerHasEffect(Rune.Golden, out RuneEffect runeEffect2)) basicMultiplier += ReloadMult_GoldenRune;
             return basicMultiplier;
         }
 
-        bool PlayerHasEffect(Rune rune)
+        bool PlayerHasEffect(Rune rune, out RuneEffect runeEffect)
         {
-            foreach(var a in activeRuneEffects)
-                if (a.assignedRune == rune) return true;
+            foreach (var a in activeRuneEffects)
+                if (a.assignedRune == rune) { runeEffect = a; return true; }
+            runeEffect = null;
             return false;
         }
 
-        void NotifyAllPlayersOnRuneExpiraion(Rune runeExpired)
+        public void AddRuneEffectOnPlayer(Rune rune)
         {
-            string message = $"{RUNE_EFFECT_EXPIRED}|{currentPlayer.client.userData.db_id}|{runeExpired}";
-            currentPlayer.playroom.SendMessageToAllPlayersInPlayroom(message, null, Util_Server.MessageProtocol.TCP);
+            if (PlayerHasEffect(rune, out RuneEffect runeEffect))
+            {
+                // prolongue existing rune effect
+                runeEffect.assignedTime = RUNE_DURATION_SEC;
+                runeEffect.timeStarted = DateTime.Now;
+
+
+            }
+            else
+            {
+                // add comppletely new
+                runeEffect.assignedRune = rune;
+                runeEffect.assignedTime = RUNE_DURATION_SEC;
+                runeEffect.timeStarted = DateTime.Now;
+            }
         }
 
 
