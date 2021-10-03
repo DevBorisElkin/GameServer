@@ -23,7 +23,7 @@ namespace ServerCore
         public Map map = Map.DefaultMap;
         public MatchState matchState = MatchState.WaitingForPlayers;
 
-        PlayroomManager_Runes runesManager;
+        public PlayroomManager_Runes runesManager;
 
         public int PlayersCurrAmount
         {
@@ -94,6 +94,8 @@ namespace ServerCore
                     if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("none"))
                         continue;
                     Util_Server.SendMessageToClient(generatedString, a.client.ch, MessageProtocol.UDP);
+
+                    if (matchState == MatchState.InGame) a.modifiersManager.CheckRuneEffectsExpiration();
                 }
             }
 

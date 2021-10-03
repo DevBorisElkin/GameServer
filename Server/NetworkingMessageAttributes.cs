@@ -118,7 +118,7 @@ namespace ServerCore
         // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public const string PLAYROOMS_DATA_RESPONSE = "playrooms_data_response";
 
-        public static string[] MessagesFromClient_RelatedToPlayroom = new string[8]
+        public static string[] MessagesFromClient_RelatedToPlayroom = new string[9]
         {
             PLAYROOMS_DATA_REQUEST,
             ENTER_PLAY_ROOM,
@@ -127,7 +127,8 @@ namespace ServerCore
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
             SHOT_REQUEST,
             JUMP_REQUEST,
-            PLAYER_DIED
+            PLAYER_DIED,
+            RUNE_TRY_TO_PICK_UP
         };
         public static bool DoesMessageRelatedToPlayroomManager(string message)
         {
@@ -139,7 +140,7 @@ namespace ServerCore
         }
 
         // Messages that client receives from server, related to playroom action
-        public static string[] MessagesToClient_RelatedToPlayroom = new string[14]
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[17]
         {
             MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
@@ -154,7 +155,10 @@ namespace ServerCore
             MATCH_STARTED,
             MATCH_STARTED_FORCE_OVERRIDE_POSITION_AND_JUMPS,
             MATCH_TIME_REMAINING,
-            MATCH_FINISHED
+            MATCH_FINISHED,
+            RUNE_SPAWNED,
+            RUNE_PICKED_UP,
+            RUNE_EFFECT_EXPIRED
         };
         public static bool DoesMessageRelatedToOnlineGameManager(string message)
         {
@@ -256,13 +260,11 @@ namespace ServerCore
         // _______________________MATCH_STATE_AND_EVENTS_______________________
         // Messages related to the clients relating runes
 
+        // ________________ Messages FROM server _____________________
+
         //       code   spawnPos runeType  uniqueRudeId
         // "rune_spawned|0/0/0|Black|12"
         public const string RUNE_SPAWNED = "rune_spawned";
-
-        //  code|player_db_id|runeType|runeUniqueId
-        // "rune_try_to_pick_up|12|Black|5"
-        public const string RUNE_TRY_TO_PICK_UP = "rune_try_to_pick_up";
 
         //  code|runeUniqueId|player_db_id|runeType|nickOfGatherPlayer|60
         // "rune_picked_up|6|12|Black|BOBISCHE|durationInSeconds"
@@ -271,5 +273,11 @@ namespace ServerCore
         //  code|player_db_id|runeType
         // "rune_effect_expired|12|Black"
         public const string RUNE_EFFECT_EXPIRED = "rune_effect_expired";
+
+        // ________________ Messages TO server _____________________
+
+        //  code|player_db_id|runeType|runeUniqueId
+        // "rune_try_to_pick_up|12|Black|5"
+        public const string RUNE_TRY_TO_PICK_UP = "rune_try_to_pick_up";
     }
 }

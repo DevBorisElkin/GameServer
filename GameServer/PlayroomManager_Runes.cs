@@ -59,6 +59,7 @@ namespace ServerCore
             RuneSpawn chosenRuneSpawn = GetRandomRuneSpawn();
             chosenRuneSpawn.currentRune = new RuneInstance(GetRandomRuneType(), newRuneId);
             NotifyAllPlayersOnNewSpawnedRune(assignedPlayroom, chosenRuneSpawn.position, chosenRuneSpawn.currentRune.rune, newRuneId);
+            Console.WriteLine($"[{DateTime.Now}] Rune spawned. [{chosenRuneSpawn.currentRune.rune}]");
         }
 
         public int GetUniqueNewRuneId()

@@ -233,6 +233,13 @@ namespace EntryPoint
                             client.player.PlayerDied(message);
                         }
                     }
+                    else if (message.StartsWith(RUNE_TRY_TO_PICK_UP))
+                    {
+                        if (client.player != null && client.player.playroom != null)
+                        {
+                            client.player.PlayerTriesToPickUpRune(message);
+                        }
+                    }
                 }
                 catch (Exception e)
                 {

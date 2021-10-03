@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
-using System.Text;
 using static ServerCore.Util_Server;
 using static ServerCore.NetworkingMessageAttributes;
 using static ServerCore.ClientHandler;
@@ -140,6 +139,26 @@ namespace ServerCore
             revivePlayer = null;
             revivePlayer = new Task(RevivePlayer);
             revivePlayer.Start();
+        }
+
+        //  code|player_db_id|runeType|runeUniqueId
+        // "rune_try_to_pick_up|12|Black|5"
+        //public const string RUNE_TRY_TO_PICK_UP = "rune_try_to_pick_up";
+        public void PlayerTriesToPickUpRune(string message)
+        {
+            if (!isAlive) return;
+            try
+            {
+                string[] substrings = message.Split("|");
+                int playerDbId = Int32.Parse(substrings[1]);
+                if (playerDbId != client.userData.db_id) Console.WriteLine($"[{DateTime.Now}][PLAYER_ERROR] OnPickUpRune_message -> " +
+                    $"Player db.id. not equal what's in the message [{client.userData.db_id}][{playerDbId}]");
+                Enum.TryParse(substrings[2], out Rune runeType);
+                int runeId = Int32.Parse(substrings[3]);
+
+                playroom.runesManager.PlayerTriesToPickUpRune(runeId, this);
+            }
+            catch (Exception e) { Console.WriteLine(e); }
         }
 
         Task revivePlayer;
