@@ -58,6 +58,7 @@ namespace ServerCore
 
             playersInPlayroom = new List<Player>();
 
+            runesManager = new PlayroomManager_Runes();
             runesManager.Init(this);
         }
 

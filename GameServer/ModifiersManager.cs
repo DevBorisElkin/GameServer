@@ -46,15 +46,19 @@ namespace ServerCore
 
         public void CheckRuneEffectsExpiration()
         {
+            List<RuneEffect> runeEffectsToRemove = new List<RuneEffect>();
             foreach(var a in activeRuneEffects)
             {
                 if (a.IsExpired())
                 {
                     //rune effect has expired, notify all players and remove from list
                     NotifyAllPlayersOnRuneEffectExpiraion(currentPlayer, a.assignedRune);
-                    activeRuneEffects.Remove(a);
+                    runeEffectsToRemove.Add(a);
                 }
             }
+
+            foreach(var a in runeEffectsToRemove)
+                activeRuneEffects.Remove(a);
         }
 
         public float GetReloadTimeMultiplier()
@@ -84,9 +88,8 @@ namespace ServerCore
             else
             {
                 // add comppletely new
-                runeEffect.assignedRune = rune;
-                runeEffect.assignedTime = RUNE_DURATION_SEC;
-                runeEffect.timeStarted = DateTime.Now;
+                runeEffect = new RuneEffect(rune, DateTime.Now, RUNE_DURATION_SEC);
+                activeRuneEffects.Add(runeEffect);
             }
         }
 
