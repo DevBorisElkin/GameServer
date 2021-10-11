@@ -14,7 +14,7 @@ namespace ServerCore
     {
         Playroom assignedPlayroom;
         List<int> usedRuneIds;
-        List<RuneSpawn> runeSpawns;
+        public List<RuneSpawn> runeSpawns;
         Random random;
 
         public DateTime nextRuneSpawnInception;
@@ -44,14 +44,14 @@ namespace ServerCore
 
         public void Update()
         {
-            if(HasTimeReachedToSpawnNextRune() && HasFreeRuneSpawn())
+            if(HasTimeReachedToSpawnNextRune(out float totalTimeSpentForRuneSpawn, out float totalNextRuneSpawnPregeneratedTime) && HasFreeRuneSpawn())
             {
                 SetNextRuneSpawnTime();
-                SpawnRune();
+                SpawnRune(totalTimeSpentForRuneSpawn, totalNextRuneSpawnPregeneratedTime);
             }
         }
 
-        public void SpawnRune()
+        public void SpawnRune(float timeSpentForSpawn, float totalPregeneratedTime)
         {
             int newRuneId = GetUniqueNewRuneId();
             if (newRuneId == -1) return;
@@ -59,7 +59,7 @@ namespace ServerCore
             RuneSpawn chosenRuneSpawn = GetRandomRuneSpawn();
             chosenRuneSpawn.currentRune = new RuneInstance(GetRandomRuneType(), newRuneId);
             NotifyAllPlayersOnNewSpawnedRune(assignedPlayroom, chosenRuneSpawn.position, chosenRuneSpawn.currentRune.rune, newRuneId);
-            Console.WriteLine($"[{DateTime.Now}] Rune spawned. [{chosenRuneSpawn.currentRune.rune}]");
+            Console.WriteLine($"[{DateTime.Now}][Rune spawned]:[{chosenRuneSpawn.currentRune.rune}] totalSpawnTime: [{timeSpentForSpawn}], pregeneratedSpawnTime: [{totalPregeneratedTime}]");
         }
 
         public int GetUniqueNewRuneId()
@@ -89,11 +89,18 @@ namespace ServerCore
             nextRuneSpawnTime = random.Next((int)PlayroomManager.randomRuneSpawnTime.X, (int)PlayroomManager.randomRuneSpawnTime.Y);
         }
 
-        public bool HasTimeReachedToSpawnNextRune()
+        public bool HasTimeReachedToSpawnNextRune(out float timeSpentForRuneSpawn, out float totalRuneSpawnPregeneratedTime)
         {
+            timeSpentForRuneSpawn = 0f;
+
             var msSinceNextSpawnInceptionTime = (DateTime.Now - nextRuneSpawnInception).TotalMilliseconds;
             if (msSinceNextSpawnInceptionTime >= TimeSpan.FromSeconds(nextRuneSpawnTime).TotalMilliseconds)
+            {
+                timeSpentForRuneSpawn = (float) TimeSpan.FromMilliseconds(msSinceNextSpawnInceptionTime).TotalSeconds;
+                totalRuneSpawnPregeneratedTime = nextRuneSpawnTime;
                 return true;
+            }
+            totalRuneSpawnPregeneratedTime = 0;
             return false;
         }
 
@@ -163,6 +170,11 @@ namespace ServerCore
             {
                 this.position = position;
                 this.currentRune = currentRune;
+            }
+
+            public string PositionToString()
+            {
+                return $"{position.X}/{position.Y}/{position.Z}";
             }
         }
 

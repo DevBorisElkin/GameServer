@@ -90,13 +90,9 @@ namespace ServerCore
                 {
                     // jumps amount first
                     a.CheckAndAddJumps();
-
-                    string generatedString = GeneratePositionsDataOfAllPlayers(a);
-                    if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("none"))
-                        continue;
-                    Util_Server.SendMessageToClient(generatedString, a.client.ch, MessageProtocol.UDP);
-
                     if (matchState == MatchState.InGame) a.modifiersManager.CheckRuneEffectsExpiration();
+
+                    ManageOtherPlayersPositions(a);
                 }
             }
 
@@ -104,6 +100,15 @@ namespace ServerCore
             {
                 runesManager.Update();
             }
+        }
+
+        void ManageOtherPlayersPositions(Player a)
+        {
+            string generatedString = GeneratePositionsDataOfAllPlayers(a);
+            if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("none"))
+                return;
+            Util_Server.SendMessageToClient(generatedString, a.client.ch, MessageProtocol.UDP);
+
         }
 
         /// <summary>
@@ -145,9 +150,7 @@ namespace ServerCore
                 }
                 message = sb.ToString();
                 if (message.Equals(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|"))
-                {
-                    if (message.Equals(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|")) return "none";
-                }
+                    return "none";
             }
             catch (Exception e)
             {
@@ -338,5 +341,41 @@ namespace ServerCore
         }
 
         #endregion
+
+        //  code|rune_effect_data@rune_effect_data
+        // "rune_effects_info|player_db_id,runeType, runeType,runeType@player_db_id,runeType
+        public const string RUNE_EFFECTS_INFO = "rune_effects_info";
+        public string CurrentRuneEffectsToString(Player playerToIgnore = null)
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                int i = 0;
+                foreach (var player in playersInPlayroom)
+                {
+                    if (player == playerToIgnore) continue;
+                    int j = 0;
+                    if (i != 0) sb.Append("@");
+                    sb.Append($"{player.client.userData.db_id},");
+                    if (player.modifiersManager.activeRuneEffects.Count == 0)
+                    {
+                        sb.Append($"none");
+                    }
+                    else
+                    {
+                        foreach (var b in player.modifiersManager.activeRuneEffects)
+                        {
+                            if (j != 0) sb.Append(",");
+                            sb.Append($"{b.assignedRune}");
+                            j++;
+                        }
+                    }
+                    i++;
+                }
+                return sb.ToString();
+            }
+            catch (Exception e) { Console.WriteLine(e); }
+            return "none";
+        }
     }
 }

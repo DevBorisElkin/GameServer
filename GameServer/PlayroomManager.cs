@@ -171,6 +171,9 @@ namespace ServerCore
             Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.ch.ip}] requested to enter playroom [{room_id}] and his request was accepted");
             Util_Server.SendMessageToClient($"{CONFIRM_ENTER_PLAY_ROOM}|" +
                 $"{playroom.ToNetworkString(matchState)}|{scoresString}|{maxJumpsAmount}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}", client.ch);
+
+            Runes_MessagingManager.NotifyNewlyConnectedPlayerOfExistingRunes(client.player, playroom);
+            Runes_MessagingManager.NotifyNewlyConnectedPlayerOfPlayersRuneEffects(client.player, playroom);
         }
         public static void RequestFromClient_StorePlayerPositionAndRotation(Client client, Vector3 _position, Quaternion _rotation)
         {
