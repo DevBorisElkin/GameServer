@@ -37,6 +37,7 @@ namespace ServerCore
         // tries to retrieve the farthest position from all existing players
         // if there's 1 player, returns random spawn position
         // if there's 2-3 players, tries to get middle spawn point
+        // 'player to exclude' is to for whom we're getting new spawn position, so he'll be excluded from calculation
         public static Vector3 GetRandomSpawnPointByMap_FarthestPos(Map _map, Playroom activePlayroom, Player playerToExclude)
         {
             if (activePlayroom.playersInPlayroom.Count == 1) return GetRandomSpawnPointByMap(_map);

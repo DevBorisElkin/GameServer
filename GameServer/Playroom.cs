@@ -214,7 +214,12 @@ namespace ServerCore
         public void ManageMatchStart(Player toIgnore, out Vector3 playerToIgnoreSpawnPos)
         {
             playerToIgnoreSpawnPos = Vector3.Zero;
-            if (!matchState.Equals(MatchState.WaitingForPlayers)) { return; }
+            if (!matchState.Equals(MatchState.WaitingForPlayers)) 
+            {
+                // still need to assign newcoming player spawn position
+                playerToIgnoreSpawnPos = GetRandomSpawnPointByMap_FarthestPos(map, this, toIgnore);
+                return; 
+            }
 
             if (PlayersCurrAmount >= playersToStart)
             {
@@ -232,6 +237,7 @@ namespace ServerCore
                     {
                         toIgnore.position = newPosition;
                         playerToIgnoreSpawnPos = newPosition;
+                        //Console.WriteLine($"Found newcoming player. useRandomPositions:{useRandomPositions}, new position: {newPosition}");
                         continue;
                     }
 

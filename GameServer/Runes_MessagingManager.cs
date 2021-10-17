@@ -39,16 +39,19 @@ namespace ServerCore
             StringBuilder sb = new StringBuilder();
             sb.Append(RUNES_INFO + "|");
             int i = 0;
+            int runesCount = 0;
             foreach(var a in activePlayroom.runesManager.runeSpawns)
             {
                 if(a.currentRune != null)
                 {
+                    runesCount++;
                     if (i != 0) sb.Append("@");
                     sb.Append($"{a.PositionToString()},{a.currentRune.rune},{a.currentRune.runeUniqueId}");
                     i++;
                 }
             }
-            Util_Server.SendMessageToClient(sb.ToString(),player.client.ch, Util_Server.MessageProtocol.TCP);
+            if(runesCount > 0)
+                Util_Server.SendMessageToClient(sb.ToString(),player.client.ch, Util_Server.MessageProtocol.TCP);
         }
 
         public static void NotifyNewlyConnectedPlayerOfPlayersRuneEffects(Player player, Playroom activePlayroom)
