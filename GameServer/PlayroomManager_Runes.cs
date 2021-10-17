@@ -7,6 +7,7 @@ using ServerCore;
 using static ServerCore.ModifiersManager;
 using static ServerCore.PlayroomManager_MapData;
 using static ServerCore.Runes_MessagingManager;
+using static ServerCore.DataTypes;
 
 namespace ServerCore
 {

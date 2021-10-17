@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Numerics;
 using static ServerCore.NetworkingMessageAttributes;
 using static ServerCore.ModifiersManager;
-using System.Text;
 
 namespace ServerCore
 {
@@ -18,17 +17,17 @@ namespace ServerCore
 
 
         #region Outcoming Messages
-        public static void NotifyAllPlayersOnRuneEffectExpiraion(Player ownerOfExpiredRune, ModifiersManager.Rune runeExpired)
+        public static void NotifyAllPlayersOnRuneEffectExpiraion(Player ownerOfExpiredRune, DataTypes.Rune runeExpired)
         {
             string message = $"{RUNE_EFFECT_EXPIRED}|{ownerOfExpiredRune.client.userData.db_id}|{runeExpired}";
             ownerOfExpiredRune.playroom.SendMessageToAllPlayersInPlayroom(message, null, Util_Server.MessageProtocol.TCP);
         }
-        public static void NotifyAllPlayersOnNewSpawnedRune(Playroom activePlayroom, Vector3 runeSpawnPos, ModifiersManager.Rune runeType, int runeId)
+        public static void NotifyAllPlayersOnNewSpawnedRune(Playroom activePlayroom, Vector3 runeSpawnPos, DataTypes.Rune runeType, int runeId)
         {
             string message = $"{RUNE_SPAWNED}|{runeSpawnPos.X}/{runeSpawnPos.Y}/{runeSpawnPos.Z}|{runeType}|{runeId}";
             activePlayroom.SendMessageToAllPlayersInPlayroom(message, null, Util_Server.MessageProtocol.TCP);
         }
-        public static void NotifyAllPlayersOnPlayerPickingUpRune(int runeId, Player runePicker, ModifiersManager.Rune runeType)
+        public static void NotifyAllPlayersOnPlayerPickingUpRune(int runeId, Player runePicker, DataTypes.Rune runeType)
         {
             string message = $"{RUNE_PICKED_UP}|{runeId}|{runePicker.client.userData.db_id}|{runeType}|{runePicker.client.userData.nickname}|{ModifiersManager.RUNE_DURATION_SEC}";
             runePicker.playroom.SendMessageToAllPlayersInPlayroom(message, null, Util_Server.MessageProtocol.TCP);
@@ -36,7 +35,7 @@ namespace ServerCore
 
         public static void NotifyNewlyConnectedPlayerOfExistingRunes(Player player, Playroom activePlayroom)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new System.Text.StringBuilder();
             sb.Append(RUNES_INFO + "|");
             int i = 0;
             int runesCount = 0;

@@ -2,29 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using static ServerCore.NetworkingMessageAttributes;
 using static ServerCore.Runes_MessagingManager;
+using static ServerCore.DataTypes;
 
 namespace ServerCore
 {
     public class ModifiersManager
     {
         Player currentPlayer;
-        public enum Rune {
-            None = 0,
-            Black = 1, // projectile modifier
-            SpringGreen = 2, // movement modifier
-            DarkGreen = 3, // movement modifier
-            LightBlue = 4, // projectile modifier
-            Red = 5, // projectile modifier
-            Golden = 6, // attack modifier
-            RedViolet = 7, // attack modifier
-            Salmon = 8 // movement modifier
-        }
-
+        
         public const float RUNE_DURATION_SEC = 60f;
 
         public const float ReloadMult_BlackRune = 0.42f;
@@ -38,6 +27,7 @@ namespace ServerCore
             ResetModifiers();
         }
 
+        #region Modifiers basics
         // is called on entering playroom or on death
         public void ResetModifiers()
         {
@@ -59,14 +49,6 @@ namespace ServerCore
 
             foreach(var a in runeEffectsToRemove)
                 activeRuneEffects.Remove(a);
-        }
-
-        public float GetReloadTimeMultiplier()
-        {
-            float basicMultiplier = 1f;
-            if (PlayerHasEffect(Rune.Black, out RuneEffect runeEffect)) basicMultiplier += ReloadMult_BlackRune;
-            if (PlayerHasEffect(Rune.Golden, out RuneEffect runeEffect2)) basicMultiplier += ReloadMult_GoldenRune;
-            return basicMultiplier;
         }
 
         bool PlayerHasEffect(Rune rune, out RuneEffect runeEffect)
@@ -92,35 +74,38 @@ namespace ServerCore
                 activeRuneEffects.Add(runeEffect);
             }
         }
+        #endregion
 
+        #region Interactive part
 
-        public class RuneEffect
+        public float GetReloadTimeMultiplier()
         {
-            public Rune assignedRune;
-            public DateTime timeStarted;
-            public float assignedTime;
-
-            public RuneEffect(Rune assignedRune, DateTime timeStarted, float assignedTime)
-            {
-                this.assignedRune = assignedRune;
-                this.timeStarted = timeStarted;
-                this.assignedTime = assignedTime;
-            }
-
-            public bool IsExpired()
-            {
-                var msSinceRuneCountdownStarted = (DateTime.Now - timeStarted).TotalMilliseconds;
-                if (msSinceRuneCountdownStarted >= TimeSpan.FromSeconds(assignedTime).TotalMilliseconds) return true;
-                return false;
-            }
-
-            public float TimeLeftForTheEffect()
-            {
-                var secSinceRuneCountdownStarted = (DateTime.Now - timeStarted).TotalSeconds;
-                float remainingTime = assignedTime - (float)secSinceRuneCountdownStarted;
-                if (remainingTime < 0) remainingTime = 0;
-                return remainingTime;
-            }
+            float basicMultiplier = 1f;
+            if (PlayerHasEffect(Rune.Black, out RuneEffect runeEffect)) basicMultiplier += ReloadMult_BlackRune;
+            if (PlayerHasEffect(Rune.Golden, out RuneEffect runeEffect2)) basicMultiplier += ReloadMult_GoldenRune;
+            return basicMultiplier;
         }
+
+        public string ShotModifiersIntoString()
+        {
+            string onShotModifiers = "";
+
+            int counter = 0;
+            for (int i = 0; i < activeRuneEffects.Count; i++)
+            {
+                if (activeRuneEffects[i].assignedRune.Equals(Rune.Black) || activeRuneEffects[i].assignedRune.Equals(Rune.LightBlue) ||
+                    activeRuneEffects[i].assignedRune.Equals(Rune.Red))
+                {
+                    if (counter > 0) onShotModifiers += "/";
+                    onShotModifiers += activeRuneEffects[i].assignedRune.ToString();
+                    counter++;
+                }
+            }
+            if (string.IsNullOrEmpty(onShotModifiers)) onShotModifiers = "none";
+            return onShotModifiers;
+        }
+
+
+        #endregion
     }
 }

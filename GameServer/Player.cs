@@ -8,6 +8,7 @@ using static ServerCore.ClientHandler;
 using static ServerCore.PlayroomManager;
 using static ServerCore.PlayroomManager_MapData;
 using static ServerCore.ModifiersManager;
+using static ServerCore.DataTypes;
 using System.Threading.Tasks;
 using System.Threading;
 
@@ -60,7 +61,7 @@ namespace ServerCore
             if (!isAlive) return;
             var msSinceLastShotWasMade = (DateTime.Now - lastShotTime).TotalMilliseconds;
             
-            if (msSinceLastShotWasMade <= TimeSpan.FromSeconds(PlayroomManager.reloadTime).TotalMilliseconds) return; // basically he needs to wait for reload
+            if (msSinceLastShotWasMade <= TimeSpan.FromSeconds(PlayroomManager.reloadTime).TotalMilliseconds * modifiersManager.GetReloadTimeMultiplier()) return; // basically he needs to wait for reload
 
             lastShotTime = DateTime.Now;
 
@@ -78,9 +79,12 @@ namespace ServerCore
                 float.Parse(rotations[2], CultureInfo.InvariantCulture.NumberFormat),
                 0);
 
-            // code|posOfShootingPoint|rotationAtRequestTime|ipOfShootingPlayer
-            // "shot_result|123/45/87|543/34/1|198.0.0.126";
-            string msg = $"{SHOT_RESULT}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}|{client.userData.db_id}";
+            // message to players - shows shot data
+            // code|posOfShootingPoint|rotationAtRequestTime|dbIdOfShootingPlayer|activeRuneModifiers
+            // activeRuneModifiers: rune@rune@rune  or "none"
+            // "shot_result|123/45/87|543/34/1|13|Black/LightBlue/Red";
+            string msg = $"{SHOT_RESULT}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}" +
+                $"|{client.userData.db_id}|{modifiersManager.ShotModifiersIntoString()}";
             playroom.SendMessageToAllPlayersInPlayroom(msg, null, MessageProtocol.TCP);
         }
         public void CheckAndMakeJump()

@@ -201,8 +201,9 @@ namespace ServerCore
         public const string SHOT_REQUEST = "shot_request";
 
         // message to players - shows shot data
-        // code|posOfShootingPoint|rotationAtRequestTime|dbIdOfShootingPlayer
-        // "shot_result|123/45/87|543/34/1|13";
+        // code|posOfShootingPoint|rotationAtRequestTime|dbIdOfShootingPlayer|activeRuneModifiers
+        // activeRuneModifiers: rune@rune@rune  or "none"
+        // "shot_result|123/45/87|543/34/1|13|Black/LightBlue/Red";
         public const string SHOT_RESULT = "shot_result";
 
         // message to server - request to make a jump
@@ -289,6 +290,22 @@ namespace ServerCore
         //  code|player_db_id|runeType|runeUniqueId
         // "rune_try_to_pick_up|12|Black|5"
         public const string RUNE_TRY_TO_PICK_UP = "rune_try_to_pick_up";
+
+
+        // _______________________SERVER_CONSTANTS_AND_PARAMETERS_______________________
+        // Notifies players of current constants - related to cooldowns and different parameters of player stats, runes, etc.
+
+
+        // TODO will be done soon
+
+        public const string SERVER_CONSTANTS_AND_PARAMETERS = "server_constants_and_parameters";
+
+        // 1) basic move speed
+        // 2) basic rotation speed
+        // 3) basic jump force
+        // 4) basic jump force mode
+        // 5) 
+
 
     }
 }
