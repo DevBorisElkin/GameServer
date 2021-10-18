@@ -83,6 +83,7 @@ namespace ServerCore
             // code|posOfShootingPoint|rotationAtRequestTime|dbIdOfShootingPlayer|activeRuneModifiers
             // activeRuneModifiers: rune@rune@rune  or "none"
             // "shot_result|123/45/87|543/34/1|13|Black/LightBlue/Red";
+            
             string msg = $"{SHOT_RESULT}|{position.X}/{position.Y}/{position.Z}|{rotation.X}/{rotation.Y}/{rotation.Z}" +
                 $"|{client.userData.db_id}|{modifiersManager.ShotModifiersIntoString()}";
             playroom.SendMessageToAllPlayersInPlayroom(msg, null, MessageProtocol.TCP);

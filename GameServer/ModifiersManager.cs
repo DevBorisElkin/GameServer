@@ -94,7 +94,7 @@ namespace ServerCore
             for (int i = 0; i < activeRuneEffects.Count; i++)
             {
                 if (activeRuneEffects[i].assignedRune.Equals(Rune.Black) || activeRuneEffects[i].assignedRune.Equals(Rune.LightBlue) ||
-                    activeRuneEffects[i].assignedRune.Equals(Rune.Red))
+                    activeRuneEffects[i].assignedRune.Equals(Rune.Red) || activeRuneEffects[i].assignedRune.Equals(Rune.RedViolet))
                 {
                     if (counter > 0) onShotModifiers += "/";
                     onShotModifiers += activeRuneEffects[i].assignedRune.ToString();

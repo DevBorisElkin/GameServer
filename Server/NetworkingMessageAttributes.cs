@@ -203,7 +203,7 @@ namespace ServerCore
         // message to players - shows shot data
         // code|posOfShootingPoint|rotationAtRequestTime|dbIdOfShootingPlayer|activeRuneModifiers
         // activeRuneModifiers: rune@rune@rune  or "none"
-        // "shot_result|123/45/87|543/34/1|13|Black/LightBlue/Red";
+        // "shot_result|123/45/87|543/34/1|13|RedViolet/Black/LightBlue/Red";
         public const string SHOT_RESULT = "shot_result";
 
         // message to server - request to make a jump
