@@ -18,6 +18,7 @@ namespace ServerCore
 
         public const float ReloadMult_BlackRune = 0.42f;
         public const float ReloadMult_GoldenRune = -0.5f;
+        public const float ReloadMult_RedVioletRune = 1.25f;
 
         public List<RuneEffect> activeRuneEffects;
 
@@ -83,6 +84,7 @@ namespace ServerCore
             float basicMultiplier = 1f;
             if (PlayerHasEffect(Rune.Black, out RuneEffect runeEffect)) basicMultiplier += ReloadMult_BlackRune;
             if (PlayerHasEffect(Rune.Golden, out RuneEffect runeEffect2)) basicMultiplier += ReloadMult_GoldenRune;
+            if (PlayerHasEffect(Rune.RedViolet, out RuneEffect runeEffect3)) basicMultiplier += ReloadMult_RedVioletRune;
             return basicMultiplier;
         }
 

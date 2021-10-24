@@ -43,9 +43,20 @@ namespace ServerCore
 
         #region Spawn Rune
 
+        bool hadNoFreeSpawns;
         public void Update()
         {
-            if(HasTimeReachedToSpawnNextRune(out float totalTimeSpentForRuneSpawn, out float totalNextRuneSpawnPregeneratedTime) && HasFreeRuneSpawn())
+            bool hasFreeRuneSpawn = HasFreeRuneSpawn();
+            if(hasFreeRuneSpawn && hadNoFreeSpawns)
+            {
+                hadNoFreeSpawns = false;
+                SetNextRuneSpawnTime();
+                return;
+            }else if (!hasFreeRuneSpawn)
+            {
+                hadNoFreeSpawns = true;
+                return;
+            }else if (hasFreeRuneSpawn && HasTimeReachedToSpawnNextRune(out float totalTimeSpentForRuneSpawn, out float totalNextRuneSpawnPregeneratedTime))
             {
                 SetNextRuneSpawnTime();
                 SpawnRune(totalTimeSpentForRuneSpawn, totalNextRuneSpawnPregeneratedTime);

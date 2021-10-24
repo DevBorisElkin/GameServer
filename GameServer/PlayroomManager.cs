@@ -18,7 +18,8 @@ namespace ServerCore
         public const float jumpCooldownTime = 25f;
         public const int maxJumpsAmount = 5;
 
-        public static Vector2 randomRuneSpawnTime = new Vector2(20f, 85f);
+        //public static Vector2 randomRuneSpawnTime = new Vector2(20f, 85f);
+        public static Vector2 randomRuneSpawnTime = new Vector2(5f, 5f);
 
         public static void InitPlayroomManager()
         {
