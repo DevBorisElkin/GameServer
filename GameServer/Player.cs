@@ -106,24 +106,23 @@ namespace ServerCore
             }
         }
 
-        public void CheckAndAddJumps()
+        public void CheckAndAddJumps(int i = 1, bool forceAdd = false)
         {
             if (currentJumpsAmount >= maxJumpsAmount) return;
             if (!isRecoveringJump) return;
 
-
             var msSinceStartedRecoveringJump = (DateTime.Now - startedRecoveringJump).TotalMilliseconds;
 
-            if (msSinceStartedRecoveringJump >= TimeSpan.FromSeconds(PlayroomManager.jumpCooldownTime).TotalMilliseconds)
+            if (forceAdd || msSinceStartedRecoveringJump >= TimeSpan.FromSeconds(PlayroomManager.jumpCooldownTime).TotalMilliseconds)
             {
-                if(currentJumpsAmount + 1 >= maxJumpsAmount)
+                if(currentJumpsAmount + i >= maxJumpsAmount)
                 {
-                    currentJumpsAmount += 1;
+                    currentJumpsAmount = maxJumpsAmount;
                     isRecoveringJump = false;
                 }
                 else
                 {
-                    currentJumpsAmount += 1;
+                    currentJumpsAmount += i;
                     startedRecoveringJump = DateTime.Now;
                 }
                 //Console.WriteLine("Trying to send to client: " + $"{JUMP_AMOUNT}|{currentJumpsAmount}");
@@ -134,7 +133,9 @@ namespace ServerCore
         public void PlayerDied(string message)
         {
             isAlive = false;
-            
+
+            modifiersManager.ResetModifiers();
+
             ChangeScoresOnPlayerDied(message);
 
             currentJumpsAmount = maxJumpsAmount;

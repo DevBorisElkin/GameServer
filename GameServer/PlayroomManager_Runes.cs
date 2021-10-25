@@ -51,6 +51,7 @@ namespace ServerCore
             {
                 hadNoFreeSpawns = false;
                 SetNextRuneSpawnTime();
+                //Console.WriteLine("Free space for new rune has been found, resetting rune spawn cooldown and waiting for time to arrise");
                 return;
             }else if (!hasFreeRuneSpawn)
             {
@@ -147,11 +148,25 @@ namespace ServerCore
             {
                 if(DoesClientCloseEnoughToTheRune(player.position, a))
                 {
+                    AddRandomJumpsAmount_RuneReward(player);
+
                     player.modifiersManager.AddRuneEffectOnPlayer(a.currentRune.rune);
                     NotifyAllPlayersOnPlayerPickingUpRune(runeId, player, a.currentRune.rune);
                     RunePickedUp_ResetRuneSpawn(a);
                 }
             }
+        }
+
+        void AddRandomJumpsAmount_RuneReward(Player player)
+        {
+            int chanceToFillMax = random.Next(1, 101);
+            if(chanceToFillMax > 10)
+            {
+                int randomAmountOfBonusJumps = random.Next(PlayroomManager.minRandomAmountOfRuneJumps, PlayroomManager.maxRandomAmountOfRuneJumps + 1);
+                
+            }
+            else player.CheckAndAddJumps(PlayroomManager.maxJumpsAmount, true);
+
         }
 
         RuneSpawn DoesRuneWithIdExists(int runeId)
