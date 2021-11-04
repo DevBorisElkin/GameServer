@@ -147,14 +147,14 @@ namespace ServerCore
             revivePlayer.Start();
         }
 
-        // "player_got_hit|12|LightBlue@Red
-        public void PlayerReceivedDebuffs(string message)
+        // "player_got_hit|12|LightBlue
+        public void PlayerReceivedDebuff(string message)
         {
             string[] substrings = message.Split("|");
-            if (substrings.Length <= 2) return;
+            if (substrings.Length <= 2) { return; }
 
             int dbId = Int32.Parse(substrings[1]);
-            if (dbId != client.userData.db_id) return;
+            if (dbId != client.userData.db_id) { return; }
 
             SendMessageToAllClients(message, MessageProtocol.TCP);
         }

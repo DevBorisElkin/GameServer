@@ -129,7 +129,7 @@ namespace ServerCore
             JUMP_REQUEST,
             PLAYER_DIED,
             RUNE_TRY_TO_PICK_UP,
-            PLAYER_RECEIVED_DEBUFFS,
+            PLAYER_RECEIVED_DEBUFF,
             PLAYER_DEBUFF_ENDED
         };
         public static bool DoesMessageRelatedToPlayroomManager(string message)
@@ -163,7 +163,7 @@ namespace ServerCore
             RUNE_EFFECT_EXPIRED,
             RUNES_INFO,
             RUNE_EFFECTS_INFO,
-            PLAYER_RECEIVED_DEBUFFS,
+            PLAYER_RECEIVED_DEBUFF,
             PLAYER_DEBUFF_ENDED
         };
         public static bool DoesMessageRelatedToOnlineGameManager(string message)
@@ -246,9 +246,9 @@ namespace ServerCore
         public const string SPAWN_DEATH_PARTICLES = "sp_d_p";
 
         // additional message to all other players to help to create debuff particles
-        // code|playerWhoGotDebuffsDbId|LightBlue@Red
-        // "player_received_debuffs|12|LightBlue@Red
-        public const string PLAYER_RECEIVED_DEBUFFS = "player_received_debuffs";
+        // code|playerWhoGotDebuffsDbId|LightBlue
+        // "player_received_debuff|12|LightBlue
+        public const string PLAYER_RECEIVED_DEBUFF = "player_received_debuff";
 
         // additional message to all other players to help to cancel debuff particles
         // code|playerWhoGotDebuffsDbId|LightBlue

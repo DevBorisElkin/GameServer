@@ -240,11 +240,11 @@ namespace EntryPoint
                             client.player.PlayerTriesToPickUpRune(message);
                         }
                     }
-                    else if (message.StartsWith(PLAYER_RECEIVED_DEBUFFS) || message.StartsWith(PLAYER_DEBUFF_ENDED))
+                    else if (message.StartsWith(PLAYER_RECEIVED_DEBUFF) || message.StartsWith(PLAYER_DEBUFF_ENDED))
                     {
                         if (client.player != null && client.player.playroom != null)
                         {
-                            client.player.PlayerReceivedDebuffs(message);
+                            client.player.PlayerReceivedDebuff(message);
                         }
                     }
                 }
