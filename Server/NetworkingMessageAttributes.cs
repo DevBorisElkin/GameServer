@@ -118,7 +118,7 @@ namespace ServerCore
         // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public const string PLAYROOMS_DATA_RESPONSE = "playrooms_data_response";
 
-        public static string[] MessagesFromClient_RelatedToPlayroom = new string[9]
+        public static string[] MessagesFromClient_RelatedToPlayroom = new string[11]
         {
             PLAYROOMS_DATA_REQUEST,
             ENTER_PLAY_ROOM,
@@ -128,7 +128,9 @@ namespace ServerCore
             SHOT_REQUEST,
             JUMP_REQUEST,
             PLAYER_DIED,
-            RUNE_TRY_TO_PICK_UP
+            RUNE_TRY_TO_PICK_UP,
+            PLAYER_RECEIVED_DEBUFFS,
+            PLAYER_DEBUFF_ENDED
         };
         public static bool DoesMessageRelatedToPlayroomManager(string message)
         {
@@ -140,7 +142,7 @@ namespace ServerCore
         }
 
         // Messages that client receives from server, related to playroom action
-        public static string[] MessagesToClient_RelatedToPlayroom = new string[19]
+        public static string[] MessagesToClient_RelatedToPlayroom = new string[21]
         {
             MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM,
             CLIENT_DISCONNECTED_FROM_THE_PLAYROOM,
@@ -160,7 +162,9 @@ namespace ServerCore
             RUNE_PICKED_UP,
             RUNE_EFFECT_EXPIRED,
             RUNES_INFO,
-            RUNE_EFFECTS_INFO
+            RUNE_EFFECTS_INFO,
+            PLAYER_RECEIVED_DEBUFFS,
+            PLAYER_DEBUFF_ENDED
         };
         public static bool DoesMessageRelatedToOnlineGameManager(string message)
         {
@@ -240,6 +244,16 @@ namespace ServerCore
         // message to all players to spawn death particles
         // "sp_d_p|0/0/0|0/0/0
         public const string SPAWN_DEATH_PARTICLES = "sp_d_p";
+
+        // additional message to all other players to help to create debuff particles
+        // code|playerWhoGotDebuffsDbId|LightBlue@Red
+        // "player_received_debuffs|12|LightBlue@Red
+        public const string PLAYER_RECEIVED_DEBUFFS = "player_received_debuffs";
+
+        // additional message to all other players to help to cancel debuff particles
+        // code|playerWhoGotDebuffsDbId|LightBlue
+        // "player_debuff_ended|12|LightBlue
+        public const string PLAYER_DEBUFF_ENDED = "player_debuff_ended";
 
 
         // _______________________MATCH_STATE_AND_EVENTS_______________________

@@ -147,6 +147,18 @@ namespace ServerCore
             revivePlayer.Start();
         }
 
+        // "player_got_hit|12|LightBlue@Red
+        public void PlayerReceivedDebuffs(string message)
+        {
+            string[] substrings = message.Split("|");
+            if (substrings.Length <= 2) return;
+
+            int dbId = Int32.Parse(substrings[1]);
+            if (dbId != client.userData.db_id) return;
+
+            SendMessageToAllClients(message, MessageProtocol.TCP);
+        }
+
         //  code|player_db_id|runeType|runeUniqueId
         // "rune_try_to_pick_up|12|Black|5"
         //public const string RUNE_TRY_TO_PICK_UP = "rune_try_to_pick_up";
