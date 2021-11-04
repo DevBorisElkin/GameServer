@@ -148,15 +148,27 @@ namespace ServerCore
         }
 
         // "player_got_hit|12|LightBlue
-        public void PlayerReceivedDebuff(string message)
+        public void PlayerReceivedDebuff(string message) => DebuffRelatedMessage(message, true);
+        public void PlayeDebuffEnded(string message) => DebuffRelatedMessage(message, false);
+
+        void DebuffRelatedMessage(string message, bool receivedDebuff = true)
         {
-            string[] substrings = message.Split("|");
-            if (substrings.Length <= 2) { return; }
+            try
+            {
+                string addon = receivedDebuff ? PLAYER_RECEIVED_DEBUFF : PLAYER_DEBUFF_ENDED;
 
-            int dbId = Int32.Parse(substrings[1]);
-            if (dbId != client.userData.db_id) { return; }
+                string[] substrings = message.Split("|");
+                if (substrings.Length <= 2) { return; }
 
-            SendMessageToAllClients(message, MessageProtocol.TCP);
+                int dbId = Int32.Parse(substrings[1]);
+                Enum.TryParse(substrings[2], out Rune runeType);
+
+                if (dbId != client.userData.db_id) { return; }
+
+                string msg = $"{addon}|{client.userData.db_id}|{runeType}";
+                SendMessageToAllClients(msg, MessageProtocol.TCP);
+            }
+            catch (Exception e) { Console.WriteLine(e); }
         }
 
         //  code|player_db_id|runeType|runeUniqueId
