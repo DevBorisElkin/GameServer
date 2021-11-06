@@ -163,7 +163,8 @@ namespace ServerCore
             if(chanceToFillMax > 10)
             {
                 int randomAmountOfBonusJumps = random.Next(PlayroomManager.minRandomAmountOfRuneJumps, PlayroomManager.maxRandomAmountOfRuneJumps + 1);
-                
+                player.CheckAndAddJumps(randomAmountOfBonusJumps, true);
+
             }
             else player.CheckAndAddJumps(PlayroomManager.maxJumpsAmount, true);
 
