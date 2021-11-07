@@ -16,7 +16,8 @@ namespace DatabaseAccess
         #region Connect/Disconnect/Check Connection
         public static void Connect(bool reboot = false)
         {
-            string connectionString = File.ReadAllText(@"C:\MyProjectPasswords\MultiplayerGame_1\AccessToDataBase.txt");
+            //string connectionString = File.ReadAllText(@"C:\MyProjectPasswords\MultiplayerGame_1\AccessToDataBase.txt");
+            string connectionString = "datasource = database-1.ckalm6irnbov.eu-central-1.rds.amazonaws.com; port = 3306; username = admin; password = apobon135";
             mySqlConnection = new MySqlConnection(connectionString);
             mySqlConnection.Open();
 
