@@ -21,8 +21,8 @@ namespace ServerCore
         public const int minRandomAmountOfRuneJumps = 1;
         public const int maxRandomAmountOfRuneJumps = 3;
 
-        //public static Vector2 randomRuneSpawnTime = new Vector2(20f, 85f);
-        public static Vector2 randomRuneSpawnTime = new Vector2(5f, 5f);
+        public static Vector2 randomRuneSpawnTime = new Vector2(20f, 85f);
+        //public static Vector2 randomRuneSpawnTime = new Vector2(5f, 5f);
 
         public static void InitPlayroomManager()
         {

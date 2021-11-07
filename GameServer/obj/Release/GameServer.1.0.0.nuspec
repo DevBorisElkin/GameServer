@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>GameServer</id>
+    <version>1.0.0</version>
+    <authors>GameServer</authors>
+    <description>Package Description</description>
+    <dependencies>
+      <group targetFramework="net5.0">
+        <dependency id="DatabaseAccess" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="ServerCore" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\GameServer\bin\Release\net5.0\linux-x64\GameServer.dll" target="lib\net5.0\GameServer.dll" />
+  </files>
+</package>
