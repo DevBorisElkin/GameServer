@@ -71,7 +71,7 @@ namespace ServerCore
             {
                 if (a.ip.Equals(ip)) amount++;
             }
-            Console.WriteLine($"[Server]: Clients with such ip {ip} detected: {amount}");
+            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Clients with such ip {ip} detected: {amount}");
             return amount;
         }
 

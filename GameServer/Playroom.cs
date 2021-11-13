@@ -287,12 +287,11 @@ namespace ServerCore
         }
         void FinishMatch(MatchFinishReason finishReason)
         {
-            Console.WriteLine("Finish Match");
-            List<Player> winners = DefineWinnersOfTheMatch(finishReason);
+            List<Player> winners = DefineWinnersOfTheMatch(finishReason, out int maxKills);
             matchState = MatchState.Finished;
             if (finishReason.Equals(MatchFinishReason.Discarded) || winners == null || winners.Count == 0)
             {
-                Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]Finished match with id [{playroomID}], finish reason [{finishReason}], -> No winners");
+                Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]: Finished match with id [{playroomID}], finish reason [{finishReason}], -> No winners");
                 SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|none|none|{MatchResult.Discarded}", null, MessageProtocol.TCP);
             }
             else
@@ -305,12 +304,14 @@ namespace ServerCore
                     matchResult = MatchResult.Draw;
                     winnerDbId = "none";
                     winnerNickname = "none";
+                    Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]: Finished match with id [{playroomID}], match result [{matchResult}], max kills: [{maxKills}]");
                 }
                 else
                 {
                     matchResult = MatchResult.PlayerWon;
                     winnerDbId = winners[0].client.userData.db_id.ToString();
                     winnerNickname = winners[0].client.userData.nickname;
+                    Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]: Finished match with id [{playroomID}], match result [{matchResult}], winner [{winnerNickname}] max kills: [{maxKills}]");
                 }
                 SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|{winnerDbId}|{winnerNickname}|{matchResult}", null, MessageProtocol.TCP);
             }
@@ -319,8 +320,9 @@ namespace ServerCore
         }
 
         static int minKillsToCountAsVictory = 3;
-        List<Player> DefineWinnersOfTheMatch(MatchFinishReason finishReason)
+        List<Player> DefineWinnersOfTheMatch(MatchFinishReason finishReason, out int maxKills)
         {
+            maxKills = 0;
             if (finishReason.Equals(MatchFinishReason.Discarded)) return null;
 
             List<Player> winners = new List<Player>();
@@ -329,7 +331,8 @@ namespace ServerCore
             foreach(Player a in playersInPlayroom)
                 if (a.stats_kills > maxKillsInMatch) maxKillsInMatch = a.stats_kills;
 
-            if(maxKillsInMatch <= minKillsToCountAsVictory) return null;
+            maxKills = maxKillsInMatch;
+            if (maxKillsInMatch <= minKillsToCountAsVictory) return null;
 
             foreach (Player a in playersInPlayroom)
             {
