@@ -56,7 +56,8 @@ namespace ServerCore
                     if (!str.Equals(""))
                     {
                         lastConnectedConfirmed = DateTime.Now;
-                        Util_Server.OnMessageReceived(str, this, MessageProtocol.TCP);
+                        if(EchoCheckConnectedMessage_TCP(str, this))
+                            Util_Server.OnMessageReceived(str, this, MessageProtocol.TCP);
                     }
                     else if (str.Equals(""))
                     {
@@ -108,6 +109,7 @@ namespace ServerCore
 
             return builder.ToString();
         }
+
         public void SendMessageTcp(string message)
         {
             try

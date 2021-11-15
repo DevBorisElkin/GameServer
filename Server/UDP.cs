@@ -77,7 +77,8 @@ namespace ServerCore
                             ClientHandler client = TryToGetClientWithUdpEndPoint(remote as IPEndPoint);
                             if(client != null)
                             {
-                                OnMessageReceived(message, client, MessageProtocol.UDP);
+                                if (EchoCheckConnectedMessage_UDP(message, client))
+                                    OnMessageReceived(message, client, MessageProtocol.UDP);
                             }
                             else
                             {

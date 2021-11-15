@@ -326,5 +326,44 @@ namespace ServerCore
 
         public enum ReasonOfDeath { ByOtherPlayer, Suicide }
         public enum DeathDetails { FellOutOfMap, TouchedSpikes }
+
+
+        #region PING CHECK
+
+        // returns true if not belongs to check_connected
+        public static bool EchoCheckConnectedMessage_TCP(string message, ClientHandler ch)
+        {
+            if (!message.Contains(CHECK_CONNECTED)) return true;
+            try
+            {
+                string[] substrings = message.Split("|");
+                if (substrings.Length > 1)
+                {
+                    int msgId = Int32.Parse(substrings[1]);
+                    ch.SendMessageTcp($"{CHECK_CONNECTED_ECHO_TCP}|{msgId}");
+                }
+            }
+            catch (Exception e) { Console.WriteLine(e); }
+            return false;
+        }
+
+        // returns true if not belongs to check_connected
+        public static bool EchoCheckConnectedMessage_UDP(string message, ClientHandler ch)
+        {
+            if (!message.Contains(CHECK_CONNECTED)) return true;
+            try
+            {
+                string[] substrings = message.Split("|");
+                if (substrings.Length > 1)
+                {
+                    int msgId = Int32.Parse(substrings[1]);
+                    UDP.SendMessageUdp($"{CHECK_CONNECTED_ECHO_UDP}|{msgId}", ch);
+                }
+            }
+            catch (Exception e) { Console.WriteLine(e); }
+            return false;
+        }
+
+        #endregion
     }
 }

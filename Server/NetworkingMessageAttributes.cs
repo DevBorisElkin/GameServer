@@ -177,11 +177,13 @@ namespace ServerCore
         }
         // _______________________________________________________CONNECTION_CHECK________________________
 
-
-        // code for checking if player is connected
-        // example of message receiving on server to confirm
-        // "check_connected";
+        // 1) simple check connected message
+        // 2) echoed check connected message with id to check ping delay
+        // "check_connected
+        // "check_connected_echo|2";
         public const string CHECK_CONNECTED = "check_connected";
+        public const string CHECK_CONNECTED_ECHO_TCP = "check_connected_echo_tcp";
+        public const string CHECK_CONNECTED_ECHO_UDP = "check_connected_echo_udp";
 
         // code for checking if player is in playroom
         // example of message receiving on server to confirm
