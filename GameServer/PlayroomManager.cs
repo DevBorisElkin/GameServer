@@ -44,7 +44,7 @@ namespace ServerCore
                         {
                             if(a != null) a.ManageRoom();
                         }
-                        Thread.Sleep(50);
+                        Thread.Sleep(20);  // old was 50 [20 times per second], now 20 [50 times per second]
                     }
                     catch(Exception e)
                     {

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "vM9khiaCjvFoBvZtW5sH1vsbivmQqFRBl/QF5xxzAgPfFzQUQDdaFVV8g8wFcwTEsd39p0gxag5bl4D7+LBT0A==",
+  "dgSpecHash": "TZHB58rEsITKyt0bFh3mDVbXxUXv3OxcBQGfbb3lomwiSnGeAn6iqB2LG90fGAT3gQeuzS7187+ioQSqR1/7qg==",
   "success": true,
   "projectFilePath": "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\GameServer\\GameServer.csproj",
   "expectedPackageFiles": [
@@ -22,7 +22,9 @@
     "C:\\Users\\eafor\\.nuget\\packages\\system.security.permissions\\4.7.0\\system.security.permissions.4.7.0.nupkg.sha512",
     "C:\\Users\\eafor\\.nuget\\packages\\system.security.principal.windows\\4.7.0\\system.security.principal.windows.4.7.0.nupkg.sha512",
     "C:\\Users\\eafor\\.nuget\\packages\\system.text.encoding.codepages\\4.4.0\\system.text.encoding.codepages.4.4.0.nupkg.sha512",
-    "C:\\Users\\eafor\\.nuget\\packages\\system.windows.extensions\\4.7.0\\system.windows.extensions.4.7.0.nupkg.sha512"
+    "C:\\Users\\eafor\\.nuget\\packages\\system.windows.extensions\\4.7.0\\system.windows.extensions.4.7.0.nupkg.sha512",
+    "C:\\Users\\eafor\\.nuget\\packages\\microsoft.netcore.app.runtime.linux-x64\\5.0.8\\microsoft.netcore.app.runtime.linux-x64.5.0.8.nupkg.sha512",
+    "C:\\Users\\eafor\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.linux-x64\\5.0.8\\microsoft.aspnetcore.app.runtime.linux-x64.5.0.8.nupkg.sha512"
   ],
   "logs": []
 }

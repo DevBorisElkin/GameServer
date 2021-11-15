@@ -1,0 +1,11 @@
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\bin\Release\net5.0\linux-x64\ServerCore.deps.json
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\bin\Release\net5.0\linux-x64\ServerCore.dll
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\bin\Release\net5.0\linux-x64\ref\ServerCore.dll
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\bin\Release\net5.0\linux-x64\ServerCore.pdb
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Release\net5.0\linux-x64\ServerCore.GeneratedMSBuildEditorConfig.editorconfig
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Release\net5.0\linux-x64\ServerCore.AssemblyInfoInputs.cache
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Release\net5.0\linux-x64\ServerCore.AssemblyInfo.cs
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Release\net5.0\linux-x64\ServerCore.csproj.CoreCompileInputs.cache
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Release\net5.0\linux-x64\ServerCore.dll
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Release\net5.0\linux-x64\ref\ServerCore.dll
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\Server\obj\Release\net5.0\linux-x64\ServerCore.pdb
