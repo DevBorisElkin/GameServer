@@ -82,7 +82,22 @@ namespace ServerCore
                             else
                             {
                                 Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: couldn't find client with given IPEndPoint");
-
+                                if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
+                                {
+                                    try
+                                    {
+                                        string[] substrings = message.Split("|");
+                                        int localId = Int32.Parse(substrings[3]);
+                                        ClientHandler client_init = TryToGetClientWithId(localId);
+                                        if (client_init != null)
+                                        {
+                                            IPEndPoint _remoteIp = remote as IPEndPoint;
+                                            client_init.udpEndPoint = _remoteIp;
+                                            Console.WriteLine($"Reinitialized UPD end point for client with local id {localId} ip: {client_init.ip}");
+                                        }
+                                    }
+                                    catch (Exception e) { Console.WriteLine(e); }
+                                }
                             }
                         }
                     }

@@ -94,9 +94,10 @@ namespace ServerCore
         public const string CLIENT_DISCONNECTED_FROM_THE_PLAYROOM = "client_disconnected_from_playroom";
 
         // message from client to server about client position and rotation
+        // it's the only incoming data sent by UDP so local id is to identify client in case UDP point changes
         // example of message
-        //         the code, coordinates, rotation
-        // "client_shares_playroom_position|0/0/0|0/0/0"
+        //         the code, coordinates, rotation, local_id
+        // "client_shares_playroom_position|0/0/0|0/0/0|12"
         public const string CLIENT_SHARES_PLAYROOM_POSITION = "client_shares_playroom_position";
 
         // message to all clients about other clients in playroom position and rotation
