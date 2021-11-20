@@ -92,7 +92,7 @@ namespace ServerCore
                     a.CheckAndAddJumps();
                     if (matchState == MatchState.InGame) a.modifiersManager.CheckRuneEffectsExpiration();
 
-                    ManageOtherPlayersPositions(a);
+                    ManagePlayersPositions(a);
                 }
             }
 
@@ -102,13 +102,13 @@ namespace ServerCore
             }
         }
 
-        void ManageOtherPlayersPositions(Player a)
+        void ManagePlayersPositions(Player a)
         {
-            string generatedString = GeneratePositionsDataOfAllPlayers(a);
+            string generatedString = GeneratePositionsDataOfAllPlayers();
             if (string.IsNullOrEmpty(generatedString) || generatedString.Equals("none"))
                 return;
-            Util_Server.SendMessageToClient(generatedString, a.client.ch, MessageProtocol.UDP);
 
+            Util_Server.SendMessageToClient(generatedString, a.client.ch, MessageProtocol.UDP);
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace ServerCore
 
         }
 
-        public string GeneratePositionsDataOfAllPlayers(Player excludePlayer)
+        public string GeneratePositionsDataOfAllPlayers(Player excludePlayer = null)
         {
             string message = "";
             try
@@ -161,7 +161,6 @@ namespace ServerCore
             {
                 message = message.Remove(lastIndexOfDog, 1);
             }
-            //Console.WriteLine($"Sending UDP message to all clients:\n{message}");
             return message;
         }
         public string ToNetworkString()
