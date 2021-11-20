@@ -91,7 +91,7 @@ namespace EntryPoint
 
             #region Parce Messages From Clients
 
-            public async static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
+            public async static void Connection_MessageReceived(string message, ClientHandler ch, MessageProtocol mp)
             {
                 Client assignedClient = GetClientByClientHandler(ch);
                 if (assignedClient == null) { Console.WriteLine($"[{DateTime.Now}]Error, ch is not assigned to client"); return; }
@@ -99,63 +99,58 @@ namespace EntryPoint
                 int clientDbId = -1;
                 if (assignedClient.userData != null) clientDbId = assignedClient.userData.db_id;
 
-                string[] parcedMessage = msg.Split(END_OF_FILE, StringSplitOptions.RemoveEmptyEntries);
-
-                foreach (string message in parcedMessage)
+                try
                 {
-                    try
+                    if (message.Contains(CHECK_CONNECTED)) return;
+
+                    // not showing CHECK_CONNECTED and SHARES_PLAYROOM because it spams in console
+                    if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION) && !message.Contains(SHOT_REQUEST) && !message.Contains(JUMP_REQUEST))
                     {
-                        if (message.Contains(CHECK_CONNECTED)) continue;
 
-                        // not showing CHECK_CONNECTED and SHARES_PLAYROOM because it spams in console
-                        if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION) && !message.Contains(SHOT_REQUEST) && !message.Contains(JUMP_REQUEST))
+                        Console.WriteLine($"[{DateTime.Now}][CLIENT_MESSAGE][{mp}][{clientDbId}][{ch.ip}]: {message} | {DateTime.Now}");
+                    }
+
+                    // _*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*
+
+                    if (assignedClient.clientAccessLevel.Equals(ClientAccessLevel.LowestLevel))
+                    {
+                        // accept only requests for authentication and registration
+                        if (message.Contains(LOG_IN))
                         {
-                            
-                            Console.WriteLine($"[{DateTime.Now}][CLIENT_MESSAGE][{mp}][{clientDbId}][{ch.ip}]: {message} | {DateTime.Now}");
-                        }
-
-                        // _*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*
-
-                        if (assignedClient.clientAccessLevel.Equals(ClientAccessLevel.LowestLevel))
-                        {
-                            // accept only requests for authentication and registration
-                            if (message.Contains(LOG_IN))
-                            {
-                                // here should do some magic with database
-                                string[] substrings = message.Split("|");
-                                await DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], assignedClient);
-
-                            }
-                            else if (message.Contains(REGISTER))
-                            {
-                                string[] substrings = message.Split("|");
-                                DatabaseBridge.TryToRegisterAsync(substrings[1], substrings[2], substrings[3], assignedClient);
-                            }
-                            else
-                            {
-                                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 1) It appears that client [{clientDbId}][{ch.ip}] " +
-                                    $"asks operation that he has no rights for, his request: {message}");
-                            }
+                            // here should do some magic with database
+                            string[] substrings = message.Split("|");
+                            await DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], assignedClient);
 
                         }
-                        else if (assignedClient.clientAccessLevel.Equals(ClientAccessLevel.Authenticated))
+                        else if (message.Contains(REGISTER))
                         {
-                            // accept all other requests
-                            if (DoesMessageRelatedToPlayroomManager(message))
-                            {
-                                ParceMessage_Playroom(message, assignedClient);
-                            }
-                            else
-                            {
-                                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 2) It appears that client [{clientDbId}][{ch.ip}] " +
-                                    $"asks operation that he has no rights for, his request: {message}");
-                            }
+                            string[] substrings = message.Split("|");
+                            DatabaseBridge.TryToRegisterAsync(substrings[1], substrings[2], substrings[3], assignedClient);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 1) It appears that client [{clientDbId}][{ch.ip}] " +
+                                $"asks operation that he has no rights for, his request: {message}");
+                        }
+
+                    }
+                    else if (assignedClient.clientAccessLevel.Equals(ClientAccessLevel.Authenticated))
+                    {
+                        // accept all other requests
+                        if (DoesMessageRelatedToPlayroomManager(message))
+                        {
+                            ParceMessage_Playroom(message, assignedClient);
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 2) It appears that client [{clientDbId}][{ch.ip}] " +
+                                $"asks operation that he has no rights for, his request: {message}");
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"[{DateTime.Now}]{e.Message} ||| {e.StackTrace} ||| message was:{message}");
-                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"[{DateTime.Now}]{e.Message} ||| {e.StackTrace} ||| message was:{message}");
                 }
             }
 

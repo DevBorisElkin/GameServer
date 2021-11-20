@@ -340,7 +340,7 @@ namespace ServerCore
                 if (substrings.Length > 1)
                 {
                     int msgId = Int32.Parse(substrings[1]);
-                    ch.SendMessageTcp($"{CHECK_CONNECTED_ECHO_TCP}|{msgId}");
+                    ch.SendMessageTcp($"{CHECK_CONNECTED_ECHO_TCP}|{msgId}{END_OF_FILE}");
                 }
             }
             catch (Exception e) { Console.WriteLine(e); }
@@ -357,7 +357,7 @@ namespace ServerCore
                 if (substrings.Length > 1)
                 {
                     int msgId = Int32.Parse(substrings[1]);
-                    UDP.SendMessageUdp($"{CHECK_CONNECTED_ECHO_UDP}|{msgId}", ch);
+                    UDP.SendMessageUdp($"{CHECK_CONNECTED_ECHO_UDP}|{msgId}{END_OF_FILE}", ch);
                 }
             }
             catch (Exception e) { Console.WriteLine(e); }

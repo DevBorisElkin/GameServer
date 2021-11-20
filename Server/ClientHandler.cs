@@ -53,19 +53,24 @@ namespace ServerCore
                 try
                 {
                     str = ReadLine2(tcpHandler, bytes);
-                    if (!str.Equals(""))
+
+                    string[] splitedMessages = str.Split($"{END_OF_FILE}");
+                    foreach(var message in splitedMessages)
                     {
-                        lastConnectedConfirmed = DateTime.Now;
-                        if(EchoCheckConnectedMessage_TCP(str, this))
-                            Util_Server.OnMessageReceived(str, this, MessageProtocol.TCP);
-                    }
-                    else if (str.Equals(""))
-                    {
-                        errorMessages++;
-                        if (errorMessages > 25)
+                        if (!message.Equals(""))
                         {
-                            ShutDownClient(1);
-                            break;
+                            lastConnectedConfirmed = DateTime.Now;
+                            if (EchoCheckConnectedMessage_TCP(message, this))
+                                Util_Server.OnMessageReceived(message, this, MessageProtocol.TCP);
+                        }
+                        else if (message.Equals(""))
+                        {
+                            errorMessages++;
+                            if (errorMessages > 25)
+                            {
+                                ShutDownClient(1);
+                                break;
+                            }
                         }
                     }
                 }

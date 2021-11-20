@@ -55,7 +55,7 @@ namespace ServerCore
                         int clientId = Util_Server.GetFirstFreeId();
                         ClientHandler client = new ClientHandler(handler, clientId);
                         AddClient(client, clientId);
-                        SendMessageToClient($"{ON_CONNECTION_ESTABLISHED}|{clientId}", client, MessageProtocol.TCP);
+                        SendMessageToClient($"{ON_CONNECTION_ESTABLISHED}|{clientId}{END_OF_FILE}", client, MessageProtocol.TCP);
                     }
                     else
                     {

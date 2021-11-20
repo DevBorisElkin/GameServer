@@ -52,52 +52,57 @@ namespace ServerCore
                         }
                         while (listenSocketUdp.Available > 0);
 
-                        string message = builder.ToString();
-                        if (message.StartsWith(INIT_UDP))
+                        string msg = builder.ToString();
+
+                        string[] splitedMessages = msg.Split($"{END_OF_FILE}");
+                        foreach (var message in splitedMessages)
                         {
-                            string[] substrings = message.Split("|");
-                            int clientIdInClientsList = Int32.Parse(substrings[1]);
-                            ClientHandler client = TryToGetClientWithId(clientIdInClientsList);
-                            if(client != null)
+                            if (message.StartsWith(INIT_UDP))
                             {
-                                if(client.udpEndPoint == null)
+                                string[] substrings = message.Split("|");
+                                int clientIdInClientsList = Int32.Parse(substrings[1]);
+                                ClientHandler client = TryToGetClientWithId(clientIdInClientsList);
+                                if (client != null)
                                 {
-                                    IPEndPoint _remoteIp = remote as IPEndPoint;
-                                    client.udpEndPoint = _remoteIp;
+                                    if (client.udpEndPoint == null)
+                                    {
+                                        IPEndPoint _remoteIp = remote as IPEndPoint;
+                                        client.udpEndPoint = _remoteIp;
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: couldn't initialize udp end point for client with local id [{clientIdInClientsList}]");
+                                    continue;
                                 }
                             }
                             else
                             {
-                                Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: couldn't initialize udp end point for client with local id [{clientIdInClientsList}]");
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            ClientHandler client = TryToGetClientWithUdpEndPoint(remote as IPEndPoint);
-                            if(client != null)
-                            {
-                                if (EchoCheckConnectedMessage_UDP(message, client))
-                                    OnMessageReceived(message, client, MessageProtocol.UDP);
-                            }
-                            else
-                            {
-                                Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: couldn't find client with given IPEndPoint");
-                                if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
+                                ClientHandler client = TryToGetClientWithUdpEndPoint(remote as IPEndPoint);
+                                if (client != null)
                                 {
-                                    try
+                                    if (EchoCheckConnectedMessage_UDP(message, client))
+                                        OnMessageReceived(message, client, MessageProtocol.UDP);
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"[SERVER_MESSAGE][{DateTime.Now}]: couldn't find client with given IPEndPoint");
+                                    if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
                                     {
-                                        string[] substrings = message.Split("|");
-                                        int localId = Int32.Parse(substrings[3]);
-                                        ClientHandler client_init = TryToGetClientWithId(localId);
-                                        if (client_init != null)
+                                        try
                                         {
-                                            IPEndPoint _remoteIp = remote as IPEndPoint;
-                                            client_init.udpEndPoint = _remoteIp;
-                                            Console.WriteLine($"Reinitialized UPD end point for client with local id {localId} ip: {client_init.ip}");
+                                            string[] substrings = message.Split("|");
+                                            int localId = Int32.Parse(substrings[3]);
+                                            ClientHandler client_init = TryToGetClientWithId(localId);
+                                            if (client_init != null)
+                                            {
+                                                IPEndPoint _remoteIp = remote as IPEndPoint;
+                                                client_init.udpEndPoint = _remoteIp;
+                                                Console.WriteLine($"Reinitialized UPD end point for client with local id {localId} ip: {client_init.ip}");
+                                            }
                                         }
+                                        catch (Exception e) { Console.WriteLine(e); }
                                     }
-                                    catch (Exception e) { Console.WriteLine(e); }
                                 }
                             }
                         }
