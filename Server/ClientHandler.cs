@@ -54,6 +54,11 @@ namespace ServerCore
                 {
                     str = ReadLine2(tcpHandler, bytes);
 
+                    //Console.WriteLine($"[TCP] Received complete message: [{str}]");
+
+                    if (str.EndsWith($"{END_OF_FILE}"))
+                        str = str.Substring(0, str.LastIndexOf($"{END_OF_FILE}"));
+
                     string[] splitedMessages = str.Split($"{END_OF_FILE}");
                     foreach(var message in splitedMessages)
                     {

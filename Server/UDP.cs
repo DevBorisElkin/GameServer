@@ -54,6 +54,11 @@ namespace ServerCore
 
                         string msg = builder.ToString();
 
+                        //Console.WriteLine($"[UDP] Received complete message: [{msg}]");
+
+                        if (msg.EndsWith($"{END_OF_FILE}"))
+                            msg = msg.Substring(0, msg.LastIndexOf($"{END_OF_FILE}"));
+
                         string[] splitedMessages = msg.Split($"{END_OF_FILE}");
                         foreach (var message in splitedMessages)
                         {
