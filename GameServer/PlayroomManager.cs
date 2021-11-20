@@ -6,7 +6,8 @@ using static ServerCore.NetworkingMessageAttributes;
 using System.Collections.Generic;
 using System.Numerics;
 using static ServerCore.PlayroomManager_MapData;
-using static ServerCore.Util_Server;
+using static ServerCore.DataTypes;
+using System.Linq;
 
 namespace ServerCore
 {
@@ -43,13 +44,13 @@ namespace ServerCore
                     {
                         foreach (var a in playrooms)
                         {
-                            if(a != null) a.ManageRoom();
+                            if (a != null) a.ManageRoom();
                         }
                         Thread.Sleep(20);  // old was 50 [20 times per second], now 20 [50 times per second]
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
-                        Console.WriteLine($"[{DateTime.Now}] " +e.ToString());
+                        Console.WriteLine($"[{DateTime.Now}] " + e.ToString());
                     }
                 }
                 Thread.Sleep(500);
@@ -69,7 +70,7 @@ namespace ServerCore
                 }
                 Util_Server.SendMessageToClient(result, client.ch);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"[{DateTime.Now}] " + e.ToString());
             }
@@ -111,7 +112,7 @@ namespace ServerCore
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|'Max players' can't be less than 'players to start the match'", client.ch);
                 return;
             }
-            if (_playersToStart < 2||_playersToStart > 10 || _killsToFinish < 5 || _killsToFinish > 50 || _timeOfMatch < 3 || _timeOfMatch > 30)
+            if (_playersToStart < 2 || _playersToStart > 10 || _killsToFinish < 5 || _killsToFinish > 50 || _timeOfMatch < 3 || _timeOfMatch > 30)
             {
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Wrong parameters in additional settings", client.ch);
                 return;
@@ -125,7 +126,7 @@ namespace ServerCore
             int playroomID = GenerateRandomIdForPlayroom();
             Playroom playroom = new Playroom(playroomID, _name, _isPublic, _password, _map, _maxPlayers, _playersToStart, _killsToFinish, _timeOfMatch);
             client.player = new Player(client, Vector3.Zero);
-            
+
             string scoresString = playroom.AddPlayer(client.player, out Vector3 fakeSpawnPos);
             playrooms.Add(playroom);
             Vector3 spawnPos = GetRandomSpawnPointByMap(_map);
@@ -140,7 +141,7 @@ namespace ServerCore
         public static void RequestFromClient_EnterPlayroom(int room_id, Client client, string roomPassword = "")
         {
             var playroom = FindPlayroomById(room_id);
-            if(playroom == null)
+            if (playroom == null)
             {
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Didn't find playroom with id {room_id}", client.ch);
                 return;
@@ -153,7 +154,7 @@ namespace ServerCore
                     return;
                 }
             }
-            if(playroom.PlayersCurrAmount + 1 > playroom.maxPlayers)
+            if (playroom.PlayersCurrAmount + 1 > playroom.maxPlayers)
             {
                 Util_Server.SendMessageToClient($"{REJECT_ENTER_PLAY_ROOM}|Playroom is full", client.ch);
                 return;
@@ -200,7 +201,7 @@ namespace ServerCore
                 Console.WriteLine($"[{DateTime.Now}][SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {client.player.playroom.playroomID} | {playroomId}");
 
             Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.userData.db_id}][{client.ch.ip}] notified about leaving playroom [{playroomId}]");
-            if(client.player.playroom.RemovePlayer(client)) ClosePlayroom(playroom);
+            if (client.player.playroom.RemovePlayer(client)) ClosePlayroom(playroom);
         }
         static int GenerateRandomIdForPlayroom()
         {
@@ -223,7 +224,7 @@ namespace ServerCore
 
         static Playroom FindPlayroomById(int id)
         {
-            foreach(Playroom a in playrooms)
+            foreach (Playroom a in playrooms)
             {
                 if (a.playroomID == id) return a;
             }
@@ -239,13 +240,13 @@ namespace ServerCore
             if (assignedClient.player.playroom == null) return;
 
             Playroom playroom = assignedClient.player.playroom;
-            if(assignedClient.player.playroom.RemovePlayer(assignedClient)) ClosePlayroom(playroom);
-            
+            if (assignedClient.player.playroom.RemovePlayer(assignedClient)) ClosePlayroom(playroom);
+
         }
-        
+
         public static void ClosePlayroom(Playroom room)
         {
-            foreach(Player a in room.playersInPlayroom)
+            foreach (Player a in room.playersInPlayroom)
             {
                 a.client.player = null;
             }
@@ -253,6 +254,34 @@ namespace ServerCore
 
             playrooms.Remove(room);
             room = null;
+        }
+
+        public static void ConsoleCommand_SpawnRune(int playroomId, DataTypes.Rune runeType)
+        {
+            try
+            {
+                List<Playroom> playroomsToExecuteCommand;
+                if (playroomId == -1)
+                {
+                    playroomsToExecuteCommand = playrooms.ToList();
+                }
+                else
+                {
+                    playroomsToExecuteCommand = new List<Playroom>();
+                    playroomsToExecuteCommand.Add(playrooms.Where(a => a.playroomID == playroomId).Single());
+                }
+
+                if (playroomsToExecuteCommand != null && playroomsToExecuteCommand.Count > 0)
+                {
+                    foreach (var a in playroomsToExecuteCommand)
+                    {
+                        a.runesManager.SpawnRune(0, 0, runeType);
+                    }
+                }
+                else
+                    Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MANAGER]: Can't spawn rune {runeType} because no existing playrooms with specified parameters were found.");
+            }
+            catch (Exception e) { Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MANAGER]: Can't spawn rune {runeType} because command contains errors."); };
         }
     }
 }

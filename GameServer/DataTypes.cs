@@ -10,6 +10,7 @@ namespace ServerCore
     {
         public enum Rune
         {
+            Random = -1,
             None = 0,
             Black = 1, // projectile modifier
             SpringGreen = 2, // movement modifier

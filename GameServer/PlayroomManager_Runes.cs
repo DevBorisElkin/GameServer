@@ -47,32 +47,55 @@ namespace ServerCore
         public void Update()
         {
             bool hasFreeRuneSpawn = HasFreeRuneSpawn();
-            if(hasFreeRuneSpawn && hadNoFreeSpawns)
+            if (hasFreeRuneSpawn && hadNoFreeSpawns)
             {
                 hadNoFreeSpawns = false;
                 SetNextRuneSpawnTime();
                 //Console.WriteLine("Free space for new rune has been found, resetting rune spawn cooldown and waiting for time to arrise");
                 return;
-            }else if (!hasFreeRuneSpawn)
+            }
+            else if (!hasFreeRuneSpawn)
             {
                 hadNoFreeSpawns = true;
                 return;
-            }else if (hasFreeRuneSpawn && HasTimeReachedToSpawnNextRune(out float totalTimeSpentForRuneSpawn, out float totalNextRuneSpawnPregeneratedTime))
+            }
+            else if (hasFreeRuneSpawn && HasTimeReachedToSpawnNextRune(out float totalTimeSpentForRuneSpawn, out float totalNextRuneSpawnPregeneratedTime))
             {
                 SetNextRuneSpawnTime();
                 SpawnRune(totalTimeSpentForRuneSpawn, totalNextRuneSpawnPregeneratedTime);
             }
         }
 
-        public void SpawnRune(float timeSpentForSpawn, float totalPregeneratedTime)
+        public void SpawnRune(float timeSpentForSpawn, float totalPregeneratedTime, Rune runeType = Rune.Random)
         {
             int newRuneId = GetUniqueNewRuneId();
             if (newRuneId == -1) return;
 
             RuneSpawn chosenRuneSpawn = GetRandomRuneSpawn();
-            chosenRuneSpawn.currentRune = new RuneInstance(GetRandomRuneType(), newRuneId);
+
+            if (chosenRuneSpawn.currentRune != null)
+            {
+                Console.WriteLine($"[{DateTime.Now}][RUNE_MANAGER]: Can't spawn rune, no free rune spawns");
+                return;
+            }
+            if (runeType == Rune.None)
+            {
+                Console.WriteLine($"[{DateTime.Now}][RUNE_MANAGER]: Can't spawn rune with rune type [{runeType}]");
+                return;
+            }
+
+            Rune selectedRuneType;
+            if (runeType == Rune.Random)
+                selectedRuneType = GetRandomRuneType();
+            else selectedRuneType = runeType;
+
+            chosenRuneSpawn.currentRune = new RuneInstance(selectedRuneType, newRuneId);
             NotifyAllPlayersOnNewSpawnedRune(assignedPlayroom, chosenRuneSpawn.position, chosenRuneSpawn.currentRune.rune, newRuneId);
-            Console.WriteLine($"[{DateTime.Now}][Rune spawned]:[{chosenRuneSpawn.currentRune.rune}] totalSpawnTime: [{timeSpentForSpawn}], pregeneratedSpawnTime: [{totalPregeneratedTime}]");
+
+            if (timeSpentForSpawn == 0 && totalPregeneratedTime == 0)
+                Console.WriteLine($"[{DateTime.Now}][Rune spawned]:[{chosenRuneSpawn.currentRune.rune}] by console command");
+            else
+                Console.WriteLine($"[{DateTime.Now}][Rune spawned]:[{chosenRuneSpawn.currentRune.rune}] totalSpawnTime: [{timeSpentForSpawn}], pregeneratedSpawnTime: [{totalPregeneratedTime}]");
         }
 
         public int GetUniqueNewRuneId()
@@ -109,7 +132,7 @@ namespace ServerCore
             var msSinceNextSpawnInceptionTime = (DateTime.Now - nextRuneSpawnInception).TotalMilliseconds;
             if (msSinceNextSpawnInceptionTime >= TimeSpan.FromSeconds(nextRuneSpawnTime).TotalMilliseconds)
             {
-                timeSpentForRuneSpawn = (float) TimeSpan.FromMilliseconds(msSinceNextSpawnInceptionTime).TotalSeconds;
+                timeSpentForRuneSpawn = (float)TimeSpan.FromMilliseconds(msSinceNextSpawnInceptionTime).TotalSeconds;
                 totalRuneSpawnPregeneratedTime = nextRuneSpawnTime;
                 return true;
             }
@@ -144,9 +167,9 @@ namespace ServerCore
         public void PlayerTriesToPickUpRune(int runeId, Player player)
         {
             var a = DoesRuneWithIdExists(runeId);
-            if(a != null)
+            if (a != null)
             {
-                if(DoesClientCloseEnoughToTheRune(player.position, a))
+                if (DoesClientCloseEnoughToTheRune(player.position, a))
                 {
                     AddRandomJumpsAmount_RuneReward(player);
 
@@ -160,7 +183,7 @@ namespace ServerCore
         void AddRandomJumpsAmount_RuneReward(Player player)
         {
             int chanceToFillMax = random.Next(1, 101);
-            if(chanceToFillMax > 10)
+            if (chanceToFillMax > 10)
             {
                 int randomAmountOfBonusJumps = random.Next(PlayroomManager.minRandomAmountOfRuneJumps, PlayroomManager.maxRandomAmountOfRuneJumps + 1);
                 player.CheckAndAddJumps(randomAmountOfBonusJumps, true);

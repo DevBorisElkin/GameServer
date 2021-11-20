@@ -9,14 +9,16 @@ using static ServerCore.NetworkingMessageAttributes;
 using static ServerCore.Server;
 using static ServerCore.PlayroomManager_MapData;
 using static ServerCore.Client;
+using static EntryPoint.ConsoleInput;
 
 namespace EntryPoint
 {
     class Program
     {
+        public static ServerSimpleImplementation server;
         static void Main(string[] args)
         {
-            new ServerSimpleImplementation();
+            server = new ServerSimpleImplementation();
         }
         // SIMPLE AND QUICK IMPLEMENTATION
         public class ServerSimpleImplementation
@@ -41,49 +43,17 @@ namespace EntryPoint
                 OnMessageReceivedEvent += Connection_MessageReceived;
             }
 
-            void ReadConsole()
-            {
-                string consoleString = Console.ReadLine();
 
-                if (consoleString != "")
-                {
-                    if (consoleString.StartsWith('-'))
-                    {
-                        if (consoleString.Equals("-clients"))
-                        {
-                            CustomDebug_ShowClients();
-                        }
-                        else if (consoleString.Equals("-keys"))
-                        {
-                            CustomDebug_ShowStoredIPs();
-                        }
-                    }
-                    else if (consoleString.StartsWith("tcp "))
-                    {
-                        consoleString = consoleString.Replace("tcp ", "");
-                        SendMessageToAllClients(consoleString);
-                    }
-                    else if (consoleString.StartsWith("udp "))
-                    {
-                        consoleString = consoleString.Replace("udp ", "");
-                        SendMessageToAllClients(consoleString, MessageProtocol.UDP);
-                    }
-                    else
-                    {
-                        SendMessageToAllClients(consoleString);
-                    }
-                }
-            }
 
             void ServerStarted() { Console.WriteLine($"[{DateTime.Now}][SERVER_LAUNCHED][{Server.ip}]"); }
             void ServerShutDown() { Console.WriteLine($"[{DateTime.Now}][SERVER_SHUTDOWN][{Server.ip}]"); }
-            void ClientConnected(ClientHandler clientHandler) 
-            { 
+            void ClientConnected(ClientHandler clientHandler)
+            {
                 Console.WriteLine($"[{DateTime.Now}][CLIENT_CONNECTED][{clientHandler.connectionID}][{clientHandler.ip}]");
                 connected_clients.Add(new Client(clientHandler));
 
             }
-            void ClientDisconnected(ClientHandler clientHandler, string error) 
+            void ClientDisconnected(ClientHandler clientHandler, string error)
             {
                 Console.WriteLine($"[{DateTime.Now}][CLIENT_DISCONNECTED][{clientHandler.connectionID}][{clientHandler.ip}]: {error}");
                 RemoveClient(clientHandler);
@@ -91,7 +61,7 @@ namespace EntryPoint
 
             #region Parce Messages From Clients
 
-            public async static void Connection_MessageReceived(string message, ClientHandler ch, MessageProtocol mp)
+            public async static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
             {
                 Client assignedClient = GetClientByClientHandler(ch);
                 if (assignedClient == null) { Console.WriteLine($"[{DateTime.Now}]Error, ch is not assigned to client"); return; }
@@ -99,58 +69,63 @@ namespace EntryPoint
                 int clientDbId = -1;
                 if (assignedClient.userData != null) clientDbId = assignedClient.userData.db_id;
 
-                try
+                string[] parcedMessage = msg.Split(END_OF_FILE, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string message in parcedMessage)
                 {
-                    if (message.Contains(CHECK_CONNECTED)) return;
-
-                    // not showing CHECK_CONNECTED and SHARES_PLAYROOM because it spams in console
-                    if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION) && !message.Contains(SHOT_REQUEST) && !message.Contains(JUMP_REQUEST))
+                    try
                     {
+                        if (message.Contains(CHECK_CONNECTED)) continue;
 
-                        Console.WriteLine($"[{DateTime.Now}][CLIENT_MESSAGE][{mp}][{clientDbId}][{ch.ip}]: {message} | {DateTime.Now}");
+                        // not showing CHECK_CONNECTED and SHARES_PLAYROOM because it spams in console
+                        if (!message.Contains(CLIENT_SHARES_PLAYROOM_POSITION) && !message.Contains(SHOT_REQUEST) && !message.Contains(JUMP_REQUEST))
+                        {
+
+                            Console.WriteLine($"[{DateTime.Now}][CLIENT_MESSAGE][{mp}][{clientDbId}][{ch.ip}]: {message} | {DateTime.Now}");
+                        }
+
+                        // _*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*
+
+                        if (assignedClient.clientAccessLevel.Equals(ClientAccessLevel.LowestLevel))
+                        {
+                            // accept only requests for authentication and registration
+                            if (message.Contains(LOG_IN))
+                            {
+                                // here should do some magic with database
+                                string[] substrings = message.Split("|");
+                                await DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], assignedClient);
+
+                            }
+                            else if (message.Contains(REGISTER))
+                            {
+                                string[] substrings = message.Split("|");
+                                DatabaseBridge.TryToRegisterAsync(substrings[1], substrings[2], substrings[3], assignedClient);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 1) It appears that client [{clientDbId}][{ch.ip}] " +
+                                    $"asks operation that he has no rights for, his request: {message}");
+                            }
+
+                        }
+                        else if (assignedClient.clientAccessLevel.Equals(ClientAccessLevel.Authenticated))
+                        {
+                            // accept all other requests
+                            if (DoesMessageRelatedToPlayroomManager(message))
+                            {
+                                ParceMessage_Playroom(message, assignedClient);
+                            }
+                            else
+                            {
+                                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 2) It appears that client [{clientDbId}][{ch.ip}] " +
+                                    $"asks operation that he has no rights for, his request: {message}");
+                            }
+                        }
                     }
-
-                    // _*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*
-
-                    if (assignedClient.clientAccessLevel.Equals(ClientAccessLevel.LowestLevel))
+                    catch (Exception e)
                     {
-                        // accept only requests for authentication and registration
-                        if (message.Contains(LOG_IN))
-                        {
-                            // here should do some magic with database
-                            string[] substrings = message.Split("|");
-                            await DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], assignedClient);
-
-                        }
-                        else if (message.Contains(REGISTER))
-                        {
-                            string[] substrings = message.Split("|");
-                            DatabaseBridge.TryToRegisterAsync(substrings[1], substrings[2], substrings[3], assignedClient);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 1) It appears that client [{clientDbId}][{ch.ip}] " +
-                                $"asks operation that he has no rights for, his request: {message}");
-                        }
-
+                        Console.WriteLine($"[{DateTime.Now}]{e.Message} ||| {e.StackTrace} ||| message was:{message}");
                     }
-                    else if (assignedClient.clientAccessLevel.Equals(ClientAccessLevel.Authenticated))
-                    {
-                        // accept all other requests
-                        if (DoesMessageRelatedToPlayroomManager(message))
-                        {
-                            ParceMessage_Playroom(message, assignedClient);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: 2) It appears that client [{clientDbId}][{ch.ip}] " +
-                                $"asks operation that he has no rights for, his request: {message}");
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"[{DateTime.Now}]{e.Message} ||| {e.StackTrace} ||| message was:{message}");
                 }
             }
 
@@ -169,7 +144,7 @@ namespace EntryPoint
                         bool.TryParse(substrings[2], out bool isPublic);
                         Enum.TryParse(substrings[4], out Map map);
 
-                        PlayroomManager.RequestFromClient_CreatePlayroom(client, substrings[1], isPublic, substrings[3], map, 
+                        PlayroomManager.RequestFromClient_CreatePlayroom(client, substrings[1], isPublic, substrings[3], map,
                          Int32.Parse(substrings[5]), Int32.Parse(substrings[6]), Int32.Parse(substrings[7]), Int32.Parse(substrings[8]));
                     }
                     else if (message.StartsWith(ENTER_PLAY_ROOM))
