@@ -185,6 +185,8 @@ namespace EntryPoint
                     }
                     else if (message.StartsWith(CLIENT_SHARES_PLAYROOM_POSITION))
                     {
+                        awd
+
                         string[] substrings = message.Split("|");
                         string[] positions = substrings[1].Split("/");
                         Vector3 position = new Vector3(
