@@ -23,6 +23,8 @@ namespace ServerCore
         public const int minRandomAmountOfRuneJumps = 1;
         public const int maxRandomAmountOfRuneJumps = 3;
 
+        public const int totalMatchStartTime = 8;
+
         public static Vector2 randomRuneSpawnTime = new Vector2(20f, 85f);
         //public static Vector2 randomRuneSpawnTime = new Vector2(5f, 5f);
 
@@ -167,7 +169,9 @@ namespace ServerCore
 
             client.player = new Player(client, Vector3.Zero);
             MatchState matchState;
-            if (playroom.IsThisNewPlayerWillStartTheMatch()) matchState = MatchState.InGame;
+            if (playroom.matchState == MatchState.InGame || playroom.matchState == MatchState.JustStarting)
+                matchState = playroom.matchState;
+            else if (playroom.IsThisNewPlayerWillStartTheMatch()) matchState = MatchState.JustStarting;
             else matchState = MatchState.WaitingForPlayers;
 
             string scoresString = playroom.AddPlayer(client.player, out Vector3 spawnPos);

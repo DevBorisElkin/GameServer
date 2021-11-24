@@ -59,6 +59,7 @@ namespace ServerCore
         public void CheckAndMakeShot(string message)
         {
             if (!isAlive) return;
+            if (playroom.matchState == MatchState.JustStarting || playroom.matchState == MatchState.Finished) return;
             var msSinceLastShotWasMade = (DateTime.Now - lastShotTime).TotalMilliseconds;
             
             if (msSinceLastShotWasMade <= TimeSpan.FromSeconds(PlayroomManager.reloadTime).TotalMilliseconds * modifiersManager.GetReloadTimeMultiplier()) return; // basically he needs to wait for reload
@@ -91,6 +92,7 @@ namespace ServerCore
         public void CheckAndMakeJump()
         {
             if (!isAlive) return;
+            if (playroom.matchState == MatchState.JustStarting || playroom.matchState == MatchState.Finished) return;
             if (currentJumpsAmount > 0)
             {
                 currentJumpsAmount--;

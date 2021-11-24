@@ -39,6 +39,7 @@ namespace ServerCore
         public int timeOfMatchInMinutes;
 
         public int totalTimeToFinishInSeconds;
+        int totalTimeToFinishInSecUnchanged;
 
         public List<Player> playersInPlayroom;
 
@@ -54,7 +55,8 @@ namespace ServerCore
             playersToStart = _minPlayersToStart;
             killsToFinish = _minKillsToFinish;
             timeOfMatchInMinutes = _timeOfMatch;
-            totalTimeToFinishInSeconds = TimeSpan.FromMinutes(timeOfMatchInMinutes).Seconds;
+            totalTimeToFinishInSeconds = (int)TimeSpan.FromMinutes(timeOfMatchInMinutes).TotalSeconds + totalMatchStartTime;
+            totalTimeToFinishInSecUnchanged = totalTimeToFinishInSeconds;
 
             playersInPlayroom = new List<Player>();
 
@@ -96,7 +98,7 @@ namespace ServerCore
                 }
             }
 
-            if(matchState == MatchState.InGame)
+            if(matchState == MatchState.InGame || matchState == MatchState.JustStarting)
             {
                 runesManager.Update();
             }
@@ -165,11 +167,11 @@ namespace ServerCore
         }
         public string ToNetworkString()
         {
-            return $"{playroomID}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{matchState}/{playersToStart}/{totalTimeToFinishInSeconds}/{killsToFinish}";
+            return $"{playroomID}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{matchState}/{playersToStart}/{totalTimeToFinishInSeconds}/{totalTimeToFinishInSecUnchanged}/{killsToFinish}";
         }
         public string ToNetworkString(MatchState overrideStateForString)
         {
-            return $"{playroomID}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{overrideStateForString}/{playersToStart}/{totalTimeToFinishInSeconds}/{killsToFinish}";
+            return $"{playroomID}/{name}/{isPublic}/empty_password/{map}/{PlayersCurrAmount}/{maxPlayers}/{overrideStateForString}/{playersToStart}/{totalTimeToFinishInSeconds}/{totalTimeToFinishInSecUnchanged}/{killsToFinish}";
         }
 
         public string OnScoresChange(Player playerToIgnore)
@@ -222,7 +224,7 @@ namespace ServerCore
 
             if (PlayersCurrAmount >= playersToStart)
             {
-                matchState = MatchState.InGame;
+                matchState = MatchState.JustStarting;
                 Vector3[] spawnPositions = GetRandomSpawnPointByMap_UnrepeatablePosition(map, playersInPlayroom.Count, out bool useRandomPositions);
 
                 for (int i = 0; i < playersInPlayroom.Count; i++)
@@ -250,7 +252,6 @@ namespace ServerCore
 
         void LaunchPlayroomTimer()
         {
-            totalTimeToFinishInSeconds = (int)TimeSpan.FromMinutes(timeOfMatchInMinutes).TotalSeconds;
             MatchTimer = new Task(ManageTimeLeft);
             MatchTimer.Start();
         }
@@ -258,7 +259,7 @@ namespace ServerCore
         public Task MatchTimer;
         void ManageTimeLeft()
         {
-            while (matchState.Equals(MatchState.InGame))
+            while (matchState.Equals(MatchState.InGame) || matchState.Equals(MatchState.JustStarting))
             {
                 totalTimeToFinishInSeconds--;
                 SendMessageToAllPlayersInPlayroom($"{MATCH_TIME_REMAINING}|{totalTimeToFinishInSeconds}", null, MessageProtocol.TCP);
@@ -266,6 +267,10 @@ namespace ServerCore
                 {
                     // finish
                     FinishMatch(MatchFinishReason.FinishedByTime);
+                }else if(matchState == MatchState.JustStarting)
+                {
+                    if (totalTimeToFinishInSecUnchanged - totalTimeToFinishInSeconds >= totalMatchStartTime)
+                        matchState = MatchState.InGame;
                 }
                 Thread.Sleep(1000);
             }

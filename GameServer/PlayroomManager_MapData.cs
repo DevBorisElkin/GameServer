@@ -13,7 +13,7 @@ namespace ServerCore
         #region Additional data
 
         public enum Map { DefaultMap }
-        public enum MatchState { WaitingForPlayers, InGame, Finished }
+        public enum MatchState { WaitingForPlayers, InGame, Finished, JustStarting }
         public enum MatchResult { PlayerWon, Draw, Discarded}
         public enum MatchFinishReason { FinishedByKills, FinishedByTime, Discarded }
 
