@@ -13,6 +13,7 @@ namespace EntryPoint
     public static class ConsoleInput
     {
         const string SPAWN_RUNE = "-spawn_rune";
+        const string SHOW_USER_DATA = "-show_user_data";
 
         /* COMMANDS EXAMPLES
          
@@ -26,6 +27,7 @@ namespace EntryPoint
         udp 'message'       // shows that 'message' should be sent by UDP
         anytext             // command will be sent to all clients by TCP (DEFAULT VALUE)
 
+        -show_user_data|1   // shows user data store in database by id of user
          */
         public static void ReadConsole()
         {
@@ -46,6 +48,9 @@ namespace EntryPoint
                     else if (consoleString.StartsWith(SPAWN_RUNE))
                     {
                         OnSpawnRuneCustomCommand(consoleString);
+                    }else if (consoleString.StartsWith(SHOW_USER_DATA))
+                    {
+                        OnShowUserDataCustomCommand(consoleString);
                     }
                 }
                 else if (consoleString.StartsWith("tcp "))
@@ -77,7 +82,22 @@ namespace EntryPoint
             }
             catch (Exception e)
             {
-                Console.WriteLine("[Console]: wrong command");
+                Console.WriteLine($"[Console]: wrong command [{command}]");
+            }
+        }
+
+        static void OnShowUserDataCustomCommand(string command)
+        {
+            try
+            {
+                string[] subcommands = command.Split("|");
+                int playerDbId = Int32.Parse(subcommands[1]);
+
+                DatabaseBridge.TryToWriteFullUserDataToConsole(playerDbId);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine($"[Console]: wrong command [{command}]");
             }
         }
     }

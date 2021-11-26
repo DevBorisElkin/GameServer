@@ -83,12 +83,13 @@ namespace DatabaseAccess
                     //MySqlDataReader reader = command.ExecuteReader();
                     var reader = await command.ExecuteReaderAsync();
                     
-
                     if (await reader.ReadAsync())
                     {
                         int id = Int32.Parse(reader["id"].ToString());
                         string nickname = reader["nickname"].ToString();
-                        UserData userData = new UserData(id, login, password, nickname);
+                        string accessRigtsStr = reader["access"].ToString();
+                        Enum.TryParse(accessRigtsStr, out AccessRights accessRights);
+                        UserData userData = new UserData(id, login, password, nickname, accessRights);
                         reader.Close();
                         return userData;
                     }
@@ -137,7 +138,7 @@ namespace DatabaseAccess
             try
             {
                 MySqlCommand command = new MySqlCommand($"UPDATE MainTable SET login = '{_new.login}', pass = '{_new.password}', " +
-                    $"nickname = '{_new.nickname}' where id = '{_old.db_id}'", mySqlConnection);
+                    $"nickname = '{_new.nickname}', access = '{_new.accessRights.ToString().ToLower()}' where id = '{_old.db_id}'", mySqlConnection);
                 rowsAffected = command.ExecuteNonQuery();
             }
             catch (Exception e)
@@ -157,7 +158,7 @@ namespace DatabaseAccess
             try
             {
                 MySqlCommand command = new MySqlCommand($"UPDATE MainTable SET login = '{_new.login}', pass = '{_new.password}', " +
-                    $"nickname = '{_new.nickname}' where id = '{_new.db_id}'", mySqlConnection);
+                    $"nickname = '{_new.nickname}', access = '{_new.accessRights.ToString().ToLower()}' where id = '{_new.db_id}'", mySqlConnection);
                 rowsAffected = command.ExecuteNonQuery();
             }
             catch (Exception e)
@@ -168,27 +169,47 @@ namespace DatabaseAccess
             return rowsAffected == 1;
         }
 
-        public static UserData TryToGetUserDataByLogin(string login)
+        public static UserData TryToGetUserDataByDataRequestType(object _userData)
         {
             try
             {
-                MySqlCommand findUser = new MySqlCommand($"SELECT * FROM MainTable WHERE login = '{login}'", mySqlConnection);
-                MySqlDataReader findUserReader = findUser.ExecuteReader();
+                UserData info = (UserData)_userData;
 
-                if (findUserReader.Read())
+                if (mySqlConnection.State == System.Data.ConnectionState.Open)
                 {
-                    int resultId = Int32.Parse(Convert.ToString(findUserReader["id"]));
-                    string resultLogin = Convert.ToString(findUserReader["login"]);
-                    string resultPassword = Convert.ToString(findUserReader["pass"]);
-                    string resultNickname = Convert.ToString(findUserReader["nickname"]);
+                    string keyValue = "-1";
+                    if (info.dataRequestType == DataRequestType.id)
+                        keyValue = info.db_id.ToString();
+                    else if (info.dataRequestType == DataRequestType.login)
+                        keyValue = info.login;
 
-                    findUserReader.Close();
-                    return new UserData(resultId, resultLogin, resultPassword, resultNickname);
+                    if(keyValue.Equals("-1")) return new UserData(RequestResult.Fail);
+
+                    MySqlCommand findUser = new MySqlCommand($"SELECT * FROM MainTable WHERE {info.dataRequestType} = '{keyValue}'", mySqlConnection);
+                    MySqlDataReader findUserReader = findUser.ExecuteReader();
+
+                    if (findUserReader.Read())
+                    {
+                        int resultId = Int32.Parse(Convert.ToString(findUserReader["id"]));
+                        string resultLogin = Convert.ToString(findUserReader["login"]);
+                        string resultPassword = Convert.ToString(findUserReader["pass"]);
+                        string resultNickname = Convert.ToString(findUserReader["nickname"]);
+                        string accessRigtsStr = Convert.ToString(findUserReader["access"]);
+                        Enum.TryParse(accessRigtsStr, out AccessRights accessRights);
+
+                        findUserReader.Close();
+                        return new UserData(resultId, resultLogin, resultPassword, resultNickname, accessRights);
+                    }
+                    else
+                    {
+                        findUserReader.Close();
+                        return new UserData(RequestResult.Fail_NoUserWithGivenLogin);
+                    }
                 }
                 else
                 {
-                    findUserReader.Close();
-                    return new UserData(RequestResult.Fail_NoUserWithGivenLogin);
+                    Console.WriteLine($"[{DateTime.Now}] Can't interact with Database because connection state is {mySqlConnection.State}");
+                    return new UserData(RequestResult.Fail_NoConnectionToDB);
                 }
             }
             catch (Exception e)
@@ -238,7 +259,8 @@ namespace DatabaseAccess
                     if (rowsAffected == 1)
                     {
                         // check that we actually added user and retrieve his full data
-                        UserData foundUser = TryToGetUserDataByLogin(info.login);
+                        UserData container = new UserData() { login = info.login, dataRequestType = DataRequestType.login};
+                        UserData foundUser = TryToGetUserDataByDataRequestType(container);
                         bool successfullyFoundUser = foundUser.requestResult.Equals(RequestResult.Success);
                         if (successfullyFoundUser)
                         {

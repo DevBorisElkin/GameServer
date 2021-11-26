@@ -91,5 +91,22 @@ namespace ServerCore
                 SendMessageToClient($"{REGISTER_RESULT}|{result.requestResult}", SendResponseBackTo.ch);
             }
         }
+        public static async void TryToWriteFullUserDataToConsole(int _dbId)
+        {
+            UserData userData = new UserData { db_id = _dbId, dataRequestType = DataRequestType.id };
+            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToGetUserDataByDataRequestType, userData);
+            await task;
+
+            UserData result = task.Result;
+
+            if (result.requestResult.Equals(RequestResult.Success))
+            {
+                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: found user data by given db_id[{_dbId}]: {result.ToString()}");
+            }
+            else
+            {
+                Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: couldn't find user data by given db_id[{_dbId}]:. reason:[{result.requestResult}]");
+            }
+        }
     }
 }
