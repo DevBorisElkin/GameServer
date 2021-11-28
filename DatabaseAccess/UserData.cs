@@ -41,7 +41,7 @@ namespace DatabaseAccess
         }
         public string ToNetworkString()
         {
-            return $"{db_id},{login},{password},{nickname},{ip}";
+            return $"{db_id},{login},{password},{nickname},{ip},{accessRights}";
         }
     }
     // here I will populate different DatabaseRequestResults
