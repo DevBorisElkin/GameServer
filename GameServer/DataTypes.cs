@@ -50,29 +50,17 @@ namespace ServerCore
                 return remainingTime;
             }
         }
-
-        // 1) basic move speed
-        // 2) basic rotation speed
-        // 3) basic jump force
-        // 4) basic jump force mode
-        // 5) 
-        public class ServerToPlayerSettings
+        public enum CustomRuneSpawn_Amount
         {
-            public float basicMoveSpeed;
-            public float basicRotationSpeed;
-            public float basicJumpForce;
-            public string basicJumpForceMode;
-
-            public float onProjectileHit_basicPushForce;
-
-            public float onLightBlueProjectileHit_movementMultiplier;
-            public float onLightBlueProjectileHit_rotationMultiplier;
-            public float onLightBlueProjectileHit_pushingPowerMultiplier;
-
-            public float onRedProjectileHit_visionMultiplier;
-
-            public float onLightGreenRune_MoveSpeedMultiplier;
-            public float onDarkGreenRune_JumpForceMultiplier;
+            One,
+            Three,
+            Five,
+            Max
+        }
+        public enum CustomRuneSpawn_Position
+        {
+            ClosestSpawn,
+            Random
         }
     }
 }

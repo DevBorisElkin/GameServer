@@ -119,7 +119,7 @@ namespace ServerCore
         // data: id/nameOfRoom/is_public/password/map/currentPlayers/maxPlayers
         public const string PLAYROOMS_DATA_RESPONSE = "playrooms_data_response";
 
-        public static string[] MessagesFromClient_RelatedToPlayroom = new string[11]
+        public static string[] MessagesFromClient_RelatedToPlayroom = new string[12]
         {
             PLAYROOMS_DATA_REQUEST,
             ENTER_PLAY_ROOM,
@@ -131,7 +131,8 @@ namespace ServerCore
             PLAYER_DIED,
             RUNE_TRY_TO_PICK_UP,
             PLAYER_RECEIVED_DEBUFF,
-            PLAYER_DEBUFF_ENDED
+            PLAYER_DEBUFF_ENDED,
+            ADMIN_COMMAND_SPAWN_RUNE
         };
         public static bool DoesMessageRelatedToPlayroomManager(string message)
         {
@@ -309,19 +310,14 @@ namespace ServerCore
         public const string RUNE_TRY_TO_PICK_UP = "rune_try_to_pick_up";
 
 
-        // _______________________SERVER_CONSTANTS_AND_PARAMETERS_______________________
-        // Notifies players of current constants - related to cooldowns and different parameters of player stats, runes, etc.
+        #region CommandsFromAdminPlayer
+        // commands from admin_player to server
+
+        // code|RuneType|AmountEnum|SpawnPosEnum|notifyOthers
+        public const string ADMIN_COMMAND_SPAWN_RUNE = "admin_command_spawn_rune";
 
 
-        // TODO will be done soon
-
-        public const string SERVER_CONSTANTS_AND_PARAMETERS = "server_constants_and_parameters";
-
-        // 1) basic move speed
-        // 2) basic rotation speed
-        // 3) basic jump force
-        // 4) basic jump force mode
-        // 5) 
+        #endregion
 
 
     }

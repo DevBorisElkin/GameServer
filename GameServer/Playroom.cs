@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Numerics;
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 using static ServerCore.PlayroomManager;
 using static ServerCore.PlayroomManager_MapData;
 using static ServerCore.PlayroomManager_Runes;
+using static ServerCore.DataTypes;
 
 namespace ServerCore
 {
@@ -140,7 +140,7 @@ namespace ServerCore
             string message = "";
             try
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new System.Text.StringBuilder();
                 // "players_positions_in_playroom|nickname,db_id,position,rotation@nickname,db_id,position,rotation@enc..."
                 sb.Append(MESSAGE_TO_ALL_CLIENTS_ABOUT_PLAYERS_DATA_IN_PLAYROOM + "|");
                 foreach (var player in playersInPlayroom)
@@ -362,7 +362,7 @@ namespace ServerCore
         {
             try
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new System.Text.StringBuilder();
                 int i = 0;
                 foreach (var player in playersInPlayroom)
                 {
@@ -390,5 +390,25 @@ namespace ServerCore
             catch (Exception e) { Console.WriteLine(e); }
             return "none";
         }
+
+        #region CustomCommandsFromAdminPlayer
+
+        // code|RuneType|AmountEnum|SpawnPosEnum|notifyOthers
+        public void AdminCommand_SpawnRunes(string message, Player invoker)
+        {
+            try
+            {
+                string[] substrings = message.Split("|");
+                Enum.TryParse(substrings[1], out DataTypes.Rune rune);
+                Enum.TryParse(substrings[2], out DataTypes.CustomRuneSpawn_Amount amount);
+                Enum.TryParse(substrings[3], out DataTypes.CustomRuneSpawn_Position spawnPosition);
+                Boolean.TryParse(substrings[4], out bool notifyOthers);
+
+                runesManager.SpawnRunes_AdminCommand(invoker, rune, amount, spawnPosition, notifyOthers);
+            }
+            catch (Exception e) { Console.WriteLine(e); }
+        }
+
+        #endregion
     }
 }

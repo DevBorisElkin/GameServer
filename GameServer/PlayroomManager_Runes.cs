@@ -98,6 +98,48 @@ namespace ServerCore
                 Console.WriteLine($"[{DateTime.Now}][Rune spawned]:[{chosenRuneSpawn.currentRune.rune}] totalSpawnTime: [{timeSpentForSpawn}], pregeneratedSpawnTime: [{totalPregeneratedTime}]");
         }
 
+        public void SpawnRunes_AdminCommand(Player invoker, Rune runeType, CustomRuneSpawn_Amount amount, CustomRuneSpawn_Position position, bool notifyOthers)
+        {
+            int IntAmount;
+            int freeSpawnsAmount = FreeSpawnsAmount();
+            if (amount == CustomRuneSpawn_Amount.Max)
+                IntAmount = FreeSpawnsAmount();
+            else
+            {
+                switch (amount)
+                {
+                    case CustomRuneSpawn_Amount.One: IntAmount = 1; break;
+                    case CustomRuneSpawn_Amount.Three: IntAmount = 3; break;
+                    case CustomRuneSpawn_Amount.Five: IntAmount = 5; break;
+                    default: IntAmount = 1; break;
+                }
+            }
+            if (IntAmount > freeSpawnsAmount) IntAmount = freeSpawnsAmount;
+            if (IntAmount == 0) { Console.WriteLine($"[AdminCommands]: Can't spawn rune, no free spawns, IntAmount[{IntAmount}] freeSpawnsAmount[{freeSpawnsAmount}]"); return; }
+
+            List<RuneSpawn> selectedRuneSpawns;
+            if(position == CustomRuneSpawn_Position.ClosestSpawn)
+                selectedRuneSpawns = GetClosestFreeRuneSpawnsToPlayer(invoker);
+            else selectedRuneSpawns = GetRandomFreeRuneSpawns();
+
+            if(selectedRuneSpawns.Count < IntAmount) { IntAmount = selectedRuneSpawns.Count; }
+            if (IntAmount == 0) { Console.WriteLine($"[AdminCommands]: Can't spawn rune, no free spawns, IntAmount[{IntAmount}] selectedRuneSpawns.Count[{selectedRuneSpawns.Count}]"); return; }
+
+            for (int i = 0; i < IntAmount; i++)
+            {
+                Rune selectedRuneType;
+                if (runeType == Rune.None) selectedRuneType = GetRandomRuneType();
+                else selectedRuneType = runeType;
+
+                int newRuneId = GetUniqueNewRuneId();
+                if (newRuneId == -1) return;
+
+                selectedRuneSpawns[i].currentRune = new RuneInstance(selectedRuneType, newRuneId);
+                NotifyAllPlayersOnNewSpawnedRune(assignedPlayroom, selectedRuneSpawns[i].position, selectedRuneSpawns[i].currentRune.rune, newRuneId);
+            }
+        }
+
+
         public int GetUniqueNewRuneId()
         {
             int runeId = 0;
@@ -146,6 +188,13 @@ namespace ServerCore
                 if (a.currentRune == null) return true;
             return false;
         }
+        public int FreeSpawnsAmount()
+        {
+            int amount = 0;
+            foreach (var a in runeSpawns)
+                if (a.currentRune == null) amount++;
+            return amount;
+        }
 
         public RuneSpawn GetRandomRuneSpawn()
         {
@@ -158,6 +207,19 @@ namespace ServerCore
             return chosenRuneSpawn;
         }
 
+        public List<RuneSpawn> GetClosestFreeRuneSpawnsToPlayer(Player invoker)
+        {
+            List<RuneSpawn> freeRuneSpawns = new List<RuneSpawn>();
+            foreach (var a in runeSpawns) if (a.currentRune == null) freeRuneSpawns.Add(a);
+            List<RuneSpawn> closestRuneSpawns = freeRuneSpawns.OrderBy(item => Vector3.Distance(invoker.position, item.position)).ToList();
+            return closestRuneSpawns;
+        }
+        public List<RuneSpawn> GetRandomFreeRuneSpawns()
+        {
+            List<RuneSpawn> freeRuneSpawns = new List<RuneSpawn>();
+            foreach (var a in runeSpawns) if (a.currentRune == null) freeRuneSpawns.Add(a);
+            return freeRuneSpawns;
+        }
         public Rune GetRandomRuneType() => (Rune)random.Next(1, 9);
 
 

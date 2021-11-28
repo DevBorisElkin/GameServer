@@ -223,6 +223,16 @@ namespace EntryPoint
                         {
                             client.player.PlayeDebuffEnded(message);
                         }
+                    }else if (message.StartsWith(ADMIN_COMMAND_SPAWN_RUNE))
+                    {
+                        if (client.player != null && client.player.playroom != null)
+                        {
+                            if(client.userData.accessRights.Equals(AccessRights.Admin) || client.userData.accessRights.Equals(AccessRights.SuperAdmin))
+                            {
+                                client.player.playroom.AdminCommand_SpawnRunes(message, client.player);
+                            }
+                            else Console.WriteLine($"[{DateTime.Now}][AdminCommands]: Will NOT execute command because user has no rights for it. Message[{message}]");
+                        }
                     }
                 }
                 catch (Exception e)
