@@ -10,3 +10,6 @@ C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAcces
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\obj\Release\net5.0\DatabaseAccess.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\obj\Release\net5.0\ref\DatabaseAccess.dll
 C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\obj\Release\net5.0\DatabaseAccess.pdb
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\bin\Release\net5.0\ServerCore.dll
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\bin\Release\net5.0\ServerCore.pdb
+C:\BORIS\Storage1\BORIS' FOLDER\programming\C#\AWS-test\GameServer\DatabaseAccess\obj\Release\net5.0\DatabaseAccess.csproj.CopyComplete

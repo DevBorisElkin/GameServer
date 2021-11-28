@@ -32,7 +32,11 @@
         "frameworks": {
           "net5.0": {
             "targetAlias": "net5.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\Server\\ServerCore.csproj": {
+                "projectPath": "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\Server\\ServerCore.csproj"
+              }
+            }
           }
         },
         "warningProperties": {

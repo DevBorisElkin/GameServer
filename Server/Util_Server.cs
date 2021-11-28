@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ServerCore
 {
@@ -89,6 +90,13 @@ namespace ServerCore
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[1];
             return ipAddress;
+        }
+
+        public static string FirstCharToUpper(string input)
+        {
+            if (String.IsNullOrEmpty(input))
+                throw new ArgumentException("ARGH!");
+            return input.First().ToString().ToUpper() + input.Substring(1);
         }
         #endregion
 

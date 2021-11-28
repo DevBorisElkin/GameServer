@@ -217,7 +217,8 @@
       },
       "DatabaseAccess/1.0.0": {
         "dependencies": {
-          "MySql.Data": "8.0.26"
+          "MySql.Data": "8.0.26",
+          "ServerCore": "1.0.0"
         },
         "runtime": {
           "DatabaseAccess.dll": {}

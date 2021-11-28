@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using ServerCore;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -88,7 +89,7 @@ namespace DatabaseAccess
                         int id = Int32.Parse(reader["id"].ToString());
                         string nickname = reader["nickname"].ToString();
                         string accessRigtsStr = reader["access"].ToString();
-                        Enum.TryParse(accessRigtsStr, out AccessRights accessRights);
+                        Enum.TryParse(Util_Server.FirstCharToUpper(accessRigtsStr), out AccessRights accessRights);
                         UserData userData = new UserData(id, login, password, nickname, accessRights);
                         reader.Close();
                         return userData;
@@ -195,7 +196,7 @@ namespace DatabaseAccess
                         string resultPassword = Convert.ToString(findUserReader["pass"]);
                         string resultNickname = Convert.ToString(findUserReader["nickname"]);
                         string accessRigtsStr = Convert.ToString(findUserReader["access"]);
-                        Enum.TryParse(accessRigtsStr, out AccessRights accessRights);
+                        Enum.TryParse(Util_Server.FirstCharToUpper(accessRigtsStr), out AccessRights accessRights);
 
                         findUserReader.Close();
                         return new UserData(resultId, resultLogin, resultPassword, resultNickname, accessRights);

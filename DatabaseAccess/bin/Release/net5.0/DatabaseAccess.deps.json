@@ -8,7 +8,8 @@
     ".NETCoreApp,Version=v5.0": {
       "DatabaseAccess/1.0.0": {
         "dependencies": {
-          "MySql.Data": "8.0.26"
+          "MySql.Data": "8.0.26",
+          "ServerCore": "1.0.0"
         },
         "runtime": {
           "DatabaseAccess.dll": {}
@@ -213,6 +214,11 @@
             "fileVersion": "4.700.19.56404"
           }
         }
+      },
+      "ServerCore/1.0.0": {
+        "runtime": {
+          "ServerCore.dll": {}
+        }
       }
     }
   },
@@ -354,6 +360,11 @@
       "sha512": "sha512-CeWTdRNfRaSh0pm2gDTJFwVaXfTq6Xwv/sA887iwPTneW7oMtMlpvDIO+U60+3GWTB7Aom6oQwv5VZVUhQRdPQ==",
       "path": "system.windows.extensions/4.7.0",
       "hashPath": "system.windows.extensions.4.7.0.nupkg.sha512"
+    },
+    "ServerCore/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }
