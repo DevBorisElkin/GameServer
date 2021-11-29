@@ -279,7 +279,7 @@ namespace ServerCore
                 {
                     foreach (var a in playroomsToExecuteCommand)
                     {
-                        a.runesManager.SpawnRune(0, 0, runeType);
+                        a.runesManager.SpawnRune_FromRunesManager(0, 0, runeType);
                     }
                 }
                 else

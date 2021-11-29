@@ -22,9 +22,9 @@ namespace ServerCore
             string message = $"{RUNE_EFFECT_EXPIRED}|{ownerOfExpiredRune.client.userData.db_id}|{runeExpired}";
             ownerOfExpiredRune.playroom.SendMessageToAllPlayersInPlayroom(message, null, Util_Server.MessageProtocol.TCP);
         }
-        public static void NotifyAllPlayersOnNewSpawnedRune(Playroom activePlayroom, Vector3 runeSpawnPos, DataTypes.Rune runeType, int runeId)
+        public static void NotifyAllPlayersOnNewSpawnedRune(Playroom activePlayroom, Vector3 runeSpawnPos, DataTypes.Rune runeType, int runeId, string dbIdOfInvoker = "none")
         {
-            string message = $"{RUNE_SPAWNED}|{runeSpawnPos.X}/{runeSpawnPos.Y}/{runeSpawnPos.Z}|{runeType}|{runeId}";
+            string message = $"{RUNE_SPAWNED}|{runeSpawnPos.X}/{runeSpawnPos.Y}/{runeSpawnPos.Z}|{runeType}|{runeId}|{dbIdOfInvoker}";
             activePlayroom.SendMessageToAllPlayersInPlayroom(message, null, Util_Server.MessageProtocol.TCP);
         }
         public static void NotifyAllPlayersOnPlayerPickingUpRune(int runeId, Player runePicker, DataTypes.Rune runeType)

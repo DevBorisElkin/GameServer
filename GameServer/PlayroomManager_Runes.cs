@@ -62,11 +62,11 @@ namespace ServerCore
             else if (hasFreeRuneSpawn && HasTimeReachedToSpawnNextRune(out float totalTimeSpentForRuneSpawn, out float totalNextRuneSpawnPregeneratedTime))
             {
                 SetNextRuneSpawnTime();
-                SpawnRune(totalTimeSpentForRuneSpawn, totalNextRuneSpawnPregeneratedTime);
+                SpawnRune_FromRunesManager(totalTimeSpentForRuneSpawn, totalNextRuneSpawnPregeneratedTime);
             }
         }
 
-        public void SpawnRune(float timeSpentForSpawn, float totalPregeneratedTime, Rune runeType = Rune.Random)
+        public void SpawnRune_FromRunesManager(float timeSpentForSpawn, float totalPregeneratedTime, Rune runeType = Rune.Random)
         {
             int newRuneId = GetUniqueNewRuneId();
             if (newRuneId == -1) return;
@@ -89,8 +89,7 @@ namespace ServerCore
                 selectedRuneType = GetRandomRuneType();
             else selectedRuneType = runeType;
 
-            chosenRuneSpawn.currentRune = new RuneInstance(selectedRuneType, newRuneId);
-            NotifyAllPlayersOnNewSpawnedRune(assignedPlayroom, chosenRuneSpawn.position, chosenRuneSpawn.currentRune.rune, newRuneId);
+            SpawnRune(chosenRuneSpawn, selectedRuneType, newRuneId, "none");
 
             if (timeSpentForSpawn == 0 && totalPregeneratedTime == 0)
                 Console.WriteLine($"[{DateTime.Now}][Rune spawned]:[{chosenRuneSpawn.currentRune.rune}] by console command");
@@ -115,7 +114,7 @@ namespace ServerCore
                 }
             }
             if (IntAmount > freeSpawnsAmount) IntAmount = freeSpawnsAmount;
-            if (IntAmount == 0) { Console.WriteLine($"[AdminCommands]: Can't spawn rune, no free spawns, IntAmount[{IntAmount}] freeSpawnsAmount[{freeSpawnsAmount}]"); return; }
+            if (IntAmount == 0) { Console.WriteLine($"[{DateTime.Now}][AdminCommands]: Can't spawn rune, no free spawns, IntAmount[{IntAmount}] freeSpawnsAmount[{freeSpawnsAmount}]"); return; }
 
             List<RuneSpawn> selectedRuneSpawns;
             if(position == CustomRuneSpawn_Position.ClosestSpawn)
@@ -123,7 +122,10 @@ namespace ServerCore
             else selectedRuneSpawns = GetRandomFreeRuneSpawns();
 
             if(selectedRuneSpawns.Count < IntAmount) { IntAmount = selectedRuneSpawns.Count; }
-            if (IntAmount == 0) { Console.WriteLine($"[AdminCommands]: Can't spawn rune, no free spawns, IntAmount[{IntAmount}] selectedRuneSpawns.Count[{selectedRuneSpawns.Count}]"); return; }
+            if (IntAmount == 0) { Console.WriteLine($"[{DateTime.Now}][AdminCommands]: Can't spawn rune, no free spawns, IntAmount[{IntAmount}] selectedRuneSpawns.Count[{selectedRuneSpawns.Count}]"); return; }
+
+            string dbIdOfInvoker = "none";
+            if (notifyOthers) dbIdOfInvoker = invoker.client.userData.db_id.ToString();
 
             for (int i = 0; i < IntAmount; i++)
             {
@@ -134,9 +136,16 @@ namespace ServerCore
                 int newRuneId = GetUniqueNewRuneId();
                 if (newRuneId == -1) return;
 
-                selectedRuneSpawns[i].currentRune = new RuneInstance(selectedRuneType, newRuneId);
-                NotifyAllPlayersOnNewSpawnedRune(assignedPlayroom, selectedRuneSpawns[i].position, selectedRuneSpawns[i].currentRune.rune, newRuneId);
+                SpawnRune(selectedRuneSpawns[i], selectedRuneType, newRuneId, dbIdOfInvoker);
             }
+        }
+
+        void SpawnRune(RuneSpawn runeSpawn, Rune selectedRuneType, int newRuneId, string dbIdOfInvoker = "none")
+        {
+            runeSpawn.currentRune = new RuneInstance(selectedRuneType, newRuneId);
+            NotifyAllPlayersOnNewSpawnedRune(assignedPlayroom, runeSpawn.position, runeSpawn.currentRune.rune, newRuneId, dbIdOfInvoker);
+            if(!dbIdOfInvoker.Equals("none"))
+                Console.WriteLine($"[{DateTime.Now}][Rune spawned by Admin command]:[{runeSpawn.currentRune.rune}]");
         }
 
 

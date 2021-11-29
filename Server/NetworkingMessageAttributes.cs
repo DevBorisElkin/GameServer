@@ -283,8 +283,9 @@ namespace ServerCore
 
         // ________________ Messages FROM server _____________________
 
-        //       code   spawnPos runeType  uniqueRudeId
-        // "rune_spawned|0/0/0|Black|12"
+        //       code   spawnPos runeType  uniqueRudeId  dbIdOfPlayerSpawner
+        // "rune_spawned|0/0/0|Black|12|3"
+        // "rune_spawned|0/0/0|Black|12|none"
         public const string RUNE_SPAWNED = "rune_spawned";
 
         //  code|runeUniqueId|player_db_id|runeType|nickOfGatherPlayer|60
