@@ -99,6 +99,11 @@ namespace ServerCore
 
         public void SpawnRunes_AdminCommand(Player invoker, Rune runeType, CustomRuneSpawn_Amount amount, CustomRuneSpawn_Position position, bool notifyOthers)
         {
+            if(assignedPlayroom.matchState != MatchState.InGame) 
+            {
+                Console.WriteLine($"[{DateTime.Now}][AdminCommands]: Can't spawn rune, match hasn't started, amount[{amount}] runeType[{runeType}]"); 
+                return;
+            }
             int IntAmount;
             int freeSpawnsAmount = FreeSpawnsAmount();
             if (amount == CustomRuneSpawn_Amount.Max)
