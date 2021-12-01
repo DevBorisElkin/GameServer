@@ -102,7 +102,7 @@ namespace ServerCore
             if(assignedPlayroom.matchState != MatchState.InGame) 
             {
                 Console.WriteLine($"[{DateTime.Now}][AdminCommands]: Can't spawn rune, match hasn't started, amount[{amount}] runeType[{runeType}]");
-                Misc_MessagingManager.SendMessageToTheClient("Can't spawn rune, match hasn't started", invoker.client.ch, MessageFromServer_WindowType.ModalWindow, MessageFromServer_MessageType.Info);
+                Misc_MessagingManager.SendMessageToTheClient("Can't spawn rune, match hasn't started", invoker.client.ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Info);
                 return;
             }
             int IntAmount;
@@ -122,13 +122,13 @@ namespace ServerCore
             if (freeSpawnsAmount == 0) 
             { 
                 Console.WriteLine($"[{DateTime.Now}][AdminCommands]: Can't spawn rune, no free spawns, IntAmount[{IntAmount}] freeSpawnsAmount[{freeSpawnsAmount}]");
-                Misc_MessagingManager.SendMessageToTheClient("Can't spawn rune, no free rune spawns", invoker.client.ch, MessageFromServer_WindowType.ModalWindow, MessageFromServer_MessageType.Error);
+                Misc_MessagingManager.SendMessageToTheClient("Can't spawn rune, no free rune spawns", invoker.client.ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
                 return; 
             }
             
             if (IntAmount > freeSpawnsAmount) 
             {
-                Misc_MessagingManager.SendMessageToTheClient($"Cant spawn precise amount of runes [{IntAmount}]. Had to cap max amount of runes because it was higher than amount of spawns[{freeSpawnsAmount}]", invoker.client.ch, MessageFromServer_WindowType.ModalWindow, MessageFromServer_MessageType.Warning);
+                Misc_MessagingManager.SendMessageToTheClient($"Cant spawn precise amount of runes [{IntAmount}]. Had to cap max amount of runes because it was higher than amount of spawns[{freeSpawnsAmount}]", invoker.client.ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Warning);
                 IntAmount = freeSpawnsAmount; 
             }
 
