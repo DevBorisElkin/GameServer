@@ -321,5 +321,16 @@ namespace ServerCore
         #endregion
 
 
+        // types of messages:
+        // 1) Modal window
+        // 2) light message that is displayed in the middle of the screen with fade out and moving upwards with moderate speed
+        // additional settings:
+        // Message type:
+        // 1) Info
+        // 2) Warning
+        // 3) Error
+        // message type is basically displayed by the color of the message (white, yellor, light-red)
+        //  code|windowType|messageType|message
+        public const string MESSAGE_FROM_SERVER = "message_from_server";
     }
 }

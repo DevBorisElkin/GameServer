@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "LHgmkIAOM+8LozaZy5PNvtXx4F5PbpyJrnNiOz066Al1jydpVIxCxpQuVNyfWJdOUukZOizMsrFVuIGYlTN5zA==",
+  "dgSpecHash": "oS6u5zSMAnC5304cUPPGEfjud3uvHt9W8qmnfl46ivyJvcJwpPk7okO0DpU2X0aAkxe9FE35WwCd6Qjz0metLQ==",
   "success": true,
   "projectFilePath": "C:\\BORIS\\Storage1\\BORIS' FOLDER\\programming\\C#\\AWS-test\\GameServer\\Server\\ServerCore.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\eafor\\.nuget\\packages\\microsoft.netcore.app.runtime.linux-x64\\5.0.8\\microsoft.netcore.app.runtime.linux-x64.5.0.8.nupkg.sha512",
+    "C:\\Users\\eafor\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.linux-x64\\5.0.8\\microsoft.aspnetcore.app.runtime.linux-x64.5.0.8.nupkg.sha512"
+  ],
   "logs": []
 }

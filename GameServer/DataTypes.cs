@@ -62,5 +62,22 @@ namespace ServerCore
             ClosestSpawn,
             Random
         }
+
+        #region Message from server to client
+
+        public enum MessageFromServer_WindowType
+        {
+            ModalWindow,
+            LightWindow
+        }
+
+        public enum MessageFromServer_MessageType
+        {
+            Info,
+            Warning,
+            Error
+        }
+
+        #endregion
     }
 }
