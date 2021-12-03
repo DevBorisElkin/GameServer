@@ -57,5 +57,32 @@ namespace ServerCore
                 }
             }
         }
+
+        public async Task<UserData> RefreshUserData()
+        {
+            UserData retrievedUserData = await DatabaseBridge.GetUserData(userData.db_id);
+            if(retrievedUserData != null)
+            {
+                userData = retrievedUserData;
+                return retrievedUserData;
+            }
+            return null;
+        }
+        public async Task<UserData> UpdateUserData_AccessRights(AccessRights ar)
+        {
+            AccessRights old = userData.accessRights;
+            userData.accessRights = ar;
+            UserData retrievedUserData = await DatabaseBridge.UpdateUserData(userData);
+            if (retrievedUserData != null)
+            {
+                userData = retrievedUserData;
+                return retrievedUserData;
+            }
+            else
+            {
+                userData.accessRights = old;
+                return null;
+            }
+        }
     }
 }

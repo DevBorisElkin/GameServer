@@ -10,6 +10,7 @@ using static ServerCore.Server;
 using static ServerCore.PlayroomManager_MapData;
 using static ServerCore.Client;
 using static EntryPoint.ConsoleInput;
+using static ServerCore.DataTypes;
 
 namespace EntryPoint
 {
@@ -114,6 +115,55 @@ namespace EntryPoint
                             if (DoesMessageRelatedToPlayroomManager(message))
                             {
                                 ParceMessage_Playroom(message, assignedClient);
+                            }
+                            else if (message.StartsWith(PROMOCODE_FROM_CLIENT))
+                            {
+                                string[] substrings = message.Split("|");
+                                if (substrings[1].Equals(SUBCODE_GET_ADMIN_RIGHTS))
+                                {
+                                    UserData data = await assignedClient.RefreshUserData();
+                                    if(data != null)
+                                    {
+                                        if(data.accessRights == AccessRights.Admin || data.accessRights == AccessRights.SuperAdmin)
+                                            Misc_MessagingManager.SendMessageToTheClient($"Can't upgrade your user rights because you already have level {data.accessRights}", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Info);
+                                        else
+                                        {
+                                            UserData updatedUserData = await assignedClient.UpdateUserData_AccessRights(AccessRights.Admin);
+                                            if(updatedUserData != null && updatedUserData.accessRights == AccessRights.Admin)
+                                            {
+                                                Misc_MessagingManager.SendMessageToTheClient($"Congratulations, your rights have been upgraded!", ch, MessageFromServer_WindowType.ModalWindow, MessageFromServer_MessageType.Info);
+                                                string msg_access_rights = $"{NEW_ACCESS_RIGHTS_STATUS}|{updatedUserData.accessRights}";
+                                                Util_Server.SendMessageToClient(msg_access_rights, assignedClient.ch);
+                                            }
+                                            else
+                                            Misc_MessagingManager.SendMessageToTheClient($"Couldn't update data in database, try again later", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Misc_MessagingManager.SendMessageToTheClient("Unfortunately server couldn't retrieve user data, try again later", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                                    }
+                                } else if (substrings[1].Equals(SUBCODE_DOWNGRADE_TO_USER_RIGHTS))
+                                {
+                                    UserData data = await assignedClient.RefreshUserData();
+                                    if (data != null)
+                                    {
+                                        if (data.accessRights == AccessRights.User)
+                                            Misc_MessagingManager.SendMessageToTheClient($"Can't downgrade your user rights because you already have level {data.accessRights}", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Info);
+                                        else
+                                        {
+                                            UserData updatedUserData = await assignedClient.UpdateUserData_AccessRights(AccessRights.User);
+                                            if (updatedUserData != null && updatedUserData.accessRights == AccessRights.User)
+                                            {
+                                                Misc_MessagingManager.SendMessageToTheClient($"Your rights have been successfully downgraded", ch, MessageFromServer_WindowType.ModalWindow, MessageFromServer_MessageType.Info);
+                                                string msg_access_rights = $"{NEW_ACCESS_RIGHTS_STATUS}|{updatedUserData.accessRights}";
+                                                Util_Server.SendMessageToClient(msg_access_rights, assignedClient.ch);
+                                            }
+                                            else Misc_MessagingManager.SendMessageToTheClient($"Couldn't update data in database, try again later", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                                        }
+                                    }
+                                    else Misc_MessagingManager.SendMessageToTheClient("Unfortunately server couldn't retrieve user data, try again later", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                                } else Misc_MessagingManager.SendMessageToTheClient("Unknown promocode, try something else :)", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
                             }
                             else
                             {

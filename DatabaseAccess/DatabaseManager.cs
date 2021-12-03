@@ -153,8 +153,9 @@ namespace DatabaseAccess
         /// <summary>
         /// Updates UserData in database
         /// </summary>
-        public static bool TryToUpdateUserData(UserData _new)
+        public static UserData TryToUpdateUserData(object _userData)
         {
+            UserData _new = (UserData)_userData;
             int rowsAffected = 0;
             try
             {
@@ -167,7 +168,8 @@ namespace DatabaseAccess
                 Console.WriteLine($"[{DateTime.Now}] {e.ToString()}");
             }
 
-            return rowsAffected == 1;
+            if (rowsAffected == 1) return _new;
+            else return null;
         }
 
         public static UserData TryToGetUserDataByDataRequestType(object _userData)

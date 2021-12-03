@@ -108,5 +108,27 @@ namespace ServerCore
                 Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: couldn't find user data by given db_id[{_dbId}]:. reason:[{result.requestResult}]");
             }
         }
+
+        public static async Task<UserData> GetUserData(int _dbId)
+        {
+            UserData userData = new UserData { db_id = _dbId, dataRequestType = DataRequestType.id };
+            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToGetUserDataByDataRequestType, userData);
+            await task;
+
+            if (task.Result.requestResult.Equals(RequestResult.Success))
+                return task.Result;
+            else return null;
+        }
+        //TryToUpdateUserData
+
+        public static async Task<UserData> UpdateUserData(UserData newData)
+        {
+            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToUpdateUserData, newData);
+            await task;
+
+            if (task.Result.requestResult.Equals(RequestResult.Success))
+                return task.Result;
+            else return null;
+        }
     }
 }

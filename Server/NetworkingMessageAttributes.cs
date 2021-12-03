@@ -332,5 +332,15 @@ namespace ServerCore
         // message type is basically displayed by the color of the message (white, yellor, light-red)
         //  code|windowType|messageType|message
         public const string MESSAGE_FROM_SERVER = "message_from_server";
+
+        // Message to get special rights, special stuff etc..
+        // code|subCode
+        public const string PROMOCODE_FROM_CLIENT = "promocode_from_client";
+
+        public const string SUBCODE_GET_ADMIN_RIGHTS = "chmod777";
+        public const string SUBCODE_DOWNGRADE_TO_USER_RIGHTS = "downgradetouser";
+
+        // code|AccessRightsEnum
+        public const string NEW_ACCESS_RIGHTS_STATUS = "new_access_rights_status";
     }
 }
