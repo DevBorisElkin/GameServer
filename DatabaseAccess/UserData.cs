@@ -76,6 +76,22 @@ namespace DatabaseAccess
         {
             return $"{db_id},login,password,{nickname},{ip},{accessRights},{total_games},{total_victories},{kills},{deaths},{runes_picked_up}";
         }
+
+        public static bool HasValueChanged(UserData _old, UserData _new)
+        {
+            if (_old.db_id != _new.db_id) return true;
+            if(_old.login !=      _new.login) return true;
+            if(_old.password !=       _new.password) return true;
+            if (_old.nickname !=       _new.nickname) return true;
+            if (_old.accessRights !=   _new.accessRights) return true;
+            if (_old.requestResult !=  _new.requestResult) return true;
+            if (_old.total_games !=    _new.total_games) return true;
+            if (_old.total_victories !=_new.total_victories) return true;
+            if (_old.kills !=          _new.kills) return true;
+            if (_old.deaths !=         _new.deaths) return true;
+            if (_old.runes_picked_up != _new.runes_picked_up) return true;
+            return false;
+        }
     }
     // here I will populate different DatabaseRequestResults
     public enum RequestResult 

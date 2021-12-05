@@ -16,19 +16,42 @@ namespace ServerCore
     {
         public ClientHandler ch;
         public ClientAccessLevel clientAccessLevel;
-        public UserData userData;
+        public UserData _userData;
+
+        public Action userDataChanged;
+
+        public UserData userData
+        {
+            get { return _userData; }
+            set
+            {
+                bool valueChanged = UserData.HasValueChanged(userData, value);
+                userData = value;
+                if (valueChanged) userDataChanged?.Invoke();
+            }
+        }
+
+        void NotifyClientOnDataChanged()
+        {
+            Console.WriteLine($"[{DateTime.Now}][SYSTEM MESSAGE]: On user data changed [{userData.db_id}][{userData.nickname}]");
+            Util_Server.SendMessageToClient($"{GET_USER_DATA_RESULT}|{userData.ToNetworkString()}", ch);
+        }
+
         public Player player;
         public Client(ClientHandler _ch)
         {
             ch = _ch;
             clientAccessLevel = ClientAccessLevel.LowestLevel;
+            userDataChanged += NotifyClientOnDataChanged;
         }
+
 
         public void DestroyClient()
         {
             ch = null;
-            userData = null;
             player = null;
+            userDataChanged -= NotifyClientOnDataChanged;
+            userData = null;
         }
 
         // addons
