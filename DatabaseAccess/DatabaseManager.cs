@@ -94,7 +94,7 @@ namespace DatabaseAccess
                         int total_victories = Int32.Parse(reader["total_victories"].ToString());
                         int kills = Int32.Parse(reader["kills"].ToString());
                         int deaths = Int32.Parse(reader["deaths"].ToString());
-                        int runes_picked_up = Int32.Parse(reader["totrunes_picked_upal_victories"].ToString());
+                        int runes_picked_up = Int32.Parse(reader["runes_picked_up"].ToString());
 
                         Enum.TryParse(Util_Server.FirstCharToUpper(accessRigtsStr), out AccessRights accessRights);
                         UserData userData = new UserData(id, login, password, nickname, accessRights, total_games, total_victories, kills, deaths, runes_picked_up);
@@ -168,7 +168,7 @@ namespace DatabaseAccess
             {
                 MySqlCommand command = new MySqlCommand($"UPDATE MainTable SET login = '{_new.login}', pass = '{_new.password}', " +
                     $"nickname = '{_new.nickname}', access = '{_new.accessRights.ToString().ToLower()}', total_games = '{_new.total_games}'," +
-                    $" total_victories = '{_new.total_victories}, kills = '{_new.kills}, deaths = '{_new.deaths}' runes_picked_up = '{_new.runes_picked_up}', where id = '{_new.db_id}'", mySqlConnection);
+                    $" total_victories = '{_new.total_victories}', kills = '{_new.kills}', deaths = '{_new.deaths}', runes_picked_up = '{_new.runes_picked_up}' where id = '{_new.db_id}'", mySqlConnection);
                 rowsAffected = command.ExecuteNonQuery();
             }
             catch (Exception e)
@@ -212,7 +212,7 @@ namespace DatabaseAccess
                         int total_victories = Int32.Parse(findUserReader["total_victories"].ToString());
                         int kills = Int32.Parse(findUserReader["kills"].ToString());
                         int deaths = Int32.Parse(findUserReader["deaths"].ToString());
-                        int runes_picked_up = Int32.Parse(findUserReader["totrunes_picked_upal_victories"].ToString());
+                        int runes_picked_up = Int32.Parse(findUserReader["runes_picked_up"].ToString());
 
                         findUserReader.Close();
                         return new UserData(resultId, resultLogin, resultPassword, resultNickname, accessRights, total_games, total_victories, kills, deaths, runes_picked_up);

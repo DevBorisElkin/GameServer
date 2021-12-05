@@ -25,15 +25,15 @@ namespace ServerCore
             get { return _userData; }
             set
             {
-                bool valueChanged = UserData.HasValueChanged(userData, value);
-                userData = value;
+                bool valueChanged = UserData.HasValueChanged(_userData, value);
+                _userData = value;
                 if (valueChanged) userDataChanged?.Invoke();
             }
         }
 
         void NotifyClientOnDataChanged()
         {
-            Console.WriteLine($"[{DateTime.Now}][SYSTEM MESSAGE]: On user data changed [{userData.db_id}][{userData.nickname}]");
+            //Console.WriteLine($"[{DateTime.Now}][SYSTEM MESSAGE]: On user data changed [{userData.db_id}][{userData.nickname}]");
             Util_Server.SendMessageToClient($"{GET_USER_DATA_RESULT}|{userData.ToNetworkString()}", ch);
         }
 

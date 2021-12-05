@@ -79,6 +79,7 @@ namespace DatabaseAccess
 
         public static bool HasValueChanged(UserData _old, UserData _new)
         {
+            if (_old == null || _new == null) return false;
             if (_old.db_id != _new.db_id) return true;
             if(_old.login !=      _new.login) return true;
             if(_old.password !=       _new.password) return true;
