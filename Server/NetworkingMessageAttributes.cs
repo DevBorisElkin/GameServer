@@ -320,6 +320,16 @@ namespace ServerCore
 
         #endregion
 
+        #region UserDataExchange
+
+        // code|db_id_of_requested_client
+        public const string GET_USER_DATA_REQUEST = "get_user_data_request";
+
+        // code|user_data
+        public const string GET_USER_DATA_RESULT = "get_user_data_result";
+
+        #endregion
+
 
         // types of messages:
         // 1) Modal window

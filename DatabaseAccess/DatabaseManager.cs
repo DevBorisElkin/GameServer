@@ -89,8 +89,15 @@ namespace DatabaseAccess
                         int id = Int32.Parse(reader["id"].ToString());
                         string nickname = reader["nickname"].ToString();
                         string accessRigtsStr = reader["access"].ToString();
+
+                        int total_games = Int32.Parse(reader["total_games"].ToString());
+                        int total_victories = Int32.Parse(reader["total_victories"].ToString());
+                        int kills = Int32.Parse(reader["kills"].ToString());
+                        int deaths = Int32.Parse(reader["deaths"].ToString());
+                        int runes_picked_up = Int32.Parse(reader["totrunes_picked_upal_victories"].ToString());
+
                         Enum.TryParse(Util_Server.FirstCharToUpper(accessRigtsStr), out AccessRights accessRights);
-                        UserData userData = new UserData(id, login, password, nickname, accessRights);
+                        UserData userData = new UserData(id, login, password, nickname, accessRights, total_games, total_victories, kills, deaths, runes_picked_up);
                         reader.Close();
                         return userData;
                     }
@@ -160,7 +167,8 @@ namespace DatabaseAccess
             try
             {
                 MySqlCommand command = new MySqlCommand($"UPDATE MainTable SET login = '{_new.login}', pass = '{_new.password}', " +
-                    $"nickname = '{_new.nickname}', access = '{_new.accessRights.ToString().ToLower()}' where id = '{_new.db_id}'", mySqlConnection);
+                    $"nickname = '{_new.nickname}', access = '{_new.accessRights.ToString().ToLower()}', total_games = '{_new.total_games}'," +
+                    $" total_victories = '{_new.total_victories}, kills = '{_new.kills}, deaths = '{_new.deaths}' runes_picked_up = '{_new.runes_picked_up}', where id = '{_new.db_id}'", mySqlConnection);
                 rowsAffected = command.ExecuteNonQuery();
             }
             catch (Exception e)
@@ -200,8 +208,14 @@ namespace DatabaseAccess
                         string accessRigtsStr = Convert.ToString(findUserReader["access"]);
                         Enum.TryParse(Util_Server.FirstCharToUpper(accessRigtsStr), out AccessRights accessRights);
 
+                        int total_games = Int32.Parse(findUserReader["total_games"].ToString());
+                        int total_victories = Int32.Parse(findUserReader["total_victories"].ToString());
+                        int kills = Int32.Parse(findUserReader["kills"].ToString());
+                        int deaths = Int32.Parse(findUserReader["deaths"].ToString());
+                        int runes_picked_up = Int32.Parse(findUserReader["totrunes_picked_upal_victories"].ToString());
+
                         findUserReader.Close();
-                        return new UserData(resultId, resultLogin, resultPassword, resultNickname, accessRights);
+                        return new UserData(resultId, resultLogin, resultPassword, resultNickname, accessRights, total_games, total_victories, kills, deaths, runes_picked_up);
                     }
                     else
                     {

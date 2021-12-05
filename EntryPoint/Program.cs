@@ -121,7 +121,7 @@ namespace EntryPoint
                                 string[] substrings = message.Split("|");
                                 if (substrings[1].Equals(SUBCODE_GET_ADMIN_RIGHTS))
                                 {
-                                    UserData data = await assignedClient.RefreshUserData();
+                                    UserData data = await assignedClient.RefreshUserDataFromDatabase();
                                     if(data != null)
                                     {
                                         if(data.accessRights == AccessRights.Admin || data.accessRights == AccessRights.SuperAdmin)
@@ -145,7 +145,7 @@ namespace EntryPoint
                                     }
                                 } else if (substrings[1].Equals(SUBCODE_DOWNGRADE_TO_USER_RIGHTS))
                                 {
-                                    UserData data = await assignedClient.RefreshUserData();
+                                    UserData data = await assignedClient.RefreshUserDataFromDatabase();
                                     if (data != null)
                                     {
                                         if (data.accessRights == AccessRights.User)
@@ -164,6 +164,20 @@ namespace EntryPoint
                                     }
                                     else Misc_MessagingManager.SendMessageToTheClient("Unfortunately server couldn't retrieve user data, try again later", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
                                 } else Misc_MessagingManager.SendMessageToTheClient("Unknown promocode, try something else :)", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                            }
+                            else if (message.StartsWith(GET_USER_DATA_REQUEST))
+                            {
+                                string[] substrings = message.Split("|");
+                                int db_id = Int32.Parse(substrings[1]);
+                                UserData data = await Client.GetUserDataFromDatabase(db_id);
+                                if(data == null)
+                                {
+                                    Misc_MessagingManager.SendMessageToTheClient($"Couldn't get user data from database, try again later", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                                    return;
+                                }
+
+                                string dataString = assignedClient.userData.db_id == db_id ? data.ToNetworkString() : data.ToNetworkStringSecured();
+                                Util_Server.SendMessageToClient($"{GET_USER_DATA_RESULT}|{dataString}", assignedClient.ch);
                             }
                             else
                             {

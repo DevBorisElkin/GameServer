@@ -10,6 +10,7 @@ using static ServerCore.PlayroomManager;
 using static ServerCore.PlayroomManager_MapData;
 using static ServerCore.PlayroomManager_Runes;
 using static ServerCore.DataTypes;
+using DatabaseAccess;
 
 namespace ServerCore
 {
@@ -289,7 +290,7 @@ namespace ServerCore
                 }
             }
         }
-        void FinishMatch(MatchFinishReason finishReason)
+        async void FinishMatch(MatchFinishReason finishReason)
         {
             List<Player> winners = DefineWinnersOfTheMatch(finishReason, out int maxKills);
             matchState = MatchState.Finished;
@@ -303,6 +304,7 @@ namespace ServerCore
                 MatchResult matchResult;
                 string winnerDbId;
                 string winnerNickname;
+                Player winner = null;
                 if (winners.Count > 1)
                 {
                     matchResult = MatchResult.Draw;
@@ -314,13 +316,35 @@ namespace ServerCore
                 {
                     matchResult = MatchResult.PlayerWon;
                     winnerDbId = winners[0].client.userData.db_id.ToString();
+                    winner = winners[0];
                     winnerNickname = winners[0].client.userData.nickname;
                     Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]: Finished match with id [{playroomID}], match result [{matchResult}], winner [{winnerNickname}] max kills: [{maxKills}]");
                 }
                 SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|{winnerDbId}|{winnerNickname}|{matchResult}", null, MessageProtocol.TCP);
+                await RecordMatchResults(winner);
             }
             DelayedClosePlayroom = new Task(ClosePlayroomWithDelay);
             DelayedClosePlayroom.Start();
+        }
+
+        async Task RecordMatchResults(Player winner)
+        {
+            foreach(var a in playersInPlayroom)
+            {
+                UserData newUserData = new UserData(a.client.userData);
+
+                newUserData.total_games++;
+                if (a == winner)
+                    newUserData.total_victories++;
+                newUserData.kills += a.stats_kills;
+                newUserData.deaths += a.stats_deaths;
+                newUserData.runes_picked_up += a.stats_runesPickedUp;
+
+                UserData updated = await Client.UpdateUserData(a.client, newUserData);
+                if(updated != null)
+                    Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]: Successfully recorded match results for player [{a.client.userData.db_id}][{a.client.userData.nickname}]");
+                else Console.WriteLine($"[{DateTime.Now}][PLAYROOM_ERROR]: Couldn't record match results for player [{a.client.userData.db_id}][{a.client.userData.nickname}]");
+            }
         }
 
         static int minKillsToCountAsVictory = 3;

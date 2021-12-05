@@ -258,6 +258,7 @@ namespace ServerCore
             {
                 if (DoesClientCloseEnoughToTheRune(player.position, a))
                 {
+                    player.stats_runesPickedUp++;
                     AddRandomJumpsAmount_RuneReward(player);
 
                     player.modifiersManager.AddRuneEffectOnPlayer(a.currentRune.rune);

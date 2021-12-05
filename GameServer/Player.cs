@@ -27,6 +27,7 @@ namespace ServerCore
 
         public int stats_kills;
         public int stats_deaths;
+        public int stats_runesPickedUp;
 
         public int currentJumpsAmount;
         bool isRecoveringJump;
@@ -50,6 +51,7 @@ namespace ServerCore
 
             stats_kills = 0;
             stats_deaths = 0;
+            stats_runesPickedUp = 0;
 
             isAlive = true;
 

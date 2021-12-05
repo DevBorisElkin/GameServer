@@ -57,8 +57,7 @@ namespace ServerCore
                 }
             }
         }
-
-        public async Task<UserData> RefreshUserData()
+        public async Task<UserData> RefreshUserDataFromDatabase()
         {
             UserData retrievedUserData = await DatabaseBridge.GetUserData(userData.db_id);
             if(retrievedUserData != null)
@@ -81,6 +80,27 @@ namespace ServerCore
             else
             {
                 userData.accessRights = old;
+                return null;
+            }
+        }
+        // Global
+        public static async Task<UserData> GetUserDataFromDatabase(int db_id)
+        {
+            UserData retrievedUserData = await DatabaseBridge.GetUserData(db_id);
+            if (retrievedUserData != null)
+                return retrievedUserData;
+            return null;
+        }
+        public static async Task<UserData> UpdateUserData(Client client, UserData updatedUserData)
+        {
+            UserData retrievedUserData = await DatabaseBridge.UpdateUserData(updatedUserData);
+            if (retrievedUserData != null)
+            {
+                client.userData = retrievedUserData;
+                return retrievedUserData;
+            }
+            else
+            {
                 return null;
             }
         }

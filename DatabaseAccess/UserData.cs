@@ -16,6 +16,13 @@ namespace DatabaseAccess
         public string ip;
         public AccessRights accessRights;
 
+        //additional data
+        public int total_games;
+        public int total_victories;
+        public int kills;
+        public int deaths;
+        public int runes_picked_up;
+
         // stores result of request to Database
         public RequestResult requestResult;
         public DataRequestType dataRequestType;
@@ -25,23 +32,49 @@ namespace DatabaseAccess
         {
             this.requestResult = requestResult;
         }
-        public UserData(int id, string login, string password, string nickname, AccessRights accessRights, RequestResult requestResult = RequestResult.Success)
-        {
-            this.db_id = id;
-            this.login = login;
-            this.password = password;
+        public UserData(int id, string login, string password, string nickname, AccessRights accessRights, int totalGames, int totalVictories,
+            int kills, int deaths, int runes_picked_up, RequestResult requestResult = RequestResult.Success)
+        {                                                                                                  
+            this.db_id = id;                                                                               
+            this.login = login;                                                                            
+            this.password = password;                                                                      
             this.nickname = nickname;
             this.accessRights = accessRights;
             this.requestResult = requestResult;
+            this.total_games = totalGames;
+            this.total_victories = totalVictories;
+            this.kills = kills;
+            this.deaths = deaths;
+            this.runes_picked_up = runes_picked_up;
+        }
+
+        public UserData(UserData copyFrom) 
+        {
+            this.db_id = copyFrom.db_id;
+            this.login = copyFrom.login;
+            this.password = copyFrom.password;
+            this.nickname = copyFrom.nickname;
+            this.accessRights = copyFrom.accessRights;
+            this.requestResult = copyFrom.requestResult;
+            this.total_games = copyFrom.total_games;
+            this.total_victories = copyFrom.total_victories;
+            this.kills = copyFrom.kills;
+            this.deaths = copyFrom.deaths;
+            this.runes_picked_up = copyFrom.runes_picked_up;
         }
 
         public override string ToString()
         {
-            return $"id:[{db_id}], login:[{login}], password:[{password}], nickname:[{nickname}], ip:[{ip}], accessRights:[{accessRights}]";
+            return $"id:[{db_id}], login:[{login}], password:[{password}], nickname:[{nickname}], ip:[{ip}], accessRights:[{accessRights}]" +
+                $", totalGames:[{total_games}], totalVictories:[{total_victories}], kills:[{kills}], deaths:[{deaths}], runesPickedUp:[{runes_picked_up}]";
         }
         public string ToNetworkString()
         {
-            return $"{db_id},{login},{password},{nickname},{ip},{accessRights}";
+            return $"{db_id},{login},{password},{nickname},{ip},{accessRights},{total_games},{total_victories},{kills},{deaths},{runes_picked_up}";
+        }
+        public string ToNetworkStringSecured()
+        {
+            return $"{db_id},login,password,{nickname},{ip},{accessRights},{total_games},{total_victories},{kills},{deaths},{runes_picked_up}";
         }
     }
     // here I will populate different DatabaseRequestResults
