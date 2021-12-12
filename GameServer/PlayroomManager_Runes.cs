@@ -8,6 +8,7 @@ using static ServerCore.ModifiersManager;
 using static ServerCore.PlayroomManager_MapData;
 using static ServerCore.Runes_MessagingManager;
 using static ServerCore.DataTypes;
+using DatabaseAccess;
 
 namespace ServerCore
 {
@@ -251,7 +252,7 @@ namespace ServerCore
         #endregion
 
         #region Client interaction with rune
-        public void PlayerTriesToPickUpRune(int runeId, Player player)
+        public async void PlayerTriesToPickUpRune(int runeId, Player player)
         {
             var a = DoesRuneWithIdExists(runeId);
             if (a != null)
@@ -259,6 +260,12 @@ namespace ServerCore
                 if (DoesClientCloseEnoughToTheRune(player.position, a))
                 {
                     player.stats_runesPickedUp++;
+
+                    UserData newUserData = new UserData(player.client.userData);
+                    newUserData.runes_picked_up++;
+                    UserData updated = await Client.UpdateUserData(player.client, newUserData);
+                    if (updated == null) Console.WriteLine($"[{DateTime.Now}][DatabaseMessage]: couldn't update user data [jumps] for client [{player.client.userData.db_id}][{player.client.userData.nickname}]");
+
                     AddRandomJumpsAmount_RuneReward(player);
 
                     player.modifiersManager.AddRuneEffectOnPlayer(a.currentRune.rune);

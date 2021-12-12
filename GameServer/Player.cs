@@ -11,6 +11,7 @@ using static ServerCore.ModifiersManager;
 using static ServerCore.DataTypes;
 using System.Threading.Tasks;
 using System.Threading;
+using DatabaseAccess;
 
 namespace ServerCore
 {
@@ -207,10 +208,16 @@ namespace ServerCore
             Util_Server.SendMessageToClient($"{PLAYER_REVIVED}|{spawnPos.X}/{spawnPos.Y}/{spawnPos.Z}|{currentJumpsAmount}", client.ch, MessageProtocol.TCP);
         }
 
-        void ChangeScoresOnPlayerDied(string message)
+        async void ChangeScoresOnPlayerDied(string message)
         {
             if (playroom.matchState != MatchState.InGame) return;
+
             stats_deaths++;
+
+            UserData newUserData = new UserData(client.userData);
+            newUserData.deaths++;
+            UserData updated = await Client.UpdateUserData(client, newUserData);
+            if (updated == null) Console.WriteLine($"[{DateTime.Now}][DatabaseMessage]: couldn't update user data [deaths] for client [{client.userData.db_id}][{client.userData.nickname}]");
 
             string[] substrings = message.Split("|");
             int killerDbId = Int32.Parse(substrings[1]);
@@ -232,7 +239,13 @@ namespace ServerCore
                 if (killer != null)
                 {
                     killer.stats_kills++;
+
                     playroom.CheckKillsForFinish();
+
+                    UserData newUserData_2 = new UserData(killer.client.userData);
+                    newUserData_2.kills++;
+                    UserData updated_2 = await Client.UpdateUserData(killer.client, newUserData_2);
+                    if (updated_2 == null) Console.WriteLine($"[{DateTime.Now}][DatabaseMessage]: couldn't update user data [kills] for client [{killer.client.userData.db_id}][{killer.client.userData.nickname}]");
                 }
             }
             playroom.OnScoresChange(null);

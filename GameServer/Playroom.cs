@@ -336,9 +336,9 @@ namespace ServerCore
                 newUserData.total_games++;
                 if (a == winner)
                     newUserData.total_victories++;
-                newUserData.kills += a.stats_kills;
-                newUserData.deaths += a.stats_deaths;
-                newUserData.runes_picked_up += a.stats_runesPickedUp;
+                //newUserData.kills += a.stats_kills;
+                //newUserData.deaths += a.stats_deaths;
+                //newUserData.runes_picked_up += a.stats_runesPickedUp;
 
                 UserData updated = await Client.UpdateUserData(a.client, newUserData);
                 if(updated != null)
