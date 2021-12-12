@@ -91,6 +91,12 @@ namespace ServerCore
                 SendMessageToClient($"{REGISTER_RESULT}|{result.requestResult}", SendResponseBackTo.ch);
             }
         }
+        public static async Task<UserData> TryToChangeNicknameAsync(UserData proposedUserData)
+        {
+            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToChangeNicknameAsync, proposedUserData);
+            await task;
+            return task.Result;
+        }
         public static async void TryToWriteFullUserDataToConsole(int _dbId)
         {
             UserData userData = new UserData { db_id = _dbId, dataRequestType = DataRequestType.id };

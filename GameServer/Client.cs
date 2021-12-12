@@ -106,6 +106,22 @@ namespace ServerCore
                 return null;
             }
         }
+
+        public async Task<UserData> UpdateUserData_Nickname(string newNickname)
+        {
+            UserData subData = new UserData(userData);
+            subData.nickname = newNickname;
+
+            UserData retrievedUserData = await DatabaseBridge.TryToChangeNicknameAsync(subData);
+            if (retrievedUserData.requestResult == RequestResult.Success)
+            {
+                userData = retrievedUserData;
+                return retrievedUserData;
+            }
+            else
+                return retrievedUserData;
+        }
+
         // Global
         public static async Task<UserData> GetUserDataFromDatabase(int db_id)
         {

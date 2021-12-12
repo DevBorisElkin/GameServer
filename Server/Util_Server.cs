@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ServerCore
 {
@@ -335,6 +336,64 @@ namespace ServerCore
         public enum ReasonOfDeath { ByOtherPlayer, Suicide }
         public enum DeathDetails { FellOutOfMap, TouchedSpikes }
 
+        #region string compatibility check
+
+        public static bool IsStringCompatible(string toCheck)
+        {
+            Regex rgx = new Regex("[^A-Za-z0-9_]");
+            return !(rgx.IsMatch(toCheck));
+        }
+
+        public static bool StringStarstsFromNumberOrUnderscore(string toCheck)
+        {
+            string input = toCheck.Substring(0, 1);
+            bool isDigitPresent = input.Any(c => char.IsDigit(c));
+            bool startsWithUnderscore = toCheck.StartsWith("_");
+            return (isDigitPresent || startsWithUnderscore);
+        }
+
+        public enum InputCompatibilityCheck { Success, Error_ContainsSpecialSymbols, Error_StartsWithNumberOrUnderscore, TooShort, TooLong, Empty, UnknownError}
+        
+        public static InputCompatibilityCheck CheckInputField(string stringToCheck, out string errorString, int MinLength = 5, int MaxLength = 12)
+        {
+            if (IsStringCompatible(stringToCheck) && stringToCheck.Length >= MinLength && stringToCheck.Length <= MaxLength && !StringStarstsFromNumberOrUnderscore(stringToCheck))
+            {
+                errorString = $"Everything is okay :)";
+                return InputCompatibilityCheck.Success;
+            }
+
+            if (string.IsNullOrEmpty(stringToCheck))
+            {
+                errorString = $"input string is empty";
+                return InputCompatibilityCheck.Empty;
+            }
+            if (!IsStringCompatible(stringToCheck))
+            {
+                errorString = $"input string contains special symbols";
+                return InputCompatibilityCheck.Error_ContainsSpecialSymbols;
+            }
+            else if (stringToCheck.Length < MinLength)
+            {
+                errorString = $"input string does not exceed min length of {MinLength} symbols";
+                return InputCompatibilityCheck.TooShort;
+            }
+            else if (stringToCheck.Length > MaxLength)
+            {
+                errorString = $"input string exceeds max allowed length of {MaxLength} symbols";
+                return InputCompatibilityCheck.TooLong;
+            }
+            else if (StringStarstsFromNumberOrUnderscore(stringToCheck))
+            {
+                errorString = "input string starts with number or underscore";
+                return InputCompatibilityCheck.Error_StartsWithNumberOrUnderscore;
+            }
+            else
+            {
+                errorString = "unknown error";
+                return InputCompatibilityCheck.UnknownError;
+            }
+        } 
+        #endregion
 
         #region PING CHECK
 

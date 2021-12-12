@@ -163,7 +163,36 @@ namespace EntryPoint
                                         }
                                     }
                                     else Misc_MessagingManager.SendMessageToTheClient("Unfortunately server couldn't retrieve user data, try again later", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
-                                } else Misc_MessagingManager.SendMessageToTheClient("Unknown promocode, try something else :)", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                                }
+                                else if (substrings[1].Equals(SUBCODE_CHANGE_NICKNAME))
+                                {
+                                    // check new proposed nickname.. substrings[2]
+                                    InputCompatibilityCheck result = Util_Server.CheckInputField(substrings[2], out string errorString);
+                                    if(result != InputCompatibilityCheck.Success)
+                                    {
+                                        Misc_MessagingManager.SendMessageToTheClient($"Can't change nickname, {errorString}", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Warning);
+                                        return;
+                                    }
+
+                                    UserData data = await assignedClient.RefreshUserDataFromDatabase();
+                                    if (data != null)
+                                    {
+                                        UserData updated = await assignedClient.UpdateUserData_Nickname(substrings[2]);
+                                        if(updated.requestResult == RequestResult.Success)
+                                        {
+                                            Misc_MessagingManager.SendMessageToTheClient($"Successfully changed nickname to {substrings[2]}", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Info);
+                                            // TODO
+                                        }
+                                        else if(updated.requestResult == RequestResult.Fail_NicknameAlreadyTaken)
+                                            Misc_MessagingManager.SendMessageToTheClient($"Can't change nickname because it's already taken", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Warning);
+                                        else if (updated.requestResult == RequestResult.Fail_NoConnectionToDB)
+                                            Misc_MessagingManager.SendMessageToTheClient($"Can't change nickname, no connection to Database", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                                        else
+                                            Misc_MessagingManager.SendMessageToTheClient($"Can't change nickname, unknown reason", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                                    }
+                                    else Misc_MessagingManager.SendMessageToTheClient("Unfortunately server couldn't retrieve user data, try again later", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
+                                }
+                                else Misc_MessagingManager.SendMessageToTheClient("Unknown promocode, try something else :)", ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Error);
                             }
                             else if (message.StartsWith(GET_USER_DATA_REQUEST))
                             {

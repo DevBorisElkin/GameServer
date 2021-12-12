@@ -300,5 +300,58 @@ namespace DatabaseAccess
             }
             return new UserData(RequestResult.Fail);
         }
+        public static UserData TryToChangeNicknameAsync(object _userData)
+        {
+            try
+            {
+                UserData _new = (UserData)_userData;
+
+                if (mySqlConnection.State == System.Data.ConnectionState.Open)
+                {
+                    MySqlCommand command = new MySqlCommand($"SELECT * FROM MainTable WHERE nickname = '{_new.nickname}'", mySqlConnection);
+                    MySqlDataReader reader = command.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        // can't register, login is already taken
+                        reader.Close();
+                        return new UserData(RequestResult.Fail_NicknameAlreadyTaken);
+                    }
+                    reader.Close();
+
+                    // didn't find any record of 'login', keep going
+
+                    // here need to try to add new user
+                    command = new MySqlCommand($"UPDATE MainTable SET login = '{_new.login}', pass = '{_new.password}', " +
+                    $"nickname = '{_new.nickname}', access = '{_new.accessRights.ToString().ToLower()}', total_games = '{_new.total_games}'," +
+                    $" total_victories = '{_new.total_victories}', kills = '{_new.kills}', deaths = '{_new.deaths}', runes_picked_up = '{_new.runes_picked_up}' where id = '{_new.db_id}'", mySqlConnection);
+                    int rowsAffected = rowsAffected = command.ExecuteNonQuery();
+
+                    if (rowsAffected == 1)
+                    {
+                        // check that we actually changed user's nickname
+                        UserData container = new UserData() { login = _new.login, dataRequestType = DataRequestType.login };
+                        UserData foundUser = TryToGetUserDataByDataRequestType(container);
+                        bool successfullyFoundUser = foundUser.requestResult.Equals(RequestResult.Success) && foundUser.nickname == _new.nickname;
+                        if (successfullyFoundUser)
+                        {
+                            return foundUser;
+                        }
+                        else return new UserData(RequestResult.Fail);
+
+                    }
+                    else return new UserData(RequestResult.Fail);
+                }
+                else
+                {
+                    Console.WriteLine($"[{DateTime.Now}] Can't interact with Database because connection state is {mySqlConnection.State}");
+                    return new UserData(RequestResult.Fail_NoConnectionToDB);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[{DateTime.Now}] {e.ToString()}");
+            }
+            return new UserData(RequestResult.Fail);
+        }
     }
 }
