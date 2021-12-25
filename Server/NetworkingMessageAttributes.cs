@@ -275,7 +275,8 @@ namespace ServerCore
         public const string MATCH_TIME_REMAINING = "match_time_remaining";
 
         // message to all players notifying that the match has finished
-        // "match_finished|winnerDbId|winnerNickname|matchResult
+        // "match_finished|winnderDbId|winnerNickname|matchResult|dbId,nickname,kills,deaths,runes@etc"
+        // "match_finished|winnderDbId|winnerNickname|matchResult"
         public const string MATCH_FINISHED = "match_finished";
 
         // _______________________MATCH_STATE_AND_EVENTS_______________________

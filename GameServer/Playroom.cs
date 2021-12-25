@@ -11,6 +11,7 @@ using static ServerCore.PlayroomManager_MapData;
 using static ServerCore.PlayroomManager_Runes;
 using static ServerCore.DataTypes;
 using DatabaseAccess;
+using System.Text;
 
 namespace ServerCore
 {
@@ -320,11 +321,29 @@ namespace ServerCore
                     winnerNickname = winners[0].client.userData.nickname;
                     Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]: Finished match with id [{playroomID}], match result [{matchResult}], winner [{winnerNickname}] max kills: [{maxKills}]");
                 }
-                SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|{winnerDbId}|{winnerNickname}|{matchResult}", null, MessageProtocol.TCP);
+                SendMessageToAllPlayersInPlayroom(GenerateMatchResultsString(winnerDbId, winnerNickname, matchResult.ToString()), null, MessageProtocol.TCP);
                 await RecordMatchResults(winner);
             }
             DelayedClosePlayroom = new Task(ClosePlayroomWithDelay);
             DelayedClosePlayroom.Start();
+        }
+
+        //dbId,nickname,kills,deaths,runes@
+        string GenerateMatchResultsString(string winnerDbId, string winnerNickname, string matchResult)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"{MATCH_FINISHED}|{winnerDbId}|{winnerNickname}|{matchResult}");
+            if (!matchResult.Equals(MatchResult.Discarded))
+            {
+                sb.Append("|");
+                for (int i = 0; i < playersInPlayroom.Count; i++)
+                {
+                    sb.Append($"{playersInPlayroom[i].client.userData.db_id},{playersInPlayroom[i].client.userData.nickname},{playersInPlayroom[i].stats_kills},{playersInPlayroom[i].stats_deaths},{playersInPlayroom[i].stats_runesPickedUp}");
+                    if(i != playersInPlayroom.Count - 1)
+                        sb.Append("@");
+                }
+            }
+            return sb.ToString();
         }
 
         async Task RecordMatchResults(Player winner)
