@@ -298,7 +298,8 @@ namespace ServerCore
             if (finishReason.Equals(MatchFinishReason.Discarded) || winners == null || winners.Count == 0)
             {
                 Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]: Finished match with id [{playroomID}], finish reason [{finishReason}], -> No winners");
-                SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|none|none|{MatchResult.Discarded}", null, MessageProtocol.TCP);
+                //SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|none|none|{MatchResult.Discarded}", null, MessageProtocol.TCP);
+                SendMessageToAllPlayersInPlayroom(GenerateMatchResultsString("none", "none", MatchResult.Discarded.ToString()), null, MessageProtocol.TCP);
             }
             else
             {
