@@ -332,17 +332,15 @@ namespace ServerCore
         string GenerateMatchResultsString(string winnerDbId, string winnerNickname, string matchResult)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append($"{MATCH_FINISHED}|{winnerDbId}|{winnerNickname}|{matchResult}");
-            if (!matchResult.Equals(MatchResult.Discarded))
+            sb.Append($"{MATCH_FINISHED}|{winnerDbId}|{winnerNickname}|{matchResult}|");
+
+            for (int i = 0; i < playersInPlayroom.Count; i++)
             {
-                sb.Append("|");
-                for (int i = 0; i < playersInPlayroom.Count; i++)
-                {
-                    sb.Append($"{playersInPlayroom[i].client.userData.db_id},{playersInPlayroom[i].client.userData.nickname},{playersInPlayroom[i].stats_kills},{playersInPlayroom[i].stats_deaths},{playersInPlayroom[i].stats_runesPickedUp}");
-                    if(i != playersInPlayroom.Count - 1)
-                        sb.Append("@");
-                }
+                sb.Append($"{playersInPlayroom[i].client.userData.db_id},{playersInPlayroom[i].client.userData.nickname},{playersInPlayroom[i].stats_kills},{playersInPlayroom[i].stats_deaths},{playersInPlayroom[i].stats_runesPickedUp}");
+                if (i != playersInPlayroom.Count - 1)
+                    sb.Append("@");
             }
+
             return sb.ToString();
         }
 
