@@ -11,6 +11,7 @@ using static ServerCore.PlayroomManager_MapData;
 using static ServerCore.Client;
 using static EntryPoint.ConsoleInput;
 using static ServerCore.DataTypes;
+using System.Threading.Tasks;
 
 namespace EntryPoint
 {
@@ -62,6 +63,19 @@ namespace EntryPoint
 
             #region Parce Messages From Clients
 
+            // false if account is already taken or error accessing database
+            async static Task<RequestResult> CheckClientAlreadyAuthenticated(Client initial, string login)
+            {
+                UserData data = await DatabaseBridge.GetUserData(login);
+                if (data.requestResult == RequestResult.Success)
+                {
+                    foreach (var a in connected_clients)
+                        if (a != initial && a.userData != null && a.userData.db_id == data.db_id) return RequestResult.Fail_LoginAlreadyTaken;
+                    return RequestResult.Success;
+                }
+                return data.requestResult;
+            }
+
             public async static void Connection_MessageReceived(string msg, ClientHandler ch, MessageProtocol mp)
             {
                 Client assignedClient = GetClientByClientHandler(ch);
@@ -92,10 +106,32 @@ namespace EntryPoint
                             // accept only requests for authentication and registration
                             if (message.Contains(LOG_IN))
                             {
-                                // here should do some magic with database
                                 string[] substrings = message.Split("|");
-                                await DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], assignedClient);
 
+                                // 1) Check if user's account is already in use
+
+                                RequestResult rr = await CheckClientAlreadyAuthenticated(assignedClient, substrings[1]);
+
+                                if (rr.Equals(RequestResult.Success) || rr.Equals(RequestResult.Fail_NoUserWithGivenLogin))
+                                {
+                                    await DatabaseBridge.TryToAuthenticateAsync(substrings[1], substrings[2], assignedClient);
+                                    return;
+                                }
+                                else if (rr.Equals(RequestResult.Fail_LoginAlreadyTaken))
+                                {
+                                    Misc_MessagingManager.SendMessageToTheClient("You can't access this account because user with specified account is currently connected", assignedClient.ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Warning);
+                                    return;
+                                }
+                                else if (rr.Equals(RequestResult.Fail_NoConnectionToDB))
+                                {
+                                    Misc_MessagingManager.SendMessageToTheClient("Server lost connection to the Database and can't perform this operation, please try again later..", assignedClient.ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Warning);
+                                    return;
+                                }
+                                else
+                                {
+                                    Misc_MessagingManager.SendMessageToTheClient("Unknown error, please try again later..", assignedClient.ch, MessageFromServer_WindowType.LightWindow, MessageFromServer_MessageType.Warning);
+                                    return;
+                                }
                             }
                             else if (message.Contains(REGISTER))
                             {

@@ -125,6 +125,18 @@ namespace ServerCore
                 return task.Result;
             else return null;
         }
+
+        // this one is a bit different and returns RequestResult - is used for checking if user's account is in use
+        public static async Task<UserData> GetUserData(string _login)
+        {
+            UserData userData = new UserData { login = _login, dataRequestType = DataRequestType.login };
+            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToGetUserDataByDataRequestType, userData);
+            await task;
+
+            if (task.Result.requestResult.Equals(RequestResult.Success))
+                return task.Result;
+            else return task.Result;
+        }
         //TryToUpdateUserData
 
         public static async Task<UserData> UpdateUserData(UserData newData)
