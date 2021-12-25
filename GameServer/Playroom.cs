@@ -180,6 +180,7 @@ namespace ServerCore
         {
             if (this == null) return "none"; 
             string newScoresString = GeneratePlayersScoresString();
+            if (newScoresString.Equals("none")) return newScoresString;
             SendMessageToAllPlayersInPlayroom($"{PLAYERS_SCORES_IN_PLAYROOM}|"+newScoresString, playerToIgnore);
             return newScoresString;
         }
@@ -188,21 +189,28 @@ namespace ServerCore
         // {fullFataOfPlayersInThatRoom} => db_id/nickname/kills/deaths@db_id/nickname/kills/deaths@db_id/nickname/kills/deaths
         public string GeneratePlayersScoresString()
         {
-            string result = "";
-            for (int i = 0; i < playersInPlayroom.Count; i++)
+            try
             {
-                if(i < playersInPlayroom.Count - 1)
+                if (playersInPlayroom == null) return "none";
+                string result = "";
+                for (int i = 0; i < playersInPlayroom.Count; i++)
                 {
-                    result += $"{playersInPlayroom[i].client.userData.db_id}/{playersInPlayroom[i].client.userData.nickname}/" +
-                        $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}@";
+                    if (i < playersInPlayroom.Count - 1)
+                    {
+                        result += $"{playersInPlayroom[i].client.userData.db_id}/{playersInPlayroom[i].client.userData.nickname}/" +
+                            $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}@";
+                    }
+                    else
+                    {
+                        result += $"{playersInPlayroom[i].client.userData.db_id}/{playersInPlayroom[i].client.userData.nickname}/" +
+                            $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}";
+                    }
                 }
-                else
-                {
-                    result += $"{playersInPlayroom[i].client.userData.db_id}/{playersInPlayroom[i].client.userData.nickname}/" +
-                        $"{playersInPlayroom[i].stats_kills}/{playersInPlayroom[i].stats_deaths}";
-                }
+                return result;
             }
-            return result;
+            catch (Exception e) { Console.WriteLine(e); }
+            return "none";
+            
         }
 
         //*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*\\

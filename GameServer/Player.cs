@@ -137,19 +137,23 @@ namespace ServerCore
         // "player_died|killer_dbId|reasonOfDeath
         public void PlayerDied(string message)
         {
-            isAlive = false;
+            try
+            {
+                isAlive = false;
 
-            modifiersManager.ResetModifiers();
+                modifiersManager.ResetModifiers();
 
-            ChangeScoresOnPlayerDied(message);
+                ChangeScoresOnPlayerDied(message);
 
-            currentJumpsAmount = maxJumpsAmount;
-            isRecoveringJump = false;
-            //Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}|true", ch, MessageProtocol.TCP);
+                currentJumpsAmount = maxJumpsAmount;
+                isRecoveringJump = false;
+                //Util_Server.SendMessageToClient($"{JUMP_AMOUNT}|{currentJumpsAmount}|true", ch, MessageProtocol.TCP);
 
-            revivePlayer = null;
-            revivePlayer = new Task(RevivePlayer);
-            revivePlayer.Start();
+                revivePlayer = null;
+                revivePlayer = new Task(RevivePlayer);
+                revivePlayer.Start();
+            }
+            catch (Exception e) { Console.WriteLine(e); }
         }
 
         // "player_got_hit|12|LightBlue
@@ -210,51 +214,57 @@ namespace ServerCore
 
         async void ChangeScoresOnPlayerDied(string message)
         {
-            if (playroom.matchState != MatchState.InGame) return;
-
-            stats_deaths++;
-
-            UserData newUserData = new UserData(client.userData);
-            newUserData.deaths++;
-            UserData updated = await Client.UpdateUserData(client, newUserData);
-            if (updated == null) Console.WriteLine($"[{DateTime.Now}][DatabaseMessage]: couldn't update user data [deaths] for client [{client.userData.db_id}][{client.userData.nickname}]");
-
-            string[] substrings = message.Split("|");
-            int killerDbId = Int32.Parse(substrings[1]);
-            string deathDetails = substrings[2];
-
-            Player killer = null;
-
-            // find killer player if exists and assign points
-            if (!killerDbId.Equals(-1) && !killerDbId.Equals(""))
+            try
             {
-                foreach(Player pl in playroom.playersInPlayroom)
+                if (playroom.matchState != MatchState.InGame) return;
+
+                stats_deaths++;
+
+                UserData newUserData = new UserData(client.userData);
+                newUserData.deaths++;
+                UserData updated = await Client.UpdateUserData(client, newUserData);
+                if (updated == null) Console.WriteLine($"[{DateTime.Now}][DatabaseMessage]: couldn't update user data [deaths] for client [{client.userData.db_id}][{client.userData.nickname}]");
+
+                string[] substrings = message.Split("|");
+                int killerDbId = Int32.Parse(substrings[1]);
+                string deathDetails = substrings[2];
+
+                Player killer = null;
+
+                // find killer player if exists and assign points
+                if (!killerDbId.Equals(-1) && !killerDbId.Equals(""))
                 {
-                    if (pl.client.userData.db_id == killerDbId) 
+                    foreach (Player pl in playroom.playersInPlayroom)
                     {
-                        killer = pl;
-                        break;
-                    }  
+                        if (pl.client.userData.db_id == killerDbId)
+                        {
+                            killer = pl;
+                            break;
+                        }
+                    }
+                    if (killer != null)
+                    {
+                        killer.stats_kills++;
+
+                        playroom.CheckKillsForFinish();
+
+                        UserData newUserData_2 = new UserData(killer.client.userData);
+                        newUserData_2.kills++;
+                        UserData updated_2 = await Client.UpdateUserData(killer.client, newUserData_2);
+                        if (updated_2 == null) Console.WriteLine($"[{DateTime.Now}][DatabaseMessage]: couldn't update user data [kills] for client [{killer.client.userData.db_id}][{killer.client.userData.nickname}]");
+                    }
                 }
+                playroom.OnScoresChange(null);
+                // player_was_killed_message|playerDeadNickname/playerDeadIP|playerKillerNickname/playerKilledIP|deathDetails
+
                 if (killer != null)
-                {
-                    killer.stats_kills++;
+                    playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{client.userData.nickname}/{client.userData.db_id}|{killer.client.userData.nickname}/{killer.client.userData.nickname}|{deathDetails}", null, MessageProtocol.TCP);
+                else
+                    playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{client.userData.nickname}/{client.userData.db_id}|none/none|{deathDetails}", null, MessageProtocol.TCP);
 
-                    playroom.CheckKillsForFinish();
-
-                    UserData newUserData_2 = new UserData(killer.client.userData);
-                    newUserData_2.kills++;
-                    UserData updated_2 = await Client.UpdateUserData(killer.client, newUserData_2);
-                    if (updated_2 == null) Console.WriteLine($"[{DateTime.Now}][DatabaseMessage]: couldn't update user data [kills] for client [{killer.client.userData.db_id}][{killer.client.userData.nickname}]");
-                }
             }
-            playroom.OnScoresChange(null);
-            // player_was_killed_message|playerDeadNickname/playerDeadIP|playerKillerNickname/playerKilledIP|deathDetails
+            catch (Exception e) { Console.WriteLine(e); }
 
-            if(killer != null)
-                playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{client.userData.nickname}/{client.userData.db_id}|{killer.client.userData.nickname}/{killer.client.userData.nickname}|{deathDetails}", null, MessageProtocol.TCP);
-            else
-                playroom.SendMessageToAllPlayersInPlayroom($"{PLAYER_WAS_KILLED_MESSAGE}|{client.userData.nickname}/{client.userData.db_id}|none/none|{deathDetails}", null, MessageProtocol.TCP);
 
         }
     }
