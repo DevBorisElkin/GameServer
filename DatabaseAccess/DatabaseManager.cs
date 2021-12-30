@@ -160,7 +160,7 @@ namespace DatabaseAccess
         /// <summary>
         /// Updates UserData in database
         /// </summary>
-        public static UserData TryToUpdateUserData(object _userData)
+        public static async Task<UserData> TryToUpdateUserData(object _userData)
         {
             UserData _new = (UserData)_userData;
             int rowsAffected = 0;
@@ -169,7 +169,7 @@ namespace DatabaseAccess
                 MySqlCommand command = new MySqlCommand($"UPDATE MainTable SET login = '{_new.login}', pass = '{_new.password}', " +
                     $"nickname = '{_new.nickname}', access = '{_new.accessRights.ToString().ToLower()}', total_games = '{_new.total_games}'," +
                     $" total_victories = '{_new.total_victories}', kills = '{_new.kills}', deaths = '{_new.deaths}', runes_picked_up = '{_new.runes_picked_up}' where id = '{_new.db_id}'", mySqlConnection);
-                rowsAffected = command.ExecuteNonQuery();
+                rowsAffected = await command.ExecuteNonQueryAsync();
             }
             catch (Exception e)
             {

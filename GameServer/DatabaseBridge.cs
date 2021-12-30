@@ -141,11 +141,12 @@ namespace ServerCore
 
         public static async Task<UserData> UpdateUserData(UserData newData)
         {
-            Task<UserData> task = Task<UserData>.Factory.StartNew(DatabaseManager.TryToUpdateUserData, newData);
-            await task;
+            var task = await DatabaseManager.TryToUpdateUserData(newData);
 
-            if (task.Result.requestResult.Equals(RequestResult.Success))
-                return task.Result;
+            if (task == null) return null;
+
+            if (task.requestResult.Equals(RequestResult.Success))
+                return task;
             else return null;
         }
     }
