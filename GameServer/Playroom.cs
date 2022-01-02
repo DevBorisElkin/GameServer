@@ -231,7 +231,7 @@ namespace ServerCore
                 playerToIgnoreSpawnPos = GetRandomSpawnPointByMap_FarthestPos(map, this, toIgnore);
                 return; 
             }
-
+            // else -> below
             if (PlayersCurrAmount >= playersToStart)
             {
                 matchState = MatchState.JustStarting;
@@ -257,6 +257,11 @@ namespace ServerCore
                         $"{newPosition.X}/{newPosition.Y}/{newPosition.Z}", playersInPlayroom[i].client.ch, MessageProtocol.TCP);
                 }
                 LaunchPlayroomTimer();
+            }
+            else
+            {
+                playerToIgnoreSpawnPos = GetRandomSpawnPointByMap_FarthestPos(map, this, toIgnore);
+                return;
             }
         }
 
