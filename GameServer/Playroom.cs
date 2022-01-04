@@ -118,7 +118,7 @@ namespace ServerCore
         /// <summary>
         /// Returns true if last player leaves it
         /// </summary>
-        public bool RemovePlayer(Client client)
+        public async Task<bool> RemovePlayer(Client client)
         {
             SendMessageToAllPlayersInPlayroom($"{CLIENT_DISCONNECTED_FROM_THE_PLAYROOM}|{playroomID}|{client.userData.nickname}|{client.userData.db_id}", client.player, MessageProtocol.TCP);
             playersInPlayroom.Remove(client.player);
@@ -129,7 +129,7 @@ namespace ServerCore
             // check if we should close playroom
             if (playersInPlayroom.Count <= 0)
             {
-                FinishMatch(MatchFinishReason.Discarded);
+                await FinishMatch(MatchFinishReason.Discarded);
                 Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Last player left playroom with id [{playroomID}], closing it");
                 return true;
             }
@@ -304,15 +304,17 @@ namespace ServerCore
                 }
             }
         }
-        async void FinishMatch(MatchFinishReason finishReason)
+        public async Task FinishMatch(MatchFinishReason finishReason)
         {
             List<Player> winners = DefineWinnersOfTheMatch(finishReason, out int maxKills);
             matchState = MatchState.Finished;
+            int delayMs = 1000;
             if (finishReason.Equals(MatchFinishReason.Discarded) || winners == null || winners.Count == 0)
             {
                 Console.WriteLine($"[{DateTime.Now}][PLAYROOM_MESSAGE]: Finished match with id [{playroomID}], finish reason [{finishReason}], -> No winners");
                 //SendMessageToAllPlayersInPlayroom($"{MATCH_FINISHED}|none|none|{MatchResult.Discarded}", null, MessageProtocol.TCP);
                 SendMessageToAllPlayersInPlayroom(GenerateMatchResultsString("none", "none", MatchResult.Discarded.ToString()), null, MessageProtocol.TCP);
+                delayMs = 0;
             }
             else
             {
@@ -320,6 +322,7 @@ namespace ServerCore
                 string winnerDbId;
                 string winnerNickname;
                 Player winner = null;
+                delayMs = 1000;
                 if (winners.Count > 1)
                 {
                     matchResult = MatchResult.Draw;
@@ -338,8 +341,7 @@ namespace ServerCore
                 SendMessageToAllPlayersInPlayroom(GenerateMatchResultsString(winnerDbId, winnerNickname, matchResult.ToString()), null, MessageProtocol.TCP);
                 await RecordMatchResults(winner);
             }
-            DelayedClosePlayroom = new Task(ClosePlayroomWithDelay);
-            DelayedClosePlayroom.Start();
+            await ClosePlayroomWithDelay(delayMs);
         }
 
         //dbId,nickname,kills,deaths,runes@
@@ -402,9 +404,9 @@ namespace ServerCore
 
         int delayToClosePlayroom = 1000;
         Task DelayedClosePlayroom;
-        void ClosePlayroomWithDelay()
+        async Task ClosePlayroomWithDelay(int delayMs)
         {
-            Thread.Sleep(1000);
+            await Task.Delay(delayMs);
             PlayroomManager.ClosePlayroom(this);
         }
 

@@ -36,7 +36,7 @@ namespace ServerCore
             Util_Server.OnClientDisconnectedEvent += OnClientDisconnected;
         }
 
-        static void ManageRooms()
+        static async void ManageRooms()
         {
             while (true)
             {
@@ -52,7 +52,12 @@ namespace ServerCore
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"[{DateTime.Now}] " + e.ToString());
+                        for (int i = 0; i < playrooms.Count; i++)
+                        {
+                            if (playrooms[i] != null) await playrooms[i].FinishMatch(MatchFinishReason.Discarded);
+                        }
+                        Console.WriteLine($"[{DateTime.Now}] Tried to close all playrooms due to exception: [{e}]");
+                        playrooms = new List<Playroom>();
                     }
                 }
                 Thread.Sleep(500);
@@ -194,7 +199,7 @@ namespace ServerCore
             }
         }
 
-        public static void RequestFromClient_DisconnectFromPlayroom(int playroomId, Client client)
+        public static async void RequestFromClient_DisconnectFromPlayroom(int playroomId, Client client)
         {
             if (client.player == null) return;
             if (client.player.playroom == null) return;
@@ -205,7 +210,9 @@ namespace ServerCore
                 Console.WriteLine($"[{DateTime.Now}][SERVER ERROR]: playroom id of player message and assigned playroom's id are not the same: {client.player.playroom.playroomID} | {playroomId}");
 
             Console.WriteLine($"[{DateTime.Now}][SERVER_MESSAGE]: Client [{client.userData.db_id}][{client.ch.ip}] notified about leaving playroom [{playroomId}]");
-            if (client.player.playroom.RemovePlayer(client)) ClosePlayroom(playroom);
+
+            bool closePlayroom = await client.player.playroom.RemovePlayer(client);
+            //if (closePlayroom) ClosePlayroom(playroom);
         }
         static int GenerateRandomIdForPlayroom()
         {
@@ -235,7 +242,7 @@ namespace ServerCore
             return null;
         }
 
-        static void OnClientDisconnected(ClientHandler ch, string error)
+        static async void OnClientDisconnected(ClientHandler ch, string error)
         {
             Client assignedClient = Client.GetClientByClientHandler(ch);
             if (assignedClient == null) { Console.WriteLine($"[{DateTime.Now}]Error, didn't find client by client handler in Playroom Manager"); return; }
@@ -244,20 +251,40 @@ namespace ServerCore
             if (assignedClient.player.playroom == null) return;
 
             Playroom playroom = assignedClient.player.playroom;
-            if (assignedClient.player.playroom.RemovePlayer(assignedClient)) ClosePlayroom(playroom);
+            bool closePlayroom = await assignedClient.player.playroom.RemovePlayer(assignedClient);
+
+            //if(closePlayroom) ClosePlayroom(playroom);
 
         }
 
         public static void ClosePlayroom(Playroom room)
         {
-            foreach (Player a in room.playersInPlayroom)
+            try
             {
-                a.client.player = null;
-            }
-            room.playersInPlayroom = null;
+                foreach (Player a in room.playersInPlayroom)
+                {
+                    a.client.player = null;
+                }
+                room.playersInPlayroom = null;
 
-            playrooms.Remove(room);
-            room = null;
+                playrooms.Remove(room);
+                room = null;
+            }
+            catch (Exception e) 
+            { 
+                Console.WriteLine($"[{DateTime.Now}], {e}");
+                if (room != null && room.playersInPlayroom != null)
+                {
+                    for (int i = 0; i < room.playersInPlayroom.Count; i++)
+                    {
+                        if (room.playersInPlayroom[i] != null && room.playersInPlayroom[i].client != null && room.playersInPlayroom[i].client.player != null)
+                            room.playersInPlayroom[i].client.player = null;
+                    }
+                    room.playersInPlayroom = null;
+                    playrooms.Remove(room);
+                    room = null;
+                }
+            }
         }
 
         public static void ConsoleCommand_SpawnRune(int playroomId, DataTypes.Rune runeType)
