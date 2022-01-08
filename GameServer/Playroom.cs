@@ -88,6 +88,7 @@ namespace ServerCore
         public void ManageRoom()
         {
             if (playersInPlayroom == null || playersInPlayroom.Count == 0) return;
+            
             if(PlayersCurrAmount >= 1)
             {
                 foreach(Player a in playersInPlayroom)
@@ -350,11 +351,17 @@ namespace ServerCore
             StringBuilder sb = new StringBuilder();
             sb.Append($"{MATCH_FINISHED}|{winnerDbId}|{winnerNickname}|{matchResult}|");
 
-            for (int i = 0; i < playersInPlayroom.Count; i++)
+            if(playersInPlayroom != null && playersInPlayroom.Count > 0)
             {
-                sb.Append($"{playersInPlayroom[i].client.userData.db_id},{playersInPlayroom[i].client.userData.nickname},{playersInPlayroom[i].stats_kills},{playersInPlayroom[i].stats_deaths},{playersInPlayroom[i].stats_runesPickedUp}");
-                if (i != playersInPlayroom.Count - 1)
-                    sb.Append("@");
+                for (int i = 0; i < playersInPlayroom.Count; i++)
+                {
+                    if(playersInPlayroom[i] != null && playersInPlayroom[i].client != null && playersInPlayroom[i].playroom != null)
+                    {
+                        sb.Append($"{playersInPlayroom[i].client.userData.db_id},{playersInPlayroom[i].client.userData.nickname},{playersInPlayroom[i].stats_kills},{playersInPlayroom[i].stats_deaths},{playersInPlayroom[i].stats_runesPickedUp}");
+                        if (i != playersInPlayroom.Count - 1)
+                            sb.Append("@");
+                    }
+                }
             }
 
             return sb.ToString();

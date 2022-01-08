@@ -46,7 +46,7 @@ namespace ServerCore
                     {
                         foreach (var a in playrooms)
                         {
-                            if (a != null) a.ManageRoom();
+                            if (a != null && a.matchState != MatchState.Finished) a.ManageRoom();
                         }
                         Thread.Sleep(20);  // old was 50 [20 times per second], now 20 [50 times per second]
                     }
